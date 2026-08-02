@@ -1,6 +1,6 @@
-# [Project name]
+# Archin Architecture Studio
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A premium architecture studio website for Roar Architects, featuring cursor-reactive animated SVG lines, scroll-triggered text reveals, full 3-image building grids, and rich pointer/scroll interactivity throughout.
 
 ## Run & Operate
 

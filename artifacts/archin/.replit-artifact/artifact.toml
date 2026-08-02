@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Archin Architecture Studio"
+description = "A premium architecture studio website for Archin/Roar Architects, featuring animated flowing curved SVG lines that react to cursor and scroll, scroll-triggered text reveals, a 3-image buildings gallery with full images, and rich pointer-driven interactivity throughout all sections."
+version = "1.0.0"
+id = "artifacts/archin"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21820
+
+[services.development]
+run = "pnpm --filter @workspace/archin run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/archin", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/archin/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21820"
+BASE_PATH = "/"
