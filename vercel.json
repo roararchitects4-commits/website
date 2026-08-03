@@ -1,0 +1,6 @@
+{
+  "installCommand": "corepack enable && pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm --filter @workspace/archin run build",
+  "outputDirectory": "artifacts/archin/dist/public",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
