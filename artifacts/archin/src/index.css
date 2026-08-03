@@ -51,7 +51,58 @@
   }
 }
 
-/* Drawing board path animation */
+/* ═══════════════════════════════════════════
+   HERO / SITE HEADER
+═══════════════════════════════════════════ */
+
+/* Blueprint-paper background for the whole header + hero */
+.site-header,
+.hero-section {
+  background-color: #ffffff;
+}
+
+/* Subtle grid lines (blueprint paper feel) */
+.hero-section {
+  background-image:
+    linear-gradient(rgba(70, 58, 44, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(70, 58, 44, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Big "INSPIRE." headline */
+.hero-headline {
+  font-size: clamp(44px, 6vw, 72px);
+}
+
+/* ROAR wordmark */
+.hero-roar-name {
+  font-size: clamp(60px, 8.5vw, 112px);
+}
+
+/* Stat numbers */
+.hero-stat-value {
+  font-size: clamp(26px, 3vw, 40px);
+}
+
+/* CTA link — underline effect */
+.hero-cta {
+  border-bottom: 1.5px solid currentColor;
+  padding-bottom: 2px;
+}
+
+/* Vertical text: left label (reads bottom-to-top) */
+.hero-vert-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* Vertical text: right SCROLL (reads top-to-bottom) */
+.hero-vert-scroll {
+  writing-mode: vertical-rl;
+}
+
+/* ─────────────────────────────────────────────
+   Drawing board path animation */
 .path-draw {
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;

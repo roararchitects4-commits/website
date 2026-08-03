@@ -67,8 +67,15 @@ export function About() {
   };
 
   return (
-    <section id="studio" className="relative bg-background py-[70px] px-[max(20px,4vw)] overflow-hidden flex items-center">
-      <AnimatedLines className="z-0" revealDelay={1.6} />
+    <section id="studio" className="relative bg-white py-[70px] px-[max(20px,4vw)] overflow-hidden flex items-center">
+      <AnimatedLines
+        className="z-0"
+        revealDelay={1.6}
+        lines={[
+          { start: [-0.2, 1.2], cp1: [0.4, 1.1], cp2: [0.6, 0.05], end: [1.2, -0.05] },
+          { start: [1.2, 1.05], cp1: [0.5, 1.1], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
+        ]}
+      />
 
       <div className="max-w-[1200px] mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10">
 

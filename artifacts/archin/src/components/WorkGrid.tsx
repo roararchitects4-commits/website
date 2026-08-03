@@ -102,7 +102,7 @@ export function WorkGrid() {
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
 
   return (
-    <section id="work" className="pt-[100px] pb-[60px] px-[max(22px,5vw)] bg-background relative z-10 overflow-hidden">
+    <section id="work" className="pt-[100px] pb-[60px] px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
       <AnimatedLines
         className="z-0"
         scrollDraw

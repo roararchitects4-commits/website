@@ -9,7 +9,7 @@ interface StatementProps {
 
 export function Statement({ quote, kicker }: StatementProps) {
   return (
-    <section className="min-h-[46vh] flex flex-col items-center justify-center text-center px-[max(22px,8vw)] py-20 bg-background relative z-10">
+    <section className="min-h-[28vh] flex flex-col items-center justify-center text-center px-[max(22px,8vw)] py-10 bg-white relative z-10">
       <FadeIn className="max-w-[1000px] w-full flex flex-col items-center">
         {kicker && (
           <div className="flex flex-col items-center mb-8">
