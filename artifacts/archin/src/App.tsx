@@ -220,7 +220,7 @@ function HeroSection() {
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] items-center px-5 sm:px-8 lg:px-10 py-6 gap-x-6 gap-y-10">
 
           {/* ── Left: headline + body, with sketch below ── */}
-          <div className="flex flex-col justify-center z-10 sm:pr-4 order-1 lg:translate-x-8">
+          <div className="flex flex-col justify-center z-10 sm:pr-4 order-2 lg:order-1 lg:translate-x-8">
             <p className="font-sans text-[11px] tracking-[0.28em] text-[#2a2420] opacity-55 uppercase mb-2">
               Designing Spaces That
             </p>
@@ -265,7 +265,7 @@ function HeroSection() {
           </div>
 
           {/* ── Right: ROAR brand + stats, nudged left ── */}
-          <div className="flex flex-col justify-center sm:pl-6 lg:pl-8 order-3 lg:translate-x-6">
+          <div className="flex flex-col justify-center sm:pl-6 lg:pl-8 order-1 lg:order-3 lg:translate-x-6">
 
             {/* Logo + name */}
             <div className="flex items-center gap-3 sm:gap-4 mb-5">

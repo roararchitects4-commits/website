@@ -19,6 +19,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: 34 31% 97%; /* #FBF8F4 */
   --secondary-bg: 35 39% 90%; /* #F1E8DB */
   --foreground: 24 14% 15%; /* #2A2420 */

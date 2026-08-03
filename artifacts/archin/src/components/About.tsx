@@ -69,7 +69,7 @@ export function About() {
   return (
     <section id="studio" className="relative bg-white py-[70px] px-[max(20px,4vw)] overflow-hidden flex items-center">
       <AnimatedLines
-        className="z-0"
+        className="z-0 hidden lg:block"
         revealDelay={1.6}
         lines={[
           { start: [-0.2, 1.2], cp1: [0.4, 1.0], cp2: [0.6, -0.2], end: [1.2, -0.3] },
