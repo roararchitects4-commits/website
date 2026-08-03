@@ -21,7 +21,7 @@ export function Statement({ quote, kicker }: StatementProps) {
         )}
         <TypewriterText
           tag="h2"
-          className="font-serif font-light text-[clamp(30px,4.5vw,70px)] leading-[1.15] text-muted"
+          className="font-serif font-light text-[clamp(22px,3vw,44px)] leading-[1.2] text-muted"
           text={quote}
           speed={22}
           delay={150}

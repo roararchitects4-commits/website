@@ -16,7 +16,7 @@ export function CTA() {
   };
 
   return (
-    <section id="contact" className="min-h-[44vh] flex flex-col items-center justify-center text-center py-20 px-[22px] bg-secondary-bg">
+    <section id="contact" className="min-h-[44vh] flex flex-col items-center justify-center text-center py-20 px-[22px] bg-white">
       <FadeIn className="flex flex-col items-center w-full max-w-[820px]">
         <TypewriterText
           tag="h2"
@@ -42,7 +42,7 @@ export function CTA() {
             />
             <button
               type="submit"
-              className="inline-block mt-6 sm:mt-0 text-[13px] tracking-[0.34em] font-normal uppercase border border-accent py-5 px-[52px] text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full cursor-none"
+              className="inline-block mt-6 sm:mt-0 text-[13px] tracking-[0.34em] font-normal uppercase border border-accent py-5 px-[52px] text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full"
             >
               Submit
             </button>

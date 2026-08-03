@@ -1,12 +1,10 @@
 import React from 'react';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { PageTransition } from './components/PageTransition';
-import { CustomCursor } from './components/CustomCursor';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Statement } from './components/Statement';
-import { DrawingBoard } from './components/DrawingBoard';
 import { WorkGrid } from './components/WorkGrid';
 import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
@@ -14,7 +12,6 @@ import { Footer } from './components/Footer';
 function Home() {
   return (
     <div className="relative bg-background">
-      <CustomCursor />
       <PageTransition />
       <Header />
       
@@ -27,8 +24,6 @@ function Home() {
           quote="We design buildings that belong to their site and their climate — creating timeless spaces that remain as relevant in fifty years as on the day of handover."
         />
 
-        <DrawingBoard />
-        
         <WorkGrid />
 
         <Statement

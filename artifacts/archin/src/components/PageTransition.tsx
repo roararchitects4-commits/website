@@ -17,13 +17,13 @@ export function PageTransition() {
         isLeaving ? 'pointer-events-none' : 'pointer-events-auto'
       }`}
       style={{
-        clipPath: isLeaving 
-          ? 'ellipse(78vw 68vh at 50% -85vh)' 
+        clipPath: isLeaving
+          ? 'ellipse(78vw 68vh at 50% -85vh)'
           : 'ellipse(78vw 68vh at 50% 50%)'
       }}
       aria-hidden="true"
     >
-      <span 
+      <span
         className={`text-white text-[11px] font-sans tracking-[0.5em] pl-[0.5em] uppercase transition-opacity duration-500 ${
           isLeaving ? 'opacity-0' : 'opacity-100'
         }`}

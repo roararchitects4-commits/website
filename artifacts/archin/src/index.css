@@ -51,16 +51,6 @@
   }
 }
 
-/* Hide default cursor to use custom cursor */
-@media (pointer: fine) {
-  body {
-    cursor: none;
-  }
-  a, button, [role="button"] {
-    cursor: none;
-  }
-}
-
 /* Drawing board path animation */
 .path-draw {
   stroke-dasharray: 1000;

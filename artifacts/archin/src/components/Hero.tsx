@@ -1,50 +1,73 @@
 import React from 'react';
-import { Ticker } from './Ticker';
-import heroImage from '@assets/homeimage.jpeg';
+import housePlan from '@assets/house-plan.png';
+import logo from '@/assets/logo.png';
 
+const TICKER_TERMS = [
+  'AESTHETIC', 'ACOUSTICS', 'ARCH', 'ASYMMETRY', 'ATRIUM', 'BALCONY', 'BARREL VAULT', 'BASEMENT',
+  'BAY', 'BEAM', 'BRICKWORK', 'BUILDING CODE', 'BUTTRESS', 'CANTILEVER', 'CAPITAL', 'CARVING',
+  'CAST IRON', 'CEILING', 'CHANDELIER', 'CHIMNEY', 'CLASSICAL', 'CLADDING', 'CLERESTORY', 'CLOISTER',
+  'COLONNADE', 'CONCRETE', 'CONSTRUCTION', 'CORNICE', 'COURTYARD', 'CUPOLA', 'CURTAIN WALL',
+  'DOME', 'DOOR', 'DORIC', 'EAVES', 'ECO FRIENDLY', 'EMBELLISHMENT', 'ENERGY EFFICIENCY', 'ENTRANCE',
+  'ENVIRONMENTAL CONTROL', 'EROSION', 'EXTERIOR', 'FACADE', 'FANLIGHT', 'FENESTRATION',
+  'FIBER CEMENT', 'FIRE SAFETY', 'FLOOR PLAN', 'FOOTING', 'FOUNDATION', 'FOYER', 'FRAME',
+  'FRENCH DOORS', 'FRONTISPIECE', 'GABLE', 'GAMBREL ROOF', 'GARDEN', 'GEODESIC DOME', 'GLASS',
+  'GOTHIC', 'GREEN ROOF', 'GRILLE', 'GROTTO', 'GUTTERS', 'HALF-TIMBERED', 'HARDWARE', 'HATCH',
+  'HEATING', 'HIP ROOF', 'HOUSEWRAP', 'I-BEAM', 'ICONIC', 'IONIC', 'IRONWORK', 'JOIST', 'KEYSTONE',
+  'LANTERN', 'LATTICE', 'LAYLIGHT', 'LEADED GLASS', 'LIGHT WELL', 'LINTEL', 'LOGGIA', 'LOUVER',
+  'MANSARD ROOF', 'MATERIALS', 'MOLDING', 'MOSAIC', 'MULLION', 'NEOCLASSICAL', 'NEW CLASSICAL',
+  'OCTAGON', 'ORDER', 'ORIENTATION', 'PALLADIAN', 'PEDIMENT', 'PILOTIS',
+];
+
+function ArkTickerTrack() {
+  return (
+    <div className="flex items-center flex-none animate-[arkTickerScroll_140s_linear_infinite]">
+      {TICKER_TERMS.map((term, idx) => (
+        <span key={idx} className="flex items-center flex-none">
+          <span className="text-[16px] md:text-[20px] font-bold uppercase tracking-[0.02em] whitespace-nowrap">
+            {term}
+          </span>
+          <span className="text-[16px] md:text-[20px] font-bold text-ink/40 px-4 flex-none">/</span>
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export function Hero() {
   return (
-    <section id="top" className="relative h-[100dvh] w-full overflow-hidden bg-ink">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-ink flex items-center justify-center">
-        <img
-          src={heroImage}
-          alt="Modern building exterior"
-          className="absolute inset-0 w-full h-full object-cover opacity-90 animate-[slowPan_20s_linear_infinite_alternate]"
-          style={{ filter: 'brightness(1.35)' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/45 via-ink/25 to-ink/80 mix-blend-multiply" />
-      </div>
-
-      <div className="absolute inset-0 z-20 flex flex-col justify-end p-[max(24px,4vw)] pb-[12vh]">
-        <div className="max-w-4xl text-white">
-          <h1 className="font-serif font-light text-[clamp(40px,7vw,90px)] leading-[1.05] mb-6">
-            Architecture for a <em className="italic font-light">changing</em> world.
-          </h1>
+    <section id="top" className="relative w-full min-h-screen flex flex-col justify-center bg-[#f4f3f0] text-ink">
+      <div className="pt-20 pb-16">
+        {/* Illustration + ticker card - full viewport width */}
+        <div className="relative w-screen left-1/2 -translate-x-1/2 bg-[#f4f3f0] overflow-hidden">
+          <div className="relative z-10 flex items-start justify-between pl-[max(22px,5vw)] pr-[max(22px,5vw)] pt-2 -mb-20 md:-mb-28 pointer-events-none">
+            <img
+              src={housePlan}
+              alt="Architectural building illustration"
+              className="w-[38%] max-w-[900px] mt-6 md:mt-10 select-none"
+            />
+            <div className="hidden md:flex items-start gap-5 text-left mr-[8vw] lg:mr-[14vw]">
+              <img src={logo} alt="" className="w-20 lg:w-28 h-auto flex-none" aria-hidden="true" />
+              <span className="font-sans font-extrabold uppercase leading-none tracking-tight">
+                <span className="block text-[clamp(36px,6vw,96px)]">ROAR</span>
+                <span className="block font-light text-[clamp(16px,2.2vw,34px)] tracking-[0.2em] mt-2">
+                  ARCHITECTS
+                </span>
+              </span>
+            </div>
+          </div>
+          <div className="relative border-t-2 border-b-2 border-ink py-8 md:py-10 overflow-hidden">
+            <div className="flex w-max">
+              <ArkTickerTrack />
+              <ArkTickerTrack />
+            </div>
+          </div>
         </div>
-
-        <div className="relative left-1/2 -translate-x-1/2 w-screen mt-2">
-          <Ticker />
-        </div>
       </div>
 
-      <div className="absolute bottom-[40px] right-[max(24px,4vw)] z-20 flex flex-col items-center">
-        <span className="text-[9px] tracking-[0.4em] text-white/60 [writing-mode:vertical-rl] rotate-180 mb-4">
-          SCROLL
-        </span>
-        <div className="w-[1px] h-[40px] bg-gradient-to-b from-accent to-transparent origin-top animate-[bounceY_2s_ease-in-out_infinite]" />
-      </div>
-
-      
       <style>{`
-        @keyframes slowPan {
-          0% { transform: scale(1.02) translate(0, 0); }
-          100% { transform: scale(1.02) translate(-1%, 1%); }
-        }
-        @keyframes bounceY {
-          0%, 100% { transform: scaleY(0.35); }
-          50% { transform: scaleY(1); }
+        @keyframes arkTickerScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
         }
       `}</style>
     </section>
