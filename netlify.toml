@@ -1,0 +1,11 @@
+[build]
+  command = "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/archin run build"
+  publish = "artifacts/archin/dist/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
