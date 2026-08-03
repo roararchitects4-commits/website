@@ -9,7 +9,7 @@ function FooterMarqueeTrack() {
       {MARQUEE_WORDS.map((word, idx) => (
         <span
           key={idx}
-          className="text-[14vw] md:text-[8vw] font-extrabold uppercase leading-none px-6 flex-none text-ink"
+          className="text-[9vw] md:text-[5vw] font-extrabold uppercase leading-none px-6 flex-none text-ink"
           style={
             idx % 2 === 0
               ? { WebkitTextStroke: '1.5px var(--color-ink)', color: 'transparent' }
