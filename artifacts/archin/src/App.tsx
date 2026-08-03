@@ -294,7 +294,7 @@ function HeroSection() {
             </p>
 
             {/* Stats */}
-            <div className="flex items-stretch border-t border-[rgba(42,36,32,0.12)] mt-6">
+            <div className="flex items-stretch justify-between border-t border-[rgba(42,36,32,0.12)] mt-6">
               {STATS.map((stat, i) => (
                 <StatItem key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} bordered={i > 0} />
               ))}
