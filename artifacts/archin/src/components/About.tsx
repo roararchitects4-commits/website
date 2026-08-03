@@ -72,7 +72,7 @@ export function About() {
         className="z-0"
         revealDelay={1.6}
         lines={[
-          { start: [-0.2, 1.2], cp1: [0.4, 1.1], cp2: [0.6, 0.05], end: [1.2, -0.05] },
+          { start: [-0.2, 1.2], cp1: [0.4, 1.0], cp2: [0.6, -0.2], end: [1.2, -0.3] },
           { start: [1.2, 1.05], cp1: [0.5, 1.1], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
         ]}
       />
@@ -82,12 +82,12 @@ export function About() {
         {/* Left: Years of Experience */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1">
           <FadeIn>
-            <h3 className="text-[10px] tracking-[0.2em] uppercase text-ink font-medium mb-3">
-              Years of<br />Experience
-            </h3>
-            <div ref={experienceRef} className="text-[clamp(64px,8vw,110px)] font-sans font-light leading-none text-accent">
+            <div ref={experienceRef} className="text-[clamp(64px,8vw,110px)] font-sans font-light leading-none text-accent mt-12">
               {experience}
             </div>
+            <h3 className="text-[10px] tracking-[0.2em] uppercase text-ink font-medium mt-3 lg:ml-[clamp(14px,2vw,28px)]">
+              Years of<br />Experience
+            </h3>
           </FadeIn>
         </div>
 

@@ -13,6 +13,8 @@ interface AnimatedLinesProps {
   revealDelay?: number;
   /** When true, lines draw themselves progressively as the user scrolls through this section, instead of a timed reveal. */
   scrollDraw?: boolean;
+  /** When true, the scroll-based line offset is measured from this section's own position instead of the page's total scroll — keeps the offset small for sections far down the page. */
+  localScrollOffset?: boolean;
 }
 
 function ScrollDrawnPath({ containerRef, index }: { containerRef: React.RefObject<HTMLDivElement | null>; index: number }) {
@@ -35,7 +37,7 @@ function ScrollDrawnPath({ containerRef, index }: { containerRef: React.RefObjec
   );
 }
 
-export function AnimatedLines({ className = '', lines = [], revealDelay, scrollDraw }: AnimatedLinesProps) {
+export function AnimatedLines({ className = '', lines = [], revealDelay, scrollDraw, localScrollOffset = false }: AnimatedLinesProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -64,11 +66,17 @@ export function AnimatedLines({ className = '', lines = [], revealDelay, scrollD
       mouseX += (targetX - mouseX) * 0.05;
       mouseY += (targetY - mouseY) * 0.05;
 
-      const scrollY = window.scrollY;
-
       if (svgRef.current) {
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
+
+        // How far this section itself has scrolled through the viewport (not the
+        // page's total scroll), so the offset stays small regardless of how far
+        // down the page the section sits — otherwise lines in sections further
+        // down the page drift far enough to spill past their intended bounds.
+        const containerTop = containerRef.current?.getBoundingClientRect().top ?? 0;
+        const localScroll = Math.max(0, -containerTop);
+        const scrollBasis = localScrollOffset ? localScroll : window.scrollY;
 
         const paths = svgRef.current.querySelectorAll('path');
 
@@ -77,7 +85,7 @@ export function AnimatedLines({ className = '', lines = [], revealDelay, scrollD
             // Apply offset based on mouse position and scroll position
             const offsetX = (mouseX - 0.5) * width * 0.15;
             const offsetY = (mouseY - 0.5) * height * 0.15;
-            const scrollOffset = scrollY * 0.05 * (i % 2 === 0 ? 1 : -1);
+            const scrollOffset = scrollBasis * 0.05 * (i % 2 === 0 ? 1 : -1);
 
             const p = {
               x1: line.start[0] * width,
