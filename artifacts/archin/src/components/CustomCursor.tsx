@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const [isHoveringLink, setIsHoveringLink] = useState(false);
-  const [isHoveringImage, setIsHoveringImage] = useState(false);
 
   useEffect(() => {
     let mouseX = window.innerWidth / 2;
@@ -31,12 +30,8 @@ export function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
       const isLink = target.closest('a') || target.closest('button');
       setIsHoveringLink(!!isLink);
-
-      const isImage = target.closest('[data-cursor="view"]');
-      setIsHoveringImage(!!isImage);
     };
 
     window.addEventListener('mouseover', handleMouseOver);
@@ -52,9 +47,7 @@ export function CustomCursor() {
       ref={cursorRef}
       className={`fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center rounded-full transition-all duration-300 ease-out
         ${
-          isHoveringImage
-            ? 'w-20 h-20 bg-white text-ink shadow-lg mix-blend-normal'
-            : isHoveringLink
+          isHoveringLink
             ? 'w-8 h-8 bg-accent mix-blend-normal'
             : 'w-4 h-4 bg-white mix-blend-difference'
         }
@@ -62,12 +55,6 @@ export function CustomCursor() {
       style={{
         transform: 'translate3d(0, 0, 0) translate(-50%, -50%)'
       }}
-    >
-      {isHoveringImage && (
-        <span className="text-[9px] font-sans tracking-[0.2em] font-medium opacity-100">
-          VIEW
-        </span>
-      )}
-    </div>
+    />
   );
 }

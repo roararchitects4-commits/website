@@ -1,8 +1,9 @@
 import React from 'react';
 import { FadeIn } from './FadeIn';
+import { TypewriterText } from './TypewriterText';
 
 interface StatementProps {
-  quote: React.ReactNode;
+  quote: string;
   kicker?: string;
 }
 
@@ -18,9 +19,13 @@ export function Statement({ quote, kicker }: StatementProps) {
             </span>
           </div>
         )}
-        <h2 className="font-serif font-light text-[clamp(30px,4.5vw,70px)] leading-[1.15] text-muted">
-          {quote}
-        </h2>
+        <TypewriterText
+          tag="h2"
+          className="font-serif font-light text-[clamp(30px,4.5vw,70px)] leading-[1.15] text-muted"
+          text={quote}
+          speed={22}
+          delay={150}
+        />
       </FadeIn>
     </section>
   );

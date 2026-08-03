@@ -1,5 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedLines } from './AnimatedLines';
 
@@ -26,11 +27,12 @@ interface WorkRowProps {
   label: string;
   items: WorkItem[];
   reverseDelay?: boolean;
+  onOpen: (item: WorkItem) => void;
 }
 
-function WorkRow({ label, items, reverseDelay }: WorkRowProps) {
+function WorkRow({ label, items, reverseDelay, onOpen }: WorkRowProps) {
   return (
-    <div className="max-w-[1520px] mx-auto mb-[100px] last:mb-0">
+    <div className="max-w-[1680px] mx-auto mb-[100px] last:mb-0">
       <FadeIn yOffset={20}>
         <div className="flex items-center gap-3 mb-6">
           <span className="w-[22px] h-[1px] bg-accent flex-none" />
@@ -39,30 +41,38 @@ function WorkRow({ label, items, reverseDelay }: WorkRowProps) {
           </span>
         </div>
       </FadeIn>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-[clamp(18px,2.6vw,34px)]">
         {items.map((item, idx) => {
           const delay = reverseDelay ? (2 - idx) * 0.15 : idx * 0.15;
           return (
-            <FadeIn key={item.id} delay={delay} yOffset={40} className="w-full">
-              <figure className="group w-full cursor-none">
-                <div className="overflow-hidden aspect-[4/5] bg-secondary-bg relative" data-cursor="view">
-                  <motion.img 
-                    src={item.img} 
-                    alt={item.title}
-                    className="w-full h-full object-cover will-change-transform scale-105"
-                    whileHover={{ scale: 1, filter: 'saturate(0.95) contrast(1.02)' }}
-                    transition={{ duration: 1.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-                  />
-                </div>
-                <figcaption className="mt-4 text-[11px] tracking-[0.03em] text-muted leading-relaxed">
-                  <b className="block font-serif italic text-[15px] text-ink mb-1 font-normal tracking-normal">
-                    {item.title}
-                  </b>
-                  {item.desc}
-                </figcaption>
-              </figure>
-            </FadeIn>
+            <motion.figure
+              key={item.id}
+              className="group w-full max-w-[460px] mx-auto cursor-pointer"
+              initial={{ x: -140, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.9, delay, type: 'spring', stiffness: 90, damping: 16 }}
+              onClick={() => onOpen(item)}
+            >
+              <motion.div
+                className="overflow-hidden aspect-[4/5] bg-secondary-bg relative rounded-[2.5rem] shadow-2xl will-change-transform border border-white/10"
+                whileHover={{ scale: 1.14 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-700"
+                />
+              </motion.div>
+              <figcaption className="mt-4 text-[11px] tracking-[0.03em] text-muted leading-relaxed">
+                <b className="block font-serif italic text-[15px] text-ink mb-1 font-normal tracking-normal">
+                  {item.title}
+                </b>
+                {item.desc}
+              </figcaption>
+            </motion.figure>
           );
         })}
       </div>
@@ -89,14 +99,69 @@ export function WorkGrid() {
     { id: 'l3', img: land3, title: 'Zen Courtyard', desc: 'Minimalist Japanese courtyard with raked gravel and specimen maple.' }
   ];
 
+  const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
+
   return (
-    <section id="work" className="py-[100px] px-[max(22px,5vw)] bg-background relative z-10 overflow-hidden">
-      <AnimatedLines className="z-0 opacity-50" />
+    <section id="work" className="pt-[100px] pb-[60px] px-[max(22px,5vw)] bg-background relative z-10 overflow-hidden">
+      <AnimatedLines
+        className="z-0"
+        scrollDraw
+        lines={[
+          { start: [-0.2, 1.2], cp1: [0.4, 1.1], cp2: [0.6, -0.1], end: [1.2, -0.2] },
+          { start: [1.2, 0.8], cp1: [0.5, 0.9], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
+          { start: [-0.2, 0.15], cp1: [0.3, 0.4], cp2: [0.7, -0.15], end: [1.2, 0.1] },
+          { start: [1.2, 0.55], cp1: [0.75, 0.35], cp2: [0.35, 0.85], end: [-0.2, 0.65] },
+          { start: [0.1, -0.2], cp1: [0.25, 0.5], cp2: [0.65, 0.92], end: [0.38, 0.92] },
+          { start: [-0.2, 0.55], cp1: [0.2, 0.75], cp2: [0.5, 0.25], end: [1.2, 0.45] },
+          { start: [0.9, -0.2], cp1: [0.65, 0.3], cp2: [0.35, 0.92], end: [0.62, 0.92] },
+          { start: [1.2, 0.2], cp1: [0.8, 0.05], cp2: [0.4, 0.5], end: [-0.2, 0.9] },
+          { start: [-0.15, 0.02], cp1: [0.2, 0.3], cp2: [0.5, -0.1], end: [1.15, 0.35] },
+          { start: [0.05, -0.05], cp1: [0.3, 0.25], cp2: [0.6, 0.5], end: [0.2, 1.15] },
+          { start: [0.3, 0.05], cp1: [0.55, 0.35], cp2: [0.75, 0.1], end: [1.15, 0.6] },
+          { start: [0.5, -0.1], cp1: [0.65, 0.4], cp2: [0.35, 0.7], end: [0.8, 1.2] },
+          { start: [0.7, 0.0], cp1: [0.9, 0.3], cp2: [0.6, 0.55], end: [1.15, 0.85] },
+          { start: [0.9, 0.05], cp1: [0.6, 0.4], cp2: [0.3, 0.2], end: [-0.15, 0.5] },
+          { start: [1.1, -0.05], cp1: [0.8, 0.35], cp2: [0.5, 0.15], end: [0.05, 0.75] },
+          { start: [-0.1, 0.1], cp1: [0.15, 0.45], cp2: [0.45, 0.15], end: [0.75, 0.55] },
+          { start: [0.2, 0.0], cp1: [0.45, 0.35], cp2: [0.15, 0.65], end: [0.55, 1.15] },
+          { start: [1.0, 0.0], cp1: [0.75, 0.35], cp2: [0.95, 0.7], end: [0.4, 1.1] },
+        ]}
+      />
       <div className="relative z-10">
-        <WorkRow label="Architecture" items={architecture} />
-        <WorkRow label="Interiors" items={interiors} reverseDelay />
-        <WorkRow label="Landscaping" items={landscaping} />
+        <WorkRow label="Architecture" items={architecture} reverseDelay={false} onOpen={setActiveItem} />
+        <WorkRow label="Interiors" items={interiors} reverseDelay onOpen={setActiveItem} />
+        <WorkRow label="Landscaping" items={landscaping} reverseDelay={false} onOpen={setActiveItem} />
       </div>
+
+      {createPortal(
+        <AnimatePresence>
+          {activeItem && (
+            <motion.div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveItem(null)}
+            >
+              <motion.div
+                className="max-w-[90vw] max-h-[90vh] overflow-hidden rounded-[2rem] bg-black shadow-[0_0_80px_rgba(0,0,0,0.85)]"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <img
+                  src={activeItem.img}
+                  alt={activeItem.title}
+                  className="w-full h-full object-contain"
+                />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </section>
   );
 }

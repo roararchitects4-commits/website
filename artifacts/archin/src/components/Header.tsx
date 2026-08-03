@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import logo from '@/assets/logo.png';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,11 +43,7 @@ export function Header() {
           </button>
           
           <a href="#top" className="flex items-center gap-[11px] text-[17px] font-extralight tracking-[0.4em] z-50 relative">
-            <svg className="w-[23px] h-auto text-accent flex-none" viewBox="0 0 42 46" aria-hidden="true">
-              <path d="M15,2 31,16 14,16 Z" fill="currentColor" stroke="none" />
-              <path d="M15 2 L13 44" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M31 16 L36 44" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <img src={logo} alt="" className="w-[23px] h-auto flex-none" aria-hidden="true" />
             <span><strong className="font-medium">ROAR</strong> ARCHITECTS</span>
           </a>
         </div>

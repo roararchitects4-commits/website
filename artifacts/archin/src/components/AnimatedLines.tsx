@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface AnimatedLinesProps {
   className?: string;
@@ -8,11 +9,36 @@ interface AnimatedLinesProps {
     cp2: [number, number];
     end: [number, number];
   }[];
+  /** When set, lines stay hidden and draw themselves in on scroll after this delay (seconds) instead of always being visible. */
+  revealDelay?: number;
+  /** When true, lines draw themselves progressively as the user scrolls through this section, instead of a timed reveal. */
+  scrollDraw?: boolean;
 }
 
-export function AnimatedLines({ className = '', lines = [] }: AnimatedLinesProps) {
+function ScrollDrawnPath({ containerRef, index }: { containerRef: React.RefObject<HTMLDivElement | null>; index: number }) {
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start end', 'end start'],
+  });
+
+  const start = index * 0.045;
+  const pathLength = useTransform(scrollYProgress, [start, start + 0.5], [0, 1]);
+  const opacity = useTransform(scrollYProgress, [start, start + 0.08], [0, 0.6]);
+
+  return (
+    <motion.path
+      fill="none"
+      stroke="var(--color-accent)"
+      strokeWidth="3"
+      style={{ pathLength, opacity }}
+    />
+  );
+}
+
+export function AnimatedLines({ className = '', lines = [], revealDelay, scrollDraw }: AnimatedLinesProps) {
   const svgRef = useRef<SVGSVGElement>(null);
-  
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Default lines if none provided: sweeping architectural curves
   const defaultLines = lines.length > 0 ? lines : [
     { start: [-0.2, 1.2], cp1: [0.4, 1.1], cp2: [0.6, -0.1], end: [1.2, -0.2] },
@@ -24,35 +50,35 @@ export function AnimatedLines({ className = '', lines = [] }: AnimatedLinesProps
     let mouseY = 0.5;
     let targetX = 0.5;
     let targetY = 0.5;
-    
+
     const handleMouseMove = (e: MouseEvent) => {
       targetX = e.clientX / window.innerWidth;
       targetY = e.clientY / window.innerHeight;
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
-    
+
     let animationFrameId: number;
-    
+
     const render = () => {
       mouseX += (targetX - mouseX) * 0.05;
       mouseY += (targetY - mouseY) * 0.05;
-      
+
       const scrollY = window.scrollY;
-      
+
       if (svgRef.current) {
         const width = svgRef.current.clientWidth;
         const height = svgRef.current.clientHeight;
-        
+
         const paths = svgRef.current.querySelectorAll('path');
-        
+
         defaultLines.forEach((line, i) => {
           if (paths[i]) {
             // Apply offset based on mouse position and scroll position
             const offsetX = (mouseX - 0.5) * width * 0.15;
             const offsetY = (mouseY - 0.5) * height * 0.15;
             const scrollOffset = scrollY * 0.05 * (i % 2 === 0 ? 1 : -1);
-            
+
             const p = {
               x1: line.start[0] * width,
               y1: line.start[1] * height + scrollOffset,
@@ -63,7 +89,7 @@ export function AnimatedLines({ className = '', lines = [] }: AnimatedLinesProps
               x2: line.end[0] * width,
               y2: line.end[1] * height + scrollOffset,
             };
-            
+
             paths[i].setAttribute(
               'd',
               `M ${p.x1},${p.y1} C ${p.cx1},${p.cy1} ${p.cx2},${p.cy2} ${p.x2},${p.y2}`
@@ -71,12 +97,12 @@ export function AnimatedLines({ className = '', lines = [] }: AnimatedLinesProps
           }
         });
       }
-      
+
       animationFrameId = requestAnimationFrame(render);
     };
-    
+
     render();
-    
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
@@ -84,21 +110,40 @@ export function AnimatedLines({ className = '', lines = [] }: AnimatedLinesProps
   }, [defaultLines]);
 
   return (
-    <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
+    <div ref={containerRef} className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       <svg
         ref={svgRef}
         className="w-full h-full"
         preserveAspectRatio="none"
       >
-        {defaultLines.map((_, i) => (
-          <path
-            key={i}
-            fill="none"
-            stroke="var(--color-accent)"
-            strokeWidth="1.5"
-            className="opacity-60"
-          />
-        ))}
+        {defaultLines.map((_, i) => {
+          if (scrollDraw) {
+            return <ScrollDrawnPath key={i} containerRef={containerRef} index={i} />;
+          }
+          if (revealDelay !== undefined) {
+            return (
+              <motion.path
+                key={i}
+                fill="none"
+                stroke="var(--color-accent)"
+                strokeWidth="3"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 0.6 }}
+                viewport={{ once: true, margin: '-20%' }}
+                transition={{ duration: 1.6, delay: revealDelay + i * 0.15, ease: 'easeInOut' }}
+              />
+            );
+          }
+          return (
+            <path
+              key={i}
+              fill="none"
+              stroke="var(--color-accent)"
+              strokeWidth="3"
+              className="opacity-60"
+            />
+          );
+        })}
       </svg>
     </div>
   );

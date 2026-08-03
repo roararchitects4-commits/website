@@ -6,11 +6,8 @@ import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Statement } from './components/Statement';
-import { LineDivider } from './components/LineDivider';
 import { DrawingBoard } from './components/DrawingBoard';
 import { WorkGrid } from './components/WorkGrid';
-import { ServiceCards } from './components/ServiceCards';
-import { Clients } from './components/Clients';
 import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 
@@ -23,28 +20,22 @@ function Home() {
       
       <main>
         <Hero />
-        
+
         <About />
         
-        <Statement 
-          quote={<>We design buildings that belong to their site and their climate — creating timeless spaces that remain as relevant in fifty years as on the day of handover.</>}
+        <Statement
+          quote="We design buildings that belong to their site and their climate — creating timeless spaces that remain as relevant in fifty years as on the day of handover."
         />
-        
-        <LineDivider />
-        
+
         <DrawingBoard />
         
         <WorkGrid />
-        
-        <Statement 
+
+        <Statement
           kicker="Our Philosophy"
-          quote={<>Architecture is not about form, but about the life that happens within it.</>}
+          quote="Architecture is not about form, but about the life that happens within it."
         />
-        
-        <ServiceCards />
-        
-        <Clients />
-        
+
         <CTA />
       </main>
       

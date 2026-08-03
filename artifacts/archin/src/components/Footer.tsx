@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '@/assets/logo.png';
 
 export function Footer() {
   return (
@@ -6,11 +7,7 @@ export function Footer() {
       
       <div className="flex flex-col gap-2">
         <a href="#top" className="flex items-center gap-[11px] text-[13px] font-extralight tracking-[0.4em] text-ink decoration-none group cursor-none hover:text-accent transition-colors">
-          <svg className="w-5 h-auto text-accent flex-none" viewBox="0 0 42 46" aria-hidden="true">
-            <path d="M15,2 31,16 14,16 Z" fill="currentColor" stroke="none" />
-            <path d="M15 2 L13 44" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M31 16 L36 44" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <img src={logo} alt="" className="w-5 h-auto flex-none" aria-hidden="true" />
           <span><strong className="font-medium">ROAR</strong> ARCHITECTS</span>
         </a>
       </div>

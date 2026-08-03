@@ -2,10 +2,50 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AnimatedLines } from './AnimatedLines';
 import { FadeIn } from './FadeIn';
+import { TypewriterText } from './TypewriterText';
 import aboutImg from '@assets/generated_images/about.jpg';
 
 export function About() {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [experience, setExperience] = useState(0);
+  const [startedCounting, setStartedCounting] = useState(false);
+  const experienceRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const element = experienceRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !startedCounting) {
+            setStartedCounting(true);
+          }
+        });
+      },
+      { threshold: 0.4, rootMargin: '0px 0px -20% 0px' },
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [startedCounting]);
+
+  React.useEffect(() => {
+    if (!startedCounting) return;
+
+    let current = 0;
+    const interval = window.setInterval(() => {
+      current += 1;
+      setExperience(current);
+
+      if (current >= 15) {
+        window.clearInterval(interval);
+      }
+    }, 80);
+
+    return () => window.clearInterval(interval);
+  }, [startedCounting]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
@@ -27,19 +67,19 @@ export function About() {
   };
 
   return (
-    <section id="studio" className="relative bg-background py-[120px] px-[max(20px,4vw)] overflow-hidden min-h-screen flex items-center">
-      <AnimatedLines className="z-0" />
-      
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-12 items-center relative z-10">
-        
+    <section id="studio" className="relative bg-background py-[70px] px-[max(20px,4vw)] overflow-hidden flex items-center">
+      <AnimatedLines className="z-0" revealDelay={1.6} />
+
+      <div className="max-w-[1200px] mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-10 items-center relative z-10">
+
         {/* Left: Years of Experience */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1">
           <FadeIn>
-            <h3 className="text-[10px] tracking-[0.2em] uppercase text-ink font-medium mb-4">
+            <h3 className="text-[10px] tracking-[0.2em] uppercase text-ink font-medium mb-3">
               Years of<br />Experience
             </h3>
-            <div className="text-[clamp(100px,12vw,180px)] font-sans font-light leading-none text-accent">
-              15
+            <div ref={experienceRef} className="text-[clamp(64px,8vw,110px)] font-sans font-light leading-none text-accent">
+              {experience}
             </div>
           </FadeIn>
         </div>
@@ -47,15 +87,15 @@ export function About() {
         {/* Center: Image Card */}
         <div className="flex justify-center order-1 lg:order-2 perspective-1000">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 340, rotate: 260 }}
+            whileInView={{ opacity: 1, x: 0, rotate: 15 }}
             viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeInOut" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="relative w-[80%] max-w-[400px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transition-transform duration-200 ease-out will-change-transform"
+            className="relative w-[75%] max-w-[300px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transition-transform duration-200 ease-out will-change-transform"
             style={{
-              transform: `perspective(1000px) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg) scale3d(1.02, 1.02, 1.02)`,
+              transform: `perspective(1000px) rotate(15deg) rotateX(${rotate.x}deg) rotateY(${rotate.y}deg) scale3d(1.02, 1.02, 1.02)`,
             }}
             data-cursor="view"
           >
@@ -70,12 +110,16 @@ export function About() {
         {/* Right: Text */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:order-3">
           <FadeIn delay={0.2}>
-            <h2 className="font-serif font-light text-[clamp(40px,5vw,60px)] text-ink mb-6">
+            <h2 className="font-serif font-light text-[clamp(30px,3.6vw,44px)] text-ink mb-4">
               Est. 1986
             </h2>
-            <p className="font-sans text-[15px] leading-relaxed text-muted mb-10 max-w-sm">
-              Roar Architects is an architectural practice based in Boston. We cut our teeth on designing and creating buildings that are both beautiful and sustainable.
-            </p>
+            <TypewriterText
+              tag="p"
+              className="font-sans text-[14px] leading-relaxed text-muted mb-6 max-w-sm"
+              text="Roar Architects is an architectural practice based in Boston. We cut our teeth on designing and creating buildings that are both beautiful and sustainable."
+              speed={25}
+              delay={200}
+            />
             <a 
               href="#work" 
               className="inline-flex items-center justify-center px-8 py-4 border border-line rounded-[30px] text-[13px] text-ink hover:bg-ink hover:text-white transition-colors duration-300"
