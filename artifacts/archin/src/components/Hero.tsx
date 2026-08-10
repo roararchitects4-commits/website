@@ -1,6 +1,6 @@
 import React from 'react';
 import housePlan from '@assets/house-plan.png';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo/logo.png';
 
 const TICKER_TERMS = [
   'AESTHETIC', 'ACOUSTICS', 'ARCH', 'ASYMMETRY', 'ATRIUM', 'BALCONY', 'BARREL VAULT', 'BASEMENT',

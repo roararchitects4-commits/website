@@ -7,7 +7,7 @@ import { WorkGrid } from './components/WorkGrid';
 import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 import housePlan from '@assets/house-plan.png';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo/logo.png';
 import floorPlanIcon from '@/assets/icons/floor-plan.png';
 import foundationIcon from '@/assets/icons/foundation.png';
 import structureIcon from '@/assets/icons/structure.png';

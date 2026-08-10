@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo/logo.png';
 
 const navLinks = [
   { name: 'Home', href: '#top' },

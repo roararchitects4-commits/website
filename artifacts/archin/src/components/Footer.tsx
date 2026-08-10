@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo/logo.png';
 
 const MARQUEE_WORDS = ['Dedicated', 'Creative', 'Innovative', 'Sustainable', 'Passionate', 'Timeless'];
 
@@ -26,23 +26,27 @@ function FooterMarqueeTrack() {
 export function Footer() {
   return (
     <footer className="bg-white text-ink relative z-10">
-      <div className="border-t border-line py-6 overflow-hidden">
+      <div className="border-t border-line py-4 overflow-hidden">
         <div className="flex w-max">
           <FooterMarqueeTrack />
           <FooterMarqueeTrack />
         </div>
       </div>
 
-      <div className="pt-[34px] pb-[24px] px-[max(22px,6vw)] border-t border-line flex flex-wrap gap-6 justify-between items-end text-[11px] text-muted leading-relaxed">
-        <a href="#top" className="flex items-center gap-3 font-sans font-extrabold text-lg tracking-tight text-ink hover:text-accent transition-colors">
-          <img src={logo} alt="" className="w-6 h-auto flex-none" aria-hidden="true" />
-          <span>ROAR <span className="font-light">ARCHITECTS</span></span>
+      <div className="pt-[22px] pb-[16px] px-[max(22px,6vw)] border-t border-line flex flex-wrap gap-6 justify-between items-center text-[11px] text-muted leading-relaxed">
+        <a href="#top" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+          <img src={logo} alt="" className="w-9 h-auto flex-none" aria-hidden="true" />
+          <span
+            className="tracking-[-0.01em] whitespace-nowrap"
+            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, color: '#A5342C', fontSize: '18px' }}
+          >
+            ROAR ARCHITECTS
+          </span>
         </a>
 
         <nav className="flex gap-6 uppercase tracking-wider">
           <a href="#work" className="hover:text-accent transition-colors">Work</a>
           <a href="#studio" className="hover:text-accent transition-colors">Studio</a>
-          <a href="#services" className="hover:text-accent transition-colors">Services</a>
         </nav>
 
         <div className="text-[10.5px] tracking-[0.14em]">

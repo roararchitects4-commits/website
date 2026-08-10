@@ -4,17 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedLines } from './AnimatedLines';
 
-import arch1 from '@assets/generated_images/arch-1.jpg';
-import arch2 from '@assets/generated_images/arch-2.jpg';
-import arch3 from '@assets/generated_images/arch-3.jpg';
+import arch1 from '@assets/roar_assets/arch-1.png';
+import arch2 from '@assets/roar_assets/arch-2.png';
+import arch3 from '@assets/roar_assets/arch-3.jpeg';
 
-import int1 from '@assets/generated_images/int-1.jpg';
-import int2 from '@assets/generated_images/int-2.jpg';
-import int3 from '@assets/generated_images/int-3.jpg';
+import int1 from '@assets/roar_assets/int-1.png';
+import int2 from '@assets/roar_assets/int-2.png';
+import int3 from '@assets/roar_assets/int-3.png';
 
-import land1 from '@assets/generated_images/land-1.jpg';
-import land2 from '@assets/generated_images/land-2.jpg';
-import land3 from '@assets/generated_images/land-3.jpg';
+import land1 from '@assets/roar_assets/land-1.png';
+import land2 from '@assets/roar_assets/land-2.png';
+import land3 from '@assets/roar_assets/land-3.png';
 
 interface WorkItem {
   id: string;
@@ -82,21 +82,21 @@ function WorkRow({ label, items, reverseDelay, onOpen }: WorkRowProps) {
 
 export function WorkGrid() {
   const architecture = [
-    { id: 'a1', img: arch1, title: 'Mountain House', desc: 'A minimalist white concrete retreat built into the rocky terrain.' },
-    { id: 'a2', img: arch2, title: 'Forest Pavilion', desc: 'Glass and steel pavilion blending seamlessly into a dense green forest.' },
-    { id: 'a3', img: arch3, title: 'The Brutalist Wing', desc: 'Museum facade with dramatic shadows and stark concrete geometry.' }
+    { id: 'a1', img: arch1, title: 'Onyx Facade', desc: 'Dark stone-clad residence layered with wood-slat canopies and vertical greenery.' },
+    { id: 'a2', img: arch2, title: 'Dusk Residence', desc: 'Multi-level home glowing at twilight with cascading balconies and a private water wall.' },
+    { id: 'a3', img: arch3, title: 'Sculpted Corner', desc: 'Angular contemporary villa wrapped in stone, timber and glass.' }
   ];
 
   const interiors = [
-    { id: 'i1', img: int1, title: 'Sunlit Living', desc: 'Warm minimalist living room with natural light and soft textures.' },
-    { id: 'i2', img: int2, title: 'Timber & Smoke', desc: 'Upscale restaurant featuring a sweeping timber slatted ceiling.' },
-    { id: 'i3', img: int3, title: 'Gallery Corridor', desc: 'Sleek contemporary gallery space defined by natural light shafts.' }
+    { id: 'i1', img: int1, title: 'Brick & Bloom', desc: 'Warm brick-walled dining room dressed with hanging marigold garlands.' },
+    { id: 'i2', img: int2, title: 'Garden View Dining', desc: 'Sunlit dining hall opening onto a leafy street through full-height glass.' },
+    { id: 'i3', img: int3, title: 'Terracotta Lounge', desc: 'Amber-lit dining space framed by warm terracotta walls.' }
   ];
 
   const landscaping = [
-    { id: 'l1', img: land1, title: 'Terraced Hillside', desc: 'Lush terraced garden stepping down a steep elevation.' },
-    { id: 'l2', img: land2, title: 'Urban Rooftop', desc: 'Modern rooftop garden oasis overlooking the city skyline.' },
-    { id: 'l3', img: land3, title: 'Zen Courtyard', desc: 'Minimalist Japanese courtyard with raked gravel and specimen maple.' }
+    { id: 'l1', img: land1, title: 'Palm Courtyard', desc: 'Residential courtyard lined with towering palms and manicured hedges.' },
+    { id: 'l2', img: land2, title: 'Central Lawn', desc: 'Open lawn framed by raised planters and stepped seating.' },
+    { id: 'l3', img: land3, title: 'Poolside Retreat', desc: 'Private villa pool bordered by tropical planting and stone decking.' }
   ];
 
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
@@ -130,7 +130,7 @@ export function WorkGrid() {
               onClick={() => setActiveItem(null)}
             >
               <motion.div
-                className="max-w-[90vw] max-h-[90vh] overflow-hidden rounded-[2rem] bg-black shadow-[0_0_80px_rgba(0,0,0,0.85)]"
+                className="max-w-[90vw] max-h-[90vh] overflow-hidden rounded-[2rem] bg-black shadow-[0_0_80px_rgba(0,0,0,0.85)] flex items-center justify-center"
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0.9 }}
@@ -140,7 +140,7 @@ export function WorkGrid() {
                 <img
                   src={activeItem.img}
                   alt={activeItem.title}
-                  className="w-full h-full object-contain"
+                  className="block max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
                 />
               </motion.div>
             </motion.div>

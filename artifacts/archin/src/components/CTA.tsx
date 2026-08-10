@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MapPin } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
 
@@ -48,6 +49,49 @@ export function CTA() {
             </button>
           </form>
         )}
+
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 gap-10 w-full max-w-[720px] text-left">
+          <div>
+            <span className="flex items-center gap-2 text-[11px] tracking-[0.32em] text-accent uppercase mb-3">
+              Visakhapatnam
+              <a
+                href="https://maps.app.goo.gl/1n7Fc8trwd347mS56"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open Visakhapatnam office in Google Maps"
+                className="text-ink hover:text-accent transition-colors"
+              >
+                <MapPin size={15} strokeWidth={1.75} />
+              </a>
+            </span>
+            <address className="not-italic text-[14px] leading-relaxed text-muted">
+              Flat no S2, Padmini Villa, Maharanipeta,
+              <br />
+              Behind Novotel, Visakhapatnam, 530002
+            </address>
+          </div>
+          <div>
+            <span className="flex items-center gap-2 text-[11px] tracking-[0.32em] text-accent uppercase mb-3">
+              Hyderabad
+              <a
+                href="https://maps.app.goo.gl/KmmwxB1u1QdZ9Qjz5"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open Hyderabad office in Google Maps"
+                className="text-ink hover:text-accent transition-colors"
+              >
+                <MapPin size={15} strokeWidth={1.75} />
+              </a>
+            </span>
+            <address className="not-italic text-[14px] leading-relaxed text-muted">
+              2nd floor, Poorna's Pride, Durga Bhawani Nagar,
+              <br />
+              Giani Zail Singh Nagar, Film Nagar,
+              <br />
+              Hyderabad, Telangana 500096
+            </address>
+          </div>
+        </div>
       </FadeIn>
     </section>
   );
