@@ -108,7 +108,7 @@ export function About() {
           >
             <img 
               src={aboutImg} 
-              alt="Archin Studio Design" 
+              alt="Rohitha Surya, ROAR Architects — Hyderabad and Visakhapatnam design studio"
               className="w-full h-full object-cover scale-110 transition-transform duration-1000 hover:scale-100"
             />
           </motion.div>
@@ -123,7 +123,7 @@ export function About() {
             <TypewriterText
               tag="p"
               className="font-sans text-[14px] leading-relaxed text-muted mb-6 max-w-sm"
-              text="At Roar Architects, we create thoughtful architectural and interior spaces that are functional, timeless, and tailored to your lifestyle. From concept design and planning to detailed drawings, 3D visualization, project management, and execution support, we offer end-to-end design solutions for homes, villas, apartments, commercial spaces, resorts, and hospitality projects."
+              text="At Roar Architects, we're based in Hyderabad with an active studio in Visakhapatnam, creating thoughtful architectural and interior spaces that are functional, timeless, and tailored to your lifestyle. From concept design and planning to detailed drawings, 3D visualization, project management, and execution support, we offer end-to-end design solutions for homes, villas, apartments, commercial spaces, resorts, and hospitality projects."
               speed={25}
               delay={200}
             />

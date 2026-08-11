@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { MapPin } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
 import officesMap from '@assets/generated_images/offices-map.png';
 import contactBg from '@assets/generated_images/realconatctimage.png';
+import { SITE_URL, SITE_NAME } from '../lib/siteConfig';
 
 const MARQUEE_WORDS = ['Dedicated', 'Creative', 'Innovative', 'Sustainable', 'Passionate', 'Timeless'];
 
@@ -32,17 +34,43 @@ const OFFICES = [
     city: 'Visakhapatnam',
     mapsHref: 'https://maps.app.goo.gl/1n7Fc8trwd347mS56',
     lines: ['Flat no S2, Padmini Villa, Maharanipeta,', 'Behind Novotel, Visakhapatnam, 530002'],
-    left: '77%',
-    top: '50.8%',
+    left: '75.5%',
+    top: '54.5%',
+    streetAddress: 'Flat no S2, Padmini Villa, Maharanipeta, Behind Novotel',
+    region: 'Andhra Pradesh',
+    postalCode: '530002',
   },
   {
     city: 'Hyderabad',
     mapsHref: 'https://maps.app.goo.gl/KmmwxB1u1QdZ9Qjz5',
     lines: ["2nd floor, Poorna's Pride, Durga Bhawani Nagar,", 'Giani Zail Singh Nagar, Film Nagar,', 'Hyderabad, Telangana 500096'],
-    left: '27.3%',
-    top: '56.5%',
+    left: '25.8%',
+    top: '60.2%',
+    streetAddress: "2nd floor, Poorna's Pride, Durga Bhawani Nagar, Giani Zail Singh Nagar, Film Nagar",
+    region: 'Telangana',
+    postalCode: '500096',
   },
 ];
+
+/* No phone/email exists in the codebase yet — omitted from the schema
+   rather than invented. Add `telephone`/`email` here once confirmed. */
+const localBusinessJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': OFFICES.map((office) => ({
+    '@type': 'ProfessionalService',
+    name: `${SITE_NAME} — ${office.city}`,
+    url: SITE_URL,
+    hasMap: office.mapsHref,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: office.streetAddress,
+      addressLocality: office.city,
+      addressRegion: office.region,
+      postalCode: office.postalCode,
+      addressCountry: 'IN',
+    },
+  })),
+};
 
 const EMPTY_FORM = { name: '', phone: '', email: '', message: '' };
 
@@ -83,6 +111,9 @@ export function CTA() {
       onMouseLeave={handleMouseLeave}
       className="relative overflow-hidden flex flex-col items-center pt-14 pb-0 px-[22px] bg-white"
     >
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(localBusinessJsonLd)}</script>
+      </Helmet>
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <img
           src={contactBg}
@@ -106,7 +137,7 @@ export function CTA() {
       <FadeIn delay={1.90} className="relative z-10 w-full max-w-[1080px]">
         <div className="grid grid-cols-1 lg:grid-cols-[1.42fr_1fr] gap-8 lg:gap-12 items-start text-left">
           {/* Static map with hover pins */}
-          <div className="relative rounded-[2rem] border border-line shadow-xl aspect-[9/6] bg-secondary-bg mt-6 lg:mt-10 lg:-ml-18">
+          <div className="relative rounded-[2rem] border border-line shadow-xl aspect-[9/6] bg-secondary-bg mt-6 lg:mt-10 lg:-ml-20">
             <img
               src={officesMap}
               alt="Map of Andhra Pradesh and Telangana showing Roar Architects offices in Visakhapatnam and Hyderabad"

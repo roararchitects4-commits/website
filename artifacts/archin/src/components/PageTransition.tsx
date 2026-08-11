@@ -13,10 +13,11 @@ export function PageTransition() {
 
   return (
     <div
-      className={`fixed inset-0 z-[9000] flex items-center justify-center bg-ink transition-all duration-[1150ms] ease-[cubic-bezier(0.65,0,0.24,1)] ${
+      className={`fixed inset-0 z-[9000] flex items-center justify-center transition-all duration-[1150ms] ease-[cubic-bezier(0.65,0,0.24,1)] ${
         isLeaving ? 'pointer-events-none' : 'pointer-events-auto'
       }`}
       style={{
+        backgroundColor: '#6B1F17',
         clipPath: isLeaving
           ? 'ellipse(78vw 68vh at 50% -85vh)'
           : 'ellipse(78vw 68vh at 50% 50%)'

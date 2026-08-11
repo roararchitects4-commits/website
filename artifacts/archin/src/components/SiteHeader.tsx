@@ -9,6 +9,11 @@ const NAV_LINKS = [
   { name: 'CONTACT',  href: '#contact' },
 ];
 
+const navHref = (isHome: boolean, href: string) => {
+  if (href.startsWith('/')) return href;
+  return isHome ? href : `/${href}`;
+};
+
 export function SiteHeader() {
   const [location] = useLocation();
   const isHome = location === '/';
@@ -32,7 +37,7 @@ export function SiteHeader() {
         {NAV_LINKS.map(link => (
           <a
             key={link.name}
-            href={isHome ? link.href : `/${link.href}`}
+            href={navHref(isHome, link.href)}
             className="font-sans font-bold text-[13px] tracking-[0.13em] text-[#2a2420] hover:text-[#9b3a2c] transition-colors duration-200"
           >
             {link.name}
@@ -76,7 +81,7 @@ export function SiteHeader() {
           {NAV_LINKS.map(link => (
             <a
               key={link.name}
-              href={isHome ? link.href : `/${link.href}`}
+              href={navHref(isHome, link.href)}
               onClick={() => setMenuOpen(false)}
               className="px-5 py-4 font-sans font-bold text-[13px] tracking-[0.13em] text-[#2a2420] border-b border-[rgba(42,36,32,0.08)] last:border-b-0 hover:text-[#9b3a2c] transition-colors duration-200"
             >

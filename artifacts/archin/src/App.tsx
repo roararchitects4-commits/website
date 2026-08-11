@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Helmet } from 'react-helmet-async';
 import { PageTransition } from './components/PageTransition';
 import { About } from './components/About';
 import { Statement } from './components/Statement';
@@ -8,6 +9,9 @@ import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 import { SiteHeader } from './components/SiteHeader';
 import GalleryPage from './pages/GalleryPage';
+import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
+import { SITE_URL } from './lib/siteConfig';
 import housePlan from '@assets/house-plan.png';
 import logo from '@/assets/logo/logo.png';
 import floorPlanIcon from '@/assets/icons/floor-plan.png';
@@ -140,6 +144,7 @@ function HeroSection() {
             </p>
             <h1 className="hero-headline font-sans font-normal leading-[0.88] tracking-[-0.02em] text-[#18140f] mb-3">
               INSPIRE.
+              <span className="sr-only"> — Architects in Hyderabad, designing across Hyderabad and Visakhapatnam</span>
             </h1>
             <div className="w-8 h-[2px] bg-[#18140f] mb-4" />
             <p className="font-sans font-light text-[13px] leading-[1.75] text-[#2a2420] opacity-65 max-w-[230px] mb-5">
@@ -215,6 +220,10 @@ function HeroSection() {
                 <StatItem key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} bordered={i > 0} />
               ))}
             </div>
+
+            <p className="font-sans text-[10px] tracking-[0.08em] text-[#2a2420] opacity-50 mt-4 max-w-[280px]">
+              Based in Hyderabad, with an active studio presence in Visakhapatnam.
+            </p>
           </div>
         </div>
 
@@ -268,6 +277,16 @@ function Home() {
 
   return (
     <div className="relative bg-background">
+      <Helmet>
+        <title>ROAR Architects | Architecture Studio in Hyderabad</title>
+        <meta name="description" content="ROAR Architects is a Hyderabad-based architecture and interior design studio, with an active studio in Visakhapatnam." />
+        <link rel="canonical" href={SITE_URL} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="ROAR Architects | Architecture Studio in Hyderabad" />
+        <meta property="og:description" content="ROAR Architects is a Hyderabad-based architecture and interior design studio, with an active studio in Visakhapatnam." />
+        <meta property="og:url" content={SITE_URL} />
+      </Helmet>
+
       <PageTransition />
       <SiteHeader />
 
@@ -300,6 +319,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/gallery/:slug" component={GalleryPage} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogPostPage} />
       <Route>
         <div className="min-h-screen flex items-center justify-center bg-background text-ink">
           <div className="text-center">
