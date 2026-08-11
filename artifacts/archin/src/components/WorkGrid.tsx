@@ -1,44 +1,36 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedLines } from './AnimatedLines';
-
-import arch1 from '@assets/roar_assets/arch-1.png';
-import arch2 from '@assets/roar_assets/arch-2.png';
-import arch3 from '@assets/roar_assets/arch-3.jpeg';
-
-import int1 from '@assets/roar_assets/int-1.png';
-import int2 from '@assets/roar_assets/int-2.png';
-import int3 from '@assets/roar_assets/int-3.png';
-
-import terrace1 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35.jpeg';
-import terrace2 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35 (1).jpeg';
-import terrace3 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35 (2).jpeg';
-
-interface WorkItem {
-  id: string;
-  img: string;
-  title: string;
-  desc: string;
-}
+import { WORK_CATEGORIES, type WorkItem } from '../data/workCategories';
 
 interface WorkRowProps {
+  slug: string;
   label: string;
   items: WorkItem[];
   reverseDelay?: boolean;
   onOpen: (item: WorkItem) => void;
 }
 
-function WorkRow({ label, items, reverseDelay, onOpen }: WorkRowProps) {
+function WorkRow({ slug, label, items, reverseDelay, onOpen }: WorkRowProps) {
   return (
     <div className="max-w-[1680px] mx-auto mb-[100px] last:mb-0">
       <FadeIn yOffset={20}>
-        <div className="flex items-center gap-3 mb-6">
-          <span className="w-[22px] h-[1px] bg-accent flex-none" />
-          <span className="text-[11px] tracking-[0.32em] text-muted uppercase">
-            {label}
-          </span>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="w-[22px] h-[1px] bg-accent flex-none" />
+            <span className="text-[11px] tracking-[0.32em] text-muted uppercase">
+              {label}
+            </span>
+          </div>
+          <Link
+            href={`/gallery/${slug}`}
+            className="text-[11px] tracking-[0.15em] uppercase text-ink underline underline-offset-4 decoration-line hover:text-accent hover:decoration-accent transition-colors flex-none"
+          >
+            View More ↗
+          </Link>
         </div>
       </FadeIn>
 
@@ -81,24 +73,6 @@ function WorkRow({ label, items, reverseDelay, onOpen }: WorkRowProps) {
 }
 
 export function WorkGrid() {
-  const architecture = [
-    { id: 'a1', img: arch1, title: 'Onyx Facade', desc: 'Dark stone-clad residence layered with wood-slat canopies and vertical greenery.' },
-    { id: 'a2', img: arch2, title: 'Dusk Residence', desc: 'Multi-level home glowing at twilight with cascading balconies and a private water wall.' },
-    { id: 'a3', img: arch3, title: 'Sculpted Corner', desc: 'Angular contemporary villa wrapped in stone, timber and glass.' }
-  ];
-
-  const interiors = [
-    { id: 'i1', img: int1, title: 'Brick & Bloom', desc: 'Warm brick-walled dining room dressed with hanging marigold garlands.' },
-    { id: 'i2', img: int2, title: 'Garden View Dining', desc: 'Sunlit dining hall opening onto a leafy street through full-height glass.' },
-    { id: 'i3', img: int3, title: 'Terracotta Lounge', desc: 'Amber-lit dining space framed by warm terracotta walls.' }
-  ];
-
-  const terraceScaping = [
-    { id: 't1', img: terrace1, title: 'Skyline Terrace', desc: 'Open-air terrace designed for lounging with sweeping city views.' },
-    { id: 't2', img: terrace2, title: 'Garden Deck', desc: 'Planted terrace deck blending greenery with relaxed seating areas.' },
-    { id: 't3', img: terrace3, title: 'Rooftop Retreat', desc: 'Elevated rooftop escape framed by soft ambient lighting.' }
-  ];
-
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
 
   return (
@@ -114,9 +88,16 @@ export function WorkGrid() {
         ]}
       />
       <div className="relative z-10">
-        <WorkRow label="Architecture" items={architecture} reverseDelay={false} onOpen={setActiveItem} />
-        <WorkRow label="Interiors" items={interiors} reverseDelay onOpen={setActiveItem} />
-        <WorkRow label="Terrace Scaping" items={terraceScaping} reverseDelay={false} onOpen={setActiveItem} />
+        {WORK_CATEGORIES.map((category, idx) => (
+          <WorkRow
+            key={category.slug}
+            slug={category.slug}
+            label={category.label}
+            items={category.items}
+            reverseDelay={idx % 2 === 1}
+            onOpen={setActiveItem}
+          />
+        ))}
       </div>
 
       {createPortal(

@@ -1,65 +1,31 @@
 import React from 'react';
 import logo from '@/assets/logo/logo.png';
 
-const MARQUEE_WORDS = ['Dedicated', 'Creative', 'Innovative', 'Sustainable', 'Passionate', 'Timeless'];
-
-function FooterMarqueeTrack() {
-  return (
-    <div className="flex items-center flex-none animate-[footerMarqueeScroll_36s_linear_infinite]">
-      {MARQUEE_WORDS.map((word, idx) => (
-        <span
-          key={idx}
-          className="text-[9vw] md:text-[5vw] font-extrabold uppercase leading-none px-6 flex-none text-ink"
-          style={
-            idx % 2 === 0
-              ? { WebkitTextStroke: '1.5px var(--color-ink)', color: 'transparent' }
-              : undefined
-          }
-        >
-          {word}
-        </span>
-      ))}
-    </div>
-  );
-}
-
 export function Footer() {
   return (
     <footer className="bg-white text-ink relative z-10">
-      <div className="border-t border-line py-4 overflow-hidden">
-        <div className="flex w-max">
-          <FooterMarqueeTrack />
-          <FooterMarqueeTrack />
+      <div className="relative pt-[28px] pb-[300px] px-[max(22px,6vw)] border-t border-line text-[11px] text-muted leading-relaxed">
+        <div className="flex flex-col items-start gap-4">
+          <a href="#top" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+            <img src={logo} alt="" className="w-9 h-auto flex-none" aria-hidden="true" />
+            <span
+              className="tracking-[-0.01em] whitespace-nowrap"
+              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, color: '#A5342C', fontSize: '18px' }}
+            >
+              ROAR ARCHITECTS
+            </span>
+          </a>
+
+          <nav className="flex flex-col gap-2 uppercase tracking-wider">
+            <a href="#work" className="hover:text-accent transition-colors">Work</a>
+            <a href="#studio" className="hover:text-accent transition-colors">Studio</a>
+          </nav>
         </div>
-      </div>
 
-      <div className="pt-[22px] pb-[16px] px-[max(22px,6vw)] border-t border-line flex flex-wrap gap-6 justify-between items-center text-[11px] text-muted leading-relaxed">
-        <a href="#top" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src={logo} alt="" className="w-9 h-auto flex-none" aria-hidden="true" />
-          <span
-            className="tracking-[-0.01em] whitespace-nowrap"
-            style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, color: '#A5342C', fontSize: '18px' }}
-          >
-            ROAR ARCHITECTS
-          </span>
-        </a>
-
-        <nav className="flex gap-6 uppercase tracking-wider">
-          <a href="#work" className="hover:text-accent transition-colors">Work</a>
-          <a href="#studio" className="hover:text-accent transition-colors">Studio</a>
-        </nav>
-
-        <div className="text-[10.5px] tracking-[0.14em]">
+        <div className="absolute right-[max(22px,6vw)] bottom-8 text-[10.5px] tracking-[0.14em]">
           &copy; {new Date().getFullYear()} Roar Architects. All rights reserved.
         </div>
       </div>
-
-      <style>{`
-        @keyframes footerMarqueeScroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
-        }
-      `}</style>
     </footer>
   );
 }
