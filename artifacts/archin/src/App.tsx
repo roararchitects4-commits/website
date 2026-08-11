@@ -69,7 +69,7 @@ function BottomBarTrack() {
 ───────────────────────────────────────────── */
 const STATS = [
   { value: 120, suffix: '+', label: 'PROJECTS' },
-  { value: 12,  suffix: '',  label: 'YEARS'    },
+  { value: 10,  suffix: '',  label: 'YEARS'    },
   { value: 4,   suffix: '',  label: 'CITIES'   },
 ];
 
@@ -282,16 +282,18 @@ function HeroSection() {
             <div className="w-10 h-px bg-[#2a2420] opacity-20 mb-5" />
 
             {/* Services */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mb-1">
-              {['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY'].map(s => (
-                <span key={s} className="font-sans text-[10px] tracking-[0.18em] text-[#2a2420] opacity-55">
-                  {s}
-                </span>
-              ))}
+            <div className="flex items-baseline justify-between gap-4 mb-6">
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY'].map(s => (
+                  <span key={s} className="font-sans text-[10px] tracking-[0.18em] text-black">
+                    {s}
+                  </span>
+                ))}
+              </div>
+              <p className="font-sans text-[10px] tracking-[0.22em] text-black uppercase whitespace-nowrap">
+                Since 2016
+              </p>
             </div>
-            <p className="font-sans text-[10px] tracking-[0.22em] text-[#2a2420] opacity-40 mb-6 uppercase">
-              Since 2018
-            </p>
 
             {/* Stats */}
             <div className="flex items-stretch justify-between border-t border-[rgba(42,36,32,0.12)] mt-6">

@@ -12,9 +12,9 @@ import int1 from '@assets/roar_assets/int-1.png';
 import int2 from '@assets/roar_assets/int-2.png';
 import int3 from '@assets/roar_assets/int-3.png';
 
-import land1 from '@assets/roar_assets/land-1.png';
-import land2 from '@assets/roar_assets/land-2.png';
-import land3 from '@assets/roar_assets/land-3.png';
+import terrace1 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35.jpeg';
+import terrace2 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35 (1).jpeg';
+import terrace3 from '@assets/generated_images/WhatsApp Image 2026-08-11 at 12.01.35 (2).jpeg';
 
 interface WorkItem {
   id: string;
@@ -93,10 +93,10 @@ export function WorkGrid() {
     { id: 'i3', img: int3, title: 'Terracotta Lounge', desc: 'Amber-lit dining space framed by warm terracotta walls.' }
   ];
 
-  const landscaping = [
-    { id: 'l1', img: land1, title: 'Palm Courtyard', desc: 'Residential courtyard lined with towering palms and manicured hedges.' },
-    { id: 'l2', img: land2, title: 'Central Lawn', desc: 'Open lawn framed by raised planters and stepped seating.' },
-    { id: 'l3', img: land3, title: 'Poolside Retreat', desc: 'Private villa pool bordered by tropical planting and stone decking.' }
+  const terraceScaping = [
+    { id: 't1', img: terrace1, title: 'Skyline Terrace', desc: 'Open-air terrace designed for lounging with sweeping city views.' },
+    { id: 't2', img: terrace2, title: 'Garden Deck', desc: 'Planted terrace deck blending greenery with relaxed seating areas.' },
+    { id: 't3', img: terrace3, title: 'Rooftop Retreat', desc: 'Elevated rooftop escape framed by soft ambient lighting.' }
   ];
 
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
@@ -116,7 +116,7 @@ export function WorkGrid() {
       <div className="relative z-10">
         <WorkRow label="Architecture" items={architecture} reverseDelay={false} onOpen={setActiveItem} />
         <WorkRow label="Interiors" items={interiors} reverseDelay onOpen={setActiveItem} />
-        <WorkRow label="Landscaping" items={landscaping} reverseDelay={false} onOpen={setActiveItem} />
+        <WorkRow label="Terrace Scaping" items={terraceScaping} reverseDelay={false} onOpen={setActiveItem} />
       </div>
 
       {createPortal(

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { AnimatedLines } from './AnimatedLines';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
-import aboutImg from '@assets/generated_images/about.jpg';
+import aboutImg from '@assets/generated_images/potrait.jpeg';
 
 export function About() {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
@@ -39,7 +39,7 @@ export function About() {
       current += 1;
       setExperience(current);
 
-      if (current >= 15) {
+      if (current >= 10) {
         window.clearInterval(interval);
       }
     }, 80);
@@ -115,24 +115,18 @@ export function About() {
         </div>
 
         {/* Right: Text */}
-        <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:order-3">
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left order-3 lg:order-3 mt-2 lg:mt-4">
           <FadeIn delay={0.2}>
             <h2 className="font-serif font-light text-[clamp(30px,3.6vw,44px)] text-ink mb-4">
-              Est. 1986
+              Rohitha Surya
             </h2>
             <TypewriterText
               tag="p"
               className="font-sans text-[14px] leading-relaxed text-muted mb-6 max-w-sm"
-              text="Roar Architects is an architectural practice based in Boston. We cut our teeth on designing and creating buildings that are both beautiful and sustainable."
+              text="At Roar Architects, we create thoughtful architectural and interior spaces that are functional, timeless, and tailored to your lifestyle. From concept design and planning to detailed drawings, 3D visualization, project management, and execution support, we offer end-to-end design solutions for homes, villas, apartments, commercial spaces, resorts, and hospitality projects."
               speed={25}
               delay={200}
             />
-            <a 
-              href="#work" 
-              className="inline-flex items-center justify-center px-8 py-4 border border-line rounded-[30px] text-[13px] text-ink hover:bg-ink hover:text-white transition-colors duration-300"
-            >
-              Our Studio ↗
-            </a>
           </FadeIn>
         </div>
 
