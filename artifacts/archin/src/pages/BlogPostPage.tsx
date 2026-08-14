@@ -106,9 +106,9 @@ export default function BlogPostPage() {
           <div
             role="img"
             aria-label={post.imageAlt}
-            className="w-full aspect-[16/7] rounded-[2rem] relative overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-br from-ink via-[#3a2f28] to-accent flex items-center justify-center mb-10"
+            className="w-full aspect-[16/7] rounded-[2rem] relative overflow-hidden border border-white/10 shadow-2xl bg-secondary-bg flex items-center justify-center mb-10"
           >
-            <PenLine size={34} strokeWidth={1.1} className="text-white/70" />
+            <img src={post.image} alt="" className="w-full h-full object-cover" />
           </div>
 
           <article

@@ -69,7 +69,6 @@ const STATS = [
   { value: 250, suffix: '+', label: 'PROJECTS'  },
   { value: 3,   suffix: '+', label: 'COUNTRIES' },
   { value: 7,   suffix: '+', label: 'CITIES'    },
-  { value: 7,   suffix: '+', label: 'YEARS'     },
 ];
 
 /* PageTransition holds the arc/loading cover for ~1950ms (800ms hold + 1150ms wipe) — wait for it to clear before counting up. */
@@ -292,11 +291,10 @@ function Home() {
       <main>
         <HeroSection />
 
+        {/* The "belong to their site and their climate" statement now closes
+            the About block itself, so the standalone Statement that used to sit
+            here would repeat it word for word. */}
         <About />
-
-        <Statement
-          quote="We design buildings that belong to their site and their climate — creating timeless spaces that remain as relevant in fifty years as on the day of handover."
-        />
 
         <WorkGrid />
 

@@ -29,13 +29,22 @@ function ContactMarqueeTrack() {
   );
 }
 
+/* `left`/`top` place each pin as a percentage of the map box, so they only line
+   up with their city for one box shape — currently 3/2.
+
+   To re-derive after an aspect change: the image is always fitted to the width
+   and anchored to the top, so a city stays at a fixed pixel depth and only the
+   box height under it changes. Scale every `top` by (old height / new height),
+   which for these ratios is just the inverse of the aspect change — going 9/7 to
+   9/6 meant multiplying by 7/6. `left` never changes, since the image spans the
+   full width at any of these ratios. */
 const OFFICES = [
   {
     city: 'Visakhapatnam',
     mapsHref: 'https://maps.app.goo.gl/1n7Fc8trwd347mS56',
     lines: ['Flat no S2, Padmini Villa, Maharanipeta,', 'Behind Novotel, Visakhapatnam, 530002'],
-    left: '75.5%',
-    top: '54.5%',
+    left: '75%',
+    top: '55.5%',
     streetAddress: 'Flat no S2, Padmini Villa, Maharanipeta, Behind Novotel',
     region: 'Andhra Pradesh',
     postalCode: '530002',
@@ -139,7 +148,7 @@ export function CTA() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden flex flex-col items-center pt-14 pb-0 px-[22px] bg-white"
+      className="relative overflow-hidden flex flex-col items-center pt-8 pb-0 px-[22px] bg-white"
     >
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(localBusinessJsonLd)}</script>
@@ -154,20 +163,19 @@ export function CTA() {
         />
       </div>
 
-      <FadeIn className="relative z-10 flex flex-col items-center w-full max-w-[1080px]">
-        <TypewriterText
-          tag="h2"
-          className="font-serif font-medium tracking-tight text-[clamp(30px,4.4vw,56px)] leading-[1.15] text-ink text-center mb-10"
-          text="Have an ambitious project in mind?"
-          speed={22}
-          delay={150}
-        />
-      </FadeIn>
-
-      <FadeIn delay={1.90} className="relative z-10 w-full max-w-[1080px]">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.42fr_1fr] gap-8 lg:gap-12 items-start text-left">
+      <FadeIn className="relative z-10 w-full max-w-[1180px]">
+        {/* The map column is widened by both the ratio and the container, rather
+            than the ratio alone — taking it all out of the ratio would have
+            squeezed the form column below the width its inputs want. */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-8 lg:gap-12 items-start text-left">
           {/* Static map with hover pins */}
-          <div className="relative rounded-[2rem] border border-line shadow-xl aspect-[9/6] bg-secondary-bg mt-6 lg:mt-10 lg:-ml-20">
+          {/* 3/2 is set to land the bottom edge level with the submit button
+              across the grid. It is shallower than the artwork's own 900x700, so
+              object-cover fits the image to the width and crops the foot of it —
+              which is the only way to lose height at a fixed width. Anything
+              taller than 9/7 would instead crop the sides and pull the coastline
+              out of frame. */}
+          <div className="relative rounded-[2rem] border border-line shadow-xl aspect-[3/2] bg-secondary-bg mt-0 lg:mt-1 lg:-ml-20">
             <img
               src={officesMap}
               alt="Map of Andhra Pradesh and Telangana showing Roar Architects offices in Visakhapatnam and Hyderabad"
@@ -211,8 +219,12 @@ export function CTA() {
 
           {/* Let's Connect + form */}
           <div className="flex flex-col justify-center">
-            <span className="text-[38px] font-serif text-accent mb-4">
-              Let's Connect
+            {/* leading-none is what makes the map's top edge line up with this
+                heading. At the inherited 1.5 line height the text sat ~10px
+                below the top of its own box, so the two columns starting on the
+                same grid line still looked misaligned. */}
+            <span className="text-[38px] font-serif leading-none text-accent mb-5">
+              Get In Touch
             </span>
             <p className="text-[16px] leading-relaxed text-muted mb-8 max-w-lg">
               We are excited to hear about your project. Please leave your details and a brief message. We aim to respond within 24 hours.

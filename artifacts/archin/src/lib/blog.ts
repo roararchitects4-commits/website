@@ -1,3 +1,10 @@
+import imgArchitectsHyderabad from '../assets/blog/img1.jpeg';
+import imgVillaHyderabad from '../assets/blog/img2.jpeg';
+import imgCommercial from '../assets/blog/img3.jpeg';
+import imgInteriorVizag from '../assets/blog/img4.jpeg';
+import imgInteriorHyderabad from '../assets/blog/img5.jpeg';
+import imgArchitectsVizag from '../assets/blog/img7.jpeg';
+
 export interface BlogFaq {
   question: string;
   answer: string;
@@ -10,6 +17,7 @@ export interface BlogPost {
   metaDescription: string;
   targetKeywords: string;
   imageAlt: string;
+  image: string;
   body: string;
   faqs: BlogFaq[];
 }
@@ -70,6 +78,17 @@ function parseFaqs(body: string): BlogFaq[] {
   return faqs;
 }
 
+/* Hero image per post — each artwork carries the post's own title, so the
+   pairing is fixed by slug rather than by file order. */
+const POST_IMAGES: Record<string, string> = {
+  'best-architects-in-hyderabad': imgArchitectsHyderabad,
+  'best-interior-designers-in-hyderabad': imgInteriorHyderabad,
+  'best-architects-in-visakhapatnam': imgArchitectsVizag,
+  'best-interior-designers-in-visakhapatnam': imgInteriorVizag,
+  'villa-independent-house-design-hyderabad': imgVillaHyderabad,
+  'commercial-interior-design-hyderabad-visakhapatnam': imgCommercial,
+};
+
 function slugFromField(urlSlugField: string | undefined, fallback: string): string {
   if (!urlSlugField) return fallback;
   return urlSlugField.replace(/^\/?blog\//, '').replace(/\/$/, '');
@@ -84,14 +103,16 @@ function buildPost(path: string, raw: string): BlogPost {
     .replace(/\.md$/, '');
 
   const title = parseTitle(body);
+  const slug = slugFromField(fields['url slug'], fallbackSlug);
 
   return {
-    slug: slugFromField(fields['url slug'], fallbackSlug),
+    slug,
     title,
     metaTitle: fields['meta title'] || title,
     metaDescription: fields['meta description'] || '',
     targetKeywords: fields['target keywords'] || '',
     imageAlt: parseImageAlt(fields['suggested image + alt text'] || ''),
+    image: POST_IMAGES[slug] || imgArchitectsHyderabad,
     body,
     faqs: parseFaqs(body),
   };

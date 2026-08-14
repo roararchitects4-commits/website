@@ -21,7 +21,7 @@ export function FloatingSocialIcons() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with ROAR Architects on WhatsApp"
-        className="floating-social-icon w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shadow-[0_4px_18px_rgba(0,0,0,0.25)] border-2 border-[rgba(42,36,32,0.55)] hover:scale-105 transition-transform duration-200"
+        className="floating-social-icon w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shadow-[0_4px_18px_rgba(0,0,0,0.25)] border-2 border-white hover:scale-105 transition-transform duration-200"
         style={{ animationDelay: '0s' }}
       >
         <img src={whatsappIcon} alt="" className="w-full h-full object-cover scale-[1.14]" />
@@ -31,7 +31,7 @@ export function FloatingSocialIcons() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="ROAR Architects on Instagram"
-        className="floating-social-icon w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shadow-[0_4px_18px_rgba(0,0,0,0.25)] border-2 border-[rgba(42,36,32,0.55)] hover:scale-105 transition-transform duration-200"
+        className="floating-social-icon w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full overflow-hidden shadow-[0_4px_18px_rgba(0,0,0,0.25)] border-2 border-white hover:scale-105 transition-transform duration-200"
         style={{ animationDelay: '0.35s' }}
       >
         <img src={instagramIcon} alt="" className="w-full h-full object-cover scale-[1.10]" />

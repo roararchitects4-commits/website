@@ -31,7 +31,7 @@ export default function BlogPage() {
 
       <main className="flex-1 pt-1 pb-[70px] px-[max(22px,5vw)] bg-white">
         <div className="max-w-[1680px] mx-auto">
-          <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(36px,5vw,64px)] text-ink mb-1 leading-[1.05]">
+          <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(28px,4vw,48px)] text-ink mb-1 leading-[1.05]">
             <Link
               href="/#top"
               aria-label="Back to Home"
@@ -55,9 +55,9 @@ export default function BlogPage() {
                 <div
                   role="img"
                   aria-label={post.imageAlt}
-                  className="aspect-[16/7] relative overflow-hidden bg-gradient-to-br from-ink via-[#3a2f28] to-accent flex items-center justify-center"
+                  className="aspect-[16/7] relative overflow-hidden bg-secondary-bg flex items-center justify-center"
                 >
-                  <PenLine size={20} strokeWidth={1.25} className="text-white/70 transition-transform duration-500 group-hover:scale-110" />
+                  <img src={post.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
                 <div className="p-5">
                   <h2 className="font-serif italic text-[17px] text-ink mb-1.5 font-medium tracking-normal leading-snug">

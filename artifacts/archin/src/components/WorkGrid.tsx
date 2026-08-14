@@ -23,7 +23,7 @@ function ShowcasePanel({ slug, items, delay }: { slug: string; items: WorkItem[]
 
   return (
     <motion.figure
-      className="group w-full max-w-[360px] mx-auto cursor-pointer"
+      className="group w-full max-w-[380px] mx-auto cursor-pointer"
       initial={{ x: -100, opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}
       viewport={{ once: true, amount: 0.45, margin: '0px 0px -120px 0px' }}
@@ -74,7 +74,7 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
   const cards = showcase.length === 4 ? items.slice(0, showcaseFrom) : items;
 
   return (
-    <div className="max-w-[1680px] mx-auto mb-[60px] last:mb-0">
+    <div className="max-w-[1680px] mx-auto mb-[34px] last:mb-0">
       <FadeIn yOffset={20}>
         <div className="flex items-center gap-3 mb-6">
           <span className="w-[22px] h-[1px] bg-accent flex-none" />
@@ -159,7 +159,7 @@ export function WorkGrid() {
   }, [activeItem]);
 
   return (
-    <section id="work" className="pt-[40px] pb-[60px] px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
+    <section id="work" className="pt-[40px] pb-[24px] px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
       <AnimatedLines
         className="z-0"
         scrollDraw
@@ -167,7 +167,8 @@ export function WorkGrid() {
         lines={[
           { start: [-0.2, 0.98], cp1: [0.4, 0.92], cp2: [0.6, -0.1], end: [1.2, -0.2] },
           { start: [1.2, 0.8], cp1: [0.5, 0.9], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
-          { start: [-0.2, 0.15], cp1: [0.3, 0.4], cp2: [0.7, -0.15], end: [1.2, 0.1] },
+          /* Nudged up off the INTERIORS label it used to run straight through. */
+          { start: [-0.2, 0.135], cp1: [0.3, 0.385], cp2: [0.7, -0.15], end: [1.2, 0.1] },
         ]}
       />
       <div className="relative z-10">

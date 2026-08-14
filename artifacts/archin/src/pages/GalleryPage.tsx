@@ -126,7 +126,7 @@ export default function GalleryPage() {
 
       <SiteHeader />
 
-      <main className="flex-1 pt-7 pb-[100px] px-[max(22px,5vw)] bg-white">
+      <main className="flex-1 pt-2 pb-[100px] px-[max(22px,5vw)] bg-white">
         <div className="max-w-[1680px] mx-auto">
           {/* The arrow is the whole back control — it sits inline with the
               title rather than on its own line above it. */}
@@ -134,11 +134,15 @@ export default function GalleryPage() {
             <Link
               href="/#work"
               aria-label="Back to our work"
-              className="font-serif font-light text-[clamp(30px,4vw,50px)] leading-none text-muted hover:text-accent transition-colors"
+              className="font-serif font-light text-[clamp(18px,2.2vw,29px)] leading-none text-muted hover:text-accent transition-colors"
             >
               ←
             </Link>
-            <h1 className="font-serif font-light text-[clamp(36px,5vw,64px)] text-ink mb-3">
+            {/* leading-none as well as the smaller size: at the default line
+                height the title carries half a line of air above its cap, which
+                reads as a gap under the header no amount of padding tuning
+                explains. */}
+            <h1 className="font-serif font-light text-[clamp(20px,2.6vw,32px)] leading-none text-ink mb-3">
               {category.label}
             </h1>
           </div>
