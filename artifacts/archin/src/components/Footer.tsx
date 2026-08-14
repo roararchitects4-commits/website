@@ -3,11 +3,11 @@ import { useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
 
 const FOOTER_LINKS = [
-  { name: 'Home',     href: '#top'     },
-  { name: 'Our Work', href: '#work'    },
-  { name: 'About Us', href: '#studio'  },
-  { name: 'Contact',  href: '#contact' },
-  { name: 'Blog',     href: '/blog'    },
+  { name: 'Home',         href: '#top' },
+  { name: 'Work',         href: '#work' },
+  { name: 'About Us',     href: '#studio' },
+  { name: 'Get in Touch', href: '#contact' },
+  { name: 'Blog',         href: '/blog' },
 ];
 
 export function Footer() {

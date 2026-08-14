@@ -29,41 +29,41 @@ export default function BlogPage() {
 
       <SiteHeader />
 
-      <main className="flex-1 pt-[70px] pb-[100px] px-[max(22px,5vw)] bg-white">
+      <main className="flex-1 pt-1 pb-[70px] px-[max(22px,5vw)] bg-white">
         <div className="max-w-[1680px] mx-auto">
-          <Link
-            href="/#top"
-            className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-muted hover:text-accent transition-colors mb-8"
-          >
-            ← Back to Home
-          </Link>
-
-          <h1 className="font-serif font-light text-[clamp(36px,5vw,64px)] text-ink mb-3">
+          <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(36px,5vw,64px)] text-ink mb-1 leading-[1.05]">
+            <Link
+              href="/#top"
+              aria-label="Back to Home"
+              className="text-muted hover:text-accent transition-colors text-[0.6em]"
+            >
+              ←
+            </Link>
             Blog
           </h1>
-          <p className="text-[13px] text-muted max-w-md mb-14">
+          <p className="text-[13px] text-muted max-w-md mt-1 mb-8">
             Guides and insights on architecture and interior design in Hyderabad and Visakhapatnam.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[clamp(18px,2.6vw,34px)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(14px,1.8vw,22px)]">
             {BLOG_POSTS.map((post) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group block w-full max-w-[360px] mx-auto"
+                className="group block w-full max-w-[320px] mx-auto rounded-2xl overflow-hidden border border-line bg-white shadow-sm hover:shadow-lg transition-shadow duration-300"
               >
                 <div
                   role="img"
                   aria-label={post.imageAlt}
-                  className="aspect-[4/5] rounded-[2.5rem] relative overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-br from-ink via-[#3a2f28] to-accent flex items-center justify-center"
+                  className="aspect-[16/7] relative overflow-hidden bg-gradient-to-br from-ink via-[#3a2f28] to-accent flex items-center justify-center"
                 >
-                  <PenLine size={30} strokeWidth={1.25} className="text-white/70 transition-transform duration-500 group-hover:scale-110" />
+                  <PenLine size={20} strokeWidth={1.25} className="text-white/70 transition-transform duration-500 group-hover:scale-110" />
                 </div>
-                <div className="mt-4">
-                  <h2 className="font-serif italic text-[15px] text-ink mb-1.5 font-normal tracking-normal leading-snug">
+                <div className="p-5">
+                  <h2 className="font-serif italic text-[17px] text-ink mb-1.5 font-medium tracking-normal leading-snug">
                     {post.title}
                   </h2>
-                  <p className="text-[11px] tracking-[0.03em] text-muted leading-relaxed mb-2">
+                  <p className="text-[12px] tracking-[0.03em] text-muted leading-relaxed mb-2.5">
                     {post.metaDescription}
                   </p>
                   <span className="text-[10px] tracking-[0.18em] uppercase text-accent group-hover:underline underline-offset-4">

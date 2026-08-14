@@ -77,6 +77,11 @@ const EMPTY_FORM = { name: '', phone: '', email: '', message: '' };
 export function CTA() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  /* Honeypot. Hidden from people, filled in by naive bots — the API drops any
+     submission that carries a value here. */
+  const [company, setCompany] = useState('');
   const sectionRef = useRef<HTMLElement>(null);
   const [bgOffset, setBgOffset] = useState({ x: 0, y: 0 });
 
@@ -84,12 +89,37 @@ export function CTA() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.name && form.email && form.message) {
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
+    if (sending) return;
+    /* Every field is required, so nothing may be blank. The honeypot is the
+       one exception — it must stay empty. */
+    if (!form.name || !form.email || !form.phone || !form.message) return;
+
+    setSending(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...form, company }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.error ?? 'Something went wrong. Please try again.');
+      }
+
+      /* Only cleared once the mail is actually away — wiping the fields on a
+         failed send would make the visitor retype everything. */
       setForm(EMPTY_FORM);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 6000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -205,6 +235,7 @@ export function CTA() {
                 <input
                   type="tel"
                   placeholder="Phone Number"
+                  required
                   value={form.phone}
                   onChange={updateField('phone')}
                   className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
@@ -225,11 +256,33 @@ export function CTA() {
                   onChange={updateField('message')}
                   className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none resize-none"
                 />
+
+                {/* Honeypot — off-screen rather than display:none, since some
+                    bots skip fields they can tell are hidden. Never announced
+                    to assistive tech and never focusable by keyboard. */}
+                <input
+                  type="text"
+                  name="company"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="absolute left-[-9999px] w-px h-px opacity-0"
+                />
+
+                {error && (
+                  <p role="alert" className="text-[13px] text-accent leading-relaxed mt-1">
+                    {error}
+                  </p>
+                )}
+
                 <button
                   type="submit"
-                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full self-start mt-2"
+                  disabled={sending}
+                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full self-start mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-accent"
                 >
-                  Submit
+                  {sending ? 'Sending…' : 'Submit'}
                 </button>
               </form>
             )}

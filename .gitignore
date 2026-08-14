@@ -41,6 +41,19 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Secrets. The contact form's Resend key lives in Vercel's environment
+# variables, never in the repo — this is the safety net for a local .env.
+.env
+.env.*
+!.env.example
+
+# Vercel CLI's local link/env cache — contains pulled secrets.
+.vercel
+
+# Raw photo drops — multi-GB iCloud archives. The web-sized exports committed
+# under attached_assets/gallery are what the site actually uses.
+attached_assets/ALL IMAGES/*.zip
+
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 

@@ -3,10 +3,11 @@ import { useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
 
 const NAV_LINKS = [
-  { name: 'HOME',     href: '#top'     },
-  { name: 'OUR WORK', href: '#work'    },
-  { name: 'ABOUT US', href: '#studio'  },
-  { name: 'CONTACT',  href: '#contact' },
+  { name: 'HOME',         href: '#top' },
+  { name: 'WORK',         href: '#work' },
+  { name: 'ABOUT US',     href: '#studio' },
+  { name: 'TEAM',         href: '/team' },
+  { name: 'GET IN TOUCH', href: '#contact' },
 ];
 
 const navHref = (isHome: boolean, href: string) => {

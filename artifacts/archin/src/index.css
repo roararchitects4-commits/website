@@ -62,6 +62,18 @@
   background-color: #ffffff;
 }
 
+/* The header is sticky (53–61px tall depending on breakpoint), so jumping to
+   any of these anchors — via the nav links or the #top scrollIntoView on
+   load — would otherwise land their top edge flush with the viewport top,
+   right underneath the header. This offsets the landing point so content
+   clears it instead of being clipped behind it. */
+#top,
+#work,
+#studio,
+#contact {
+  scroll-margin-top: 68px;
+}
+
 /* Subtle grid lines (blueprint paper feel) */
 .hero-section {
   background-image:

@@ -8,9 +8,11 @@ import { WorkGrid } from './components/WorkGrid';
 import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 import { SiteHeader } from './components/SiteHeader';
+import { FloatingSocialIcons } from './components/FloatingSocialIcons';
 import GalleryPage from './pages/GalleryPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
+import TeamPage from './pages/TeamPage';
 import { SITE_URL } from './lib/siteConfig';
 import housePlan from '@assets/house-plan.png';
 import logo from '@/assets/logo/logo.png';
@@ -64,9 +66,10 @@ function BottomBarTrack() {
    Live stat counters
 ───────────────────────────────────────────── */
 const STATS = [
-  { value: 120, suffix: '+', label: 'PROJECTS' },
-  { value: 10,  suffix: '',  label: 'YEARS'    },
-  { value: 4,   suffix: '',  label: 'CITIES'   },
+  { value: 250, suffix: '+', label: 'PROJECTS'  },
+  { value: 3,   suffix: '+', label: 'COUNTRIES' },
+  { value: 7,   suffix: '+', label: 'CITIES'    },
+  { value: 7,   suffix: '+', label: 'YEARS'     },
 ];
 
 /* PageTransition holds the arc/loading cover for ~1950ms (800ms hold + 1150ms wipe) — wait for it to clear before counting up. */
@@ -110,7 +113,7 @@ function StatItem({ value, suffix, label, bordered }: { value: number; suffix: s
       <span className="hero-stat-value font-sans font-normal leading-none text-[#18140f]">
         {count}{suffix}
       </span>
-      <span className="font-sans text-[9px] tracking-[0.22em] text-[#2a2420] opacity-45 mt-1.5 uppercase">
+      <span className="font-sans text-[9px] tracking-[0.22em] text-black mt-1.5 uppercase">
         {label}
       </span>
     </div>
@@ -125,7 +128,7 @@ function HeroSection() {
     <section id="top" className="hero-section flex flex-col" style={{ minHeight: 'calc(81vh - 53px)' }}>
 
       {/* ── Main content area ── */}
-      <div className="flex flex-1">
+      <div className="relative flex flex-1">
 
         {/* Left edge: vertical label */}
         <div className="hidden xl:flex items-center justify-center w-11 flex-none border-r border-[rgba(42,36,32,0.1)] py-8 select-none">
@@ -220,10 +223,6 @@ function HeroSection() {
                 <StatItem key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} bordered={i > 0} />
               ))}
             </div>
-
-            <p className="font-sans text-[10px] tracking-[0.08em] text-[#2a2420] opacity-50 mt-4 max-w-[280px]">
-              Based in Hyderabad, with an active studio presence in Visakhapatnam.
-            </p>
           </div>
         </div>
 
@@ -318,6 +317,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/team" component={TeamPage} />
       <Route path="/gallery/:slug" component={GalleryPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />
@@ -339,6 +339,7 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Router />
+      <FloatingSocialIcons />
     </WouterRouter>
   );
 }
