@@ -10,26 +10,29 @@
  * Required environment variables (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY     — from resend.com/api-keys
  *   CONTACT_TO_EMAIL   — where submissions land
- *   CONTACT_FROM_EMAIL — a sender on a domain verified in Resend,
- *                        e.g. "Roar Architects <website@roararchitects.com>"
+ *   CONTACT_FROM_EMAIL — a sender Resend accepts, e.g.
+ *                        "ROAR Architects <onboarding@resend.dev>", or an
+ *                        address on a domain verified in Resend.
  */
 
-export const config = { runtime: 'nodejs' };
+/* Vercel's Node runtime calls handlers with an (req, res) pair and waits for
+ * the response to be written. Returning a web-standard `Response` object
+ * instead does nothing: the request hangs until the platform times it out, and
+ * the browser sits on "Sending…" forever. These minimal structural types
+ * describe just the surface used here, so the contract stays explicit without
+ * pulling in @vercel/node purely for two type declarations. */
+type Req = {
+  method?: string;
+  body?: unknown;
+};
 
-type Submission = {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
+type Res = {
+  status: (code: number) => Res;
+  json: (body: unknown) => void;
+  setHeader: (name: string, value: string) => void;
 };
 
 const LIMITS = { name: 120, email: 200, phone: 40, message: 5000 };
-
-const json = (body: unknown, status: number) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { 'content-type': 'application/json' },
-  });
 
 /** Deliberately loose. Real addresses that a strict pattern rejects are a far
  *  worse outcome than the odd junk one, which the studio can simply ignore. */
@@ -49,9 +52,11 @@ const escapeHtml = (value: string) =>
  *  (`reply_to`, `subject`) lets a submitter append headers of their own. */
 const singleLine = (value: string) => value.replace(/[\r\n]+/g, ' ').trim();
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
+export default async function handler(req: Req, res: Res): Promise<void> {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
   const apiKey = process.env.RESEND_API_KEY;
@@ -62,20 +67,29 @@ export default async function handler(request: Request): Promise<Response> {
     // Logged for the deploy owner, but never echoed to the browser — which of
     // your env vars are missing is not a visitor's business.
     console.error('contact: missing RESEND_API_KEY, CONTACT_TO_EMAIL or CONTACT_FROM_EMAIL');
-    return json({ error: 'Email is not configured on the server.' }, 500);
+    res.status(500).json({ error: 'Email is not configured on the server.' });
+    return;
   }
 
-  let body: Partial<Submission> & { company?: string };
+  // Vercel parses a JSON body for us, but only when the content-type says so.
+  // Anything else arrives as a raw string, and a hand-rolled request may send
+  // nothing at all — so all three shapes are handled rather than assumed.
+  let body: Record<string, unknown>;
   try {
-    body = await request.json();
+    body =
+      typeof req.body === 'string'
+        ? JSON.parse(req.body)
+        : ((req.body ?? {}) as Record<string, unknown>);
   } catch {
-    return json({ error: 'Invalid request body.' }, 400);
+    res.status(400).json({ error: 'Invalid request body.' });
+    return;
   }
 
   // Honeypot: hidden from real users, irresistible to naive bots. Answer 200 so
   // the bot records a success and does not come back to retry.
   if (typeof body.company === 'string' && body.company.trim() !== '') {
-    return json({ ok: true }, 200);
+    res.status(200).json({ ok: true });
+    return;
   }
 
   const name = singleLine(String(body.name ?? ''));
@@ -87,10 +101,12 @@ export default async function handler(request: Request): Promise<Response> {
   // attribute is a convenience for people, not a control — anything can POST
   // this endpoint directly with whatever body it likes.
   if (!name || !email || !phone || !message) {
-    return json({ error: 'Every field is required.' }, 400);
+    res.status(400).json({ error: 'Every field is required.' });
+    return;
   }
   if (!looksLikeEmail(email)) {
-    return json({ error: 'That email address does not look valid.' }, 400);
+    res.status(400).json({ error: 'That email address does not look valid.' });
+    return;
   }
   if (
     name.length > LIMITS.name ||
@@ -98,7 +114,8 @@ export default async function handler(request: Request): Promise<Response> {
     phone.length > LIMITS.phone ||
     message.length > LIMITS.message
   ) {
-    return json({ error: 'One of those fields is too long.' }, 400);
+    res.status(400).json({ error: 'One of those fields is too long.' });
+    return;
   }
 
   const html = `
@@ -141,12 +158,14 @@ ${message}`;
 
     if (!response.ok) {
       console.error('contact: resend rejected the send', response.status, await response.text());
-      return json({ error: 'We could not send your message. Please try again.' }, 502);
+      res.status(502).json({ error: 'We could not send your message. Please try again.' });
+      return;
     }
   } catch (error) {
     console.error('contact: resend request failed', error);
-    return json({ error: 'We could not send your message. Please try again.' }, 502);
+    res.status(502).json({ error: 'We could not send your message. Please try again.' });
+    return;
   }
 
-  return json({ ok: true }, 200);
+  res.status(200).json({ ok: true });
 }
