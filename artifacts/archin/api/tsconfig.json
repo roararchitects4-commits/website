@@ -1,0 +1,27 @@
+{
+  // Deliberately standalone — it does NOT extend the app's tsconfig.
+  //
+  // Vercel compiles serverless functions with the nearest tsconfig it can find.
+  // Without this file that would be artifacts/archin/tsconfig.json, which sets
+  // "noEmit": true because the Vite app is only ever typechecked, never emitted
+  // by tsc. That made the build fail with "api/contact.ts: Emit skipped" — tsc
+  // checked the function, then produced no JavaScript to deploy.
+  //
+  // The app config also sets "allowImportingTsExtensions", which is only legal
+  // alongside noEmit, so flipping noEmit off there is not an option either.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    // DOM supplies the Request/Response/fetch globals the handler is built on;
+    // node supplies process.env.
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": false
+  },
+  "include": ["./**/*.ts"]
+}
