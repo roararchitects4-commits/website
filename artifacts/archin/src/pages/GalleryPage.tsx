@@ -153,11 +153,11 @@ export default function GalleryPage() {
           {/* Fewer columns and taller rows than a thumbnail wall, so each
               project actually reads at a glance. */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 auto-rows-[clamp(120px,11.5vw,230px)] gap-2.5 sm:gap-3 [grid-auto-flow:dense]">
-            {photos.map((src, idx) => (
+            {photos.map((photo, idx) => (
               <button
-                key={src}
+                key={photo.id}
                 type="button"
-                aria-label={`Open ${category.label} image ${idx + 1}`}
+                aria-label={`Open ${photo.caption}`}
                 className={`${TILE_SPANS[idx % TILE_SPANS.length]} mosaic-tile group relative overflow-hidden rounded-xl bg-secondary-bg ring-1 ring-black/5 hover:z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent`}
                 /* Staggered period and phase per tile, so neighbours drift out of
                    sync and the wall breathes instead of bobbing as one slab. The
@@ -166,15 +166,26 @@ export default function GalleryPage() {
                   animationDuration: `${5.5 + (idx % 7) * 0.55}s`,
                   animationDelay: `${-((idx * 0.83) % 6).toFixed(2)}s`,
                 }}
-                onClick={() => setActiveItem({ img: src })}
+                onClick={() => setActiveItem({ img: photo.src, title: photo.caption })}
               >
                 <img
-                  src={src}
-                  alt=""
+                  src={photo.src}
+                  alt={photo.caption}
                   loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                 />
+                {/* The caption stays out of the composition until the tile is
+                    pointed at or tabbed to — the wall reads as photographs, and
+                    the name is there the moment you go looking for it. */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pt-8 pb-2.5 text-left bg-gradient-to-t from-black/75 via-black/35 to-transparent opacity-0 translate-y-2 transition-[opacity,transform] duration-300 ease-out group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0"
+                >
+                  <span className="block font-serif italic text-[13px] sm:text-[14px] leading-snug text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]">
+                    {photo.caption}
+                  </span>
+                </span>
               </button>
             ))}
           </div>
@@ -237,12 +248,20 @@ export default function GalleryPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <b className="block font-serif italic text-[20px] sm:text-[22px] text-white mb-1.5 font-normal tracking-normal">
+                  {/* Mosaic photos carry a caption but no blurb, so the
+                      paragraph is dropped rather than rendered empty. */}
+                  <b
+                    className={`block font-serif italic text-[20px] sm:text-[22px] text-white font-normal tracking-normal ${
+                      activeItem.desc ? 'mb-1.5' : ''
+                    }`}
+                  >
                     {activeItem.title}
                   </b>
-                  <p className="text-[13px] text-white/80 leading-relaxed tracking-[0.03em] max-w-lg">
-                    {activeItem.desc}
-                  </p>
+                  {activeItem.desc && (
+                    <p className="text-[13px] text-white/80 leading-relaxed tracking-[0.03em] max-w-lg">
+                      {activeItem.desc}
+                    </p>
+                  )}
                 </motion.div>
               )}
             </motion.div>
