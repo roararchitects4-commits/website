@@ -11,7 +11,11 @@ const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent
 export function FloatingSocialIcons() {
   return (
     <motion.div
-      className="fixed right-4 sm:right-6 bottom-6 z-[60] flex flex-col gap-3"
+      /* The home indicator on a modern phone occupies the bottom ~34px, and a
+         button parked at a flat 24px sits underneath it — the swipe-up gesture
+         wins over the tap. The inset is 0 anywhere without one, so this is a
+         no-op on desktop and on older devices. */
+      className="fixed right-4 sm:right-6 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-[60] flex flex-col gap-3"
       initial={{ y: 140, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.9, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}

@@ -1,106 +1,243 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion, useInView } from 'framer-motion';
 import { SiteHeader } from '../components/SiteHeader';
 import { Footer } from '../components/Footer';
-import { TypewriterText } from '../components/TypewriterText';
 import { SITE_URL } from '../lib/siteConfig';
 
 import rohithaPhoto from '@assets/aboutusimage.jpeg';
 import team1 from '@assets/team1.jpeg';
 import team2 from '@assets/team2.jpeg';
-import saiKiranPhoto from '@assets/MD.jpeg';
+import team3 from '@assets/team3.png';
+import team4 from '@assets/team4.jpeg';
+import team5 from '@assets/team5.jpeg'
+import suryaKiranPhoto from '@assets/MD.jpeg';
+/* The supplied team_bg drawings with their paper keyed out. The sources are
+   opaque JPEGs on an off-white ground, so as-is they would drop a grey slab
+   over the sheet's rules; keyed, the hairlines and border read straight
+   through. The key normalises against each drawing's own paper tone rather
+   than assuming pure white, which is why no rectangle edge shows. Long edge
+   capped at 700px — they never draw wider than ~420 on the page. */
+import bgLeft from '@assets/team-bg3.png';
+import bgRight from '@assets/team-bg5.png';
+import bgBottom from '@assets/team-bg4.png';
 
+/* Drawn to a supplied comp: an architectural drawing sheet — near-white paper,
+   hairline rules, dimension runs and registration marks, everything in ink. No
+   accent colour appears in the comp, so the site's --accent is deliberately
+   unused on this page. */
+const PAPER = '#FBFAF8';
+const INK = '#111111';
+const MUTED = 'rgba(17,17,17,0.56)';
+const FAINT = 'rgba(17,17,17,0.38)';
+const RULE = 'rgba(17,17,17,0.20)';
+const FRAME_BG = '#E8E5E0';
+/* The one colour on an otherwise monochrome sheet — the site's brand red,
+   carried here so job titles read as ROAR's rather than as more ink. */
+const ACCENT = '#A5342C';
 
 interface TeamMember {
-  /* Empty name = slot still waiting on the real person's details. */
   name: string;
   designation: string;
   photo?: string;
 }
 
-/* Both leaders are confirmed and match the founder block on the home page. The
-   two headshots in TEAM_MEMBERS are photographs of real people, so they carry no
-   invented name or bio — fill in `name` and `designation` before this page goes
-   live. Empty entries render the silhouette placeholder; swap in a `photo` and
-   details as each one arrives. */
-const LEADERSHIP: (TeamMember & { bio: string[] })[] = [
-    {
-    name: 'Sai Kiran',
+/* `dim` is the figure on each portrait's dimension run. The comp's "01"/"02"
+   plate numerals and their MANAGEMENT / LEADERSHIP DESIGN labels have both been
+   dropped, so no field carries them any more. */
+const LEADERSHIP: (TeamMember & { bio: string; dim: string })[] = [
+  {
+    name: 'Surya Kiran',
     designation: 'Managing Director',
-    photo: saiKiranPhoto,
-    bio: [
-      'Leads the overall business strategy, operations, and client relationships at ROAR — with a focus on growth and execution, so every project is delivered with excellence and integrity.',
-    ],
+    photo: suryaKiranPhoto,
+    bio: 'Leads the overall business strategy, operations and client relationships at ROAR — ensuring every project is delivered with excellence and integrity.',
+    dim: '2600',
   },
   {
     name: 'Rohitha Surya',
     designation: 'Founder & Principal Architect',
     photo: rohithaPhoto,
-    bio: [
-      'Leads ROAR from Hyderabad, with an active studio in Visakhapatnam — homes, villas, commercial and hospitality projects, concept through execution.',
-    ],
+    bio: 'Leads ROAR from Hyderabad, with an active studio in Visakhapatnam — homes, villas, commercial and hospitality projects, concept through execution.',
+    dim: '4200',
   },
-
 ];
+
+const [SURYA, ROHITHA] = LEADERSHIP;
 
 const TEAM_MEMBERS: TeamMember[] = [
-  { name: '', designation: '', photo: team1 },
-  { name: '', designation: '', photo: team2 },
-  { name: '', designation: '' },
-  { name: '', designation: '' },
-  { name: '', designation: '' },
-  { name: '', designation: '' },
+  { name: 'Maria Mustajaab Ahmed', designation: 'Interior Designer', photo: team1 },
+  { name: 'Balla Janakiram', designation: 'Senior 2d designer', photo: team2 },
+  { name: 'Naveen B', designation: 'Senior 3D Designer', photo: team3 },
+  { name: 'KM Naidu', designation: 'Execution Head', photo: team4 },
+  {name:'Angarapu Manikanta', designation:'Site Engineer', photo:team5}
 ];
 
-/* Fine grain over the off-white, so the page reads as a textured surface rather
-   than flat fill. Fills whatever it is dropped into — here, the team section —
-   and never intercepts clicks or reaches assistive tech. */
-function TeamBackdrop() {
+/* ─────────────────────────────────────────────
+   Drawing-sheet furniture
+───────────────────────────────────────────── */
+
+/* L-shaped crop marks, set just outside the frame they belong to — the comp
+   puts a set at every photograph and at the corners of the sheet. */
+function CornerBrackets({ inset = '-8px', size = '14px' }: { inset?: string; size?: string }) {
+  const common = { position: 'absolute', width: size, height: size } as const;
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <svg className="absolute inset-0 h-full w-full opacity-[0.045] mix-blend-multiply">
-        <filter id="team-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#team-grain)" />
-      </svg>
+    <span aria-hidden="true" className="pointer-events-none">
+      <span style={{ ...common, top: inset, left: inset, borderTop: `1px solid ${RULE}`, borderLeft: `1px solid ${RULE}` }} />
+      <span style={{ ...common, top: inset, right: inset, borderTop: `1px solid ${RULE}`, borderRight: `1px solid ${RULE}` }} />
+      <span style={{ ...common, bottom: inset, left: inset, borderBottom: `1px solid ${RULE}`, borderLeft: `1px solid ${RULE}` }} />
+      <span style={{ ...common, bottom: inset, right: inset, borderBottom: `1px solid ${RULE}`, borderRight: `1px solid ${RULE}` }} />
+    </span>
+  );
+}
+
+/* A dimension run: witness line, arrow tick at each end, figure sitting on the
+   line. Vertical reads bottom-to-top, as it does on a real drawing. */
+function Dimension({
+  value,
+  orientation = 'vertical',
+  className = '',
+}: {
+  value: string;
+  orientation?: 'vertical' | 'horizontal';
+  className?: string;
+}) {
+  const vertical = orientation === 'vertical';
+  return (
+    <span
+      aria-hidden="true"
+      className={`pointer-events-none absolute flex items-center justify-center ${
+        vertical ? 'flex-col' : 'flex-row'
+      } ${className}`}
+    >
+      <span
+        className={vertical ? 'h-2 w-px' : 'h-px w-2'}
+        style={{ backgroundColor: RULE }}
+      />
+      <span className={`relative flex flex-1 items-center justify-center ${vertical ? 'flex-col' : ''}`}>
+        <span
+          className={vertical ? 'absolute h-full w-px' : 'absolute h-px w-full'}
+          style={{ backgroundColor: RULE }}
+        />
+        <span
+          className="relative px-1 py-0.5 font-sans text-[7.5px] tracking-[0.14em]"
+          style={{
+            color: FAINT,
+            backgroundColor: PAPER,
+            writingMode: vertical ? 'vertical-rl' : undefined,
+            transform: vertical ? 'rotate(180deg)' : undefined,
+          }}
+        >
+          {value}
+        </span>
+      </span>
+      <span
+        className={vertical ? 'h-2 w-px' : 'h-px w-2'}
+        style={{ backgroundColor: RULE }}
+      />
+    </span>
+  );
+}
+
+/* The plan drawing, standing in for the comp's faint background drawings.
+   Small and only just blurred — enough to sit behind the type without
+   competing, while still reading as a drawing rather than a smudge. */
+function SketchPlate({
+  src,
+  className = '',
+  flip = false,
+}: {
+  src: string;
+  className?: string;
+  flip?: boolean;
+}) {
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      className={`pointer-events-none absolute select-none blur-[1px] ${className}`}
+      style={{ opacity: 0.28, transform: flip ? 'scaleX(-1)' : undefined }}
+    />
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Portrait frame — the shape the comp is built on
+───────────────────────────────────────────── */
+
+/* Every photograph on the sheet is cut the same way: a rectangle with its
+   top-left corner chamfered off at 45°, with crop marks set outside it. The
+   chamfer is a clip-path rather than a border trick, so the photograph itself
+   is cut — no wedge of background shows through the corner. */
+const CHAMFER = '26px';
+const CHAMFER_SM = '18px';
+
+function Portrait({
+  photo,
+  name,
+  className = '',
+  chamfer = CHAMFER,
+  brackets = true,
+}: {
+  photo?: string;
+  name: string;
+  className?: string;
+  chamfer?: string;
+  brackets?: boolean;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      {brackets && <CornerBrackets />}
+      <div
+        className="relative h-full w-full overflow-hidden"
+        style={{
+          backgroundColor: FRAME_BG,
+          clipPath: `polygon(${chamfer} 0, 100% 0, 100% 100%, 0 100%, 0 ${chamfer})`,
+        }}
+      >
+        {photo && (
+          <img
+            src={photo}
+            alt={name ? `${name}, ROAR Architects` : 'ROAR Architects team member'}
+            className="h-full w-full object-cover object-top grayscale"
+          />
+        )}
+      </div>
     </div>
   );
 }
 
-/* Stand-in for a headshot not supplied yet — head and shoulders in the ink of
-   the site palette, on the same warm grey the photo frames use. */
-function SilhouettePlaceholder() {
+function LeaderCopy({ name, designation, bio }: { name: string; designation: string; bio: string }) {
   return (
-    <svg
-      viewBox="0 0 100 125"
-      className="w-full h-full"
-      role="img"
-      aria-label="Photograph to be added"
-      preserveAspectRatio="xMidYMid slice"
-    >
-      <rect width="100" height="125" className="fill-secondary-bg" />
-      <g fill="hsl(var(--ink))" opacity="0.85">
-        <ellipse cx="50" cy="48" rx="20" ry="24" />
-        <path d="M50 74c-19 0-33 12-33 27v24h66V101c0-15-14-27-33-27z" />
-      </g>
-    </svg>
+    <div>
+      {/* Leading rule, left over from the tag that used to sit here — it keeps
+          the block anchored to the sheet's furniture now the label is gone. */}
+      <span className="mb-5 block h-px w-6" style={{ backgroundColor: RULE }} />
+      <h2
+        className="font-serif text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
+        style={{ color: INK }}
+      >
+        {name}
+      </h2>
+      <p
+        className="mt-2 font-sans text-[13px] font-medium leading-[1.5]"
+        style={{ color: ACCENT }}
+      >
+        {designation}
+      </p>
+      <span className="mt-5 block h-px w-6" style={{ backgroundColor: RULE }} />
+      <p
+        className="mt-5 max-w-[28ch] font-sans text-[13px] font-light leading-[1.85]"
+        style={{ color: MUTED }}
+      >
+        {bio}
+      </p>
+    </div>
   );
 }
 
 export default function TeamPage() {
-  /* Watched instead of the cards themselves: each card starts parked off the
-     side of the viewport, so an observer on the card could never see it arrive
-     and the entrance would never fire. The row wrapper stays put, so it is the
-     one thing that can report "this row has been scrolled to". */
-  const rowsRef = React.useRef<HTMLDivElement | null>(null);
-  const rowsInView = useInView(rowsRef, { once: true, amount: 0.15 });
-
   return (
-    /* Off-white throughout — the site's own --background (#FBF8F4), so the page
-       stays warm rather than the flat white the sections used before. */
-    <div className="relative bg-background min-h-screen flex flex-col">
+    <div className="relative flex min-h-screen flex-col" style={{ backgroundColor: PAPER }}>
       <Helmet>
         <title>Team | ROAR Architects</title>
         <meta
@@ -115,128 +252,249 @@ export default function TeamPage() {
 
       <SiteHeader />
 
-      {/* Backdrop is bounded by <main>, so it stops where the team section
-          ends rather than carrying on behind the footer. Content after it is
-          lifted above by its own relative positioning. */}
-      <main className="relative flex-1 isolate">
-        <TeamBackdrop />
+      {/* clip, not hidden: setting overflow-x to hidden makes overflow-y
+          compute to auto, which turns this element into its own scroll
+          container and puts a second scrollbar down the side of the page.
+          overflow-x-clip trims the sketch plates' negative offsets without
+          ever becoming scrollable. */}
+      <main className="relative flex-1 overflow-x-clip">
+        {/* Sheet border with its own crop marks, holding the whole drawing. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-[max(14px,2.6vw)] inset-y-6 hidden lg:block"
+          style={{ border: `1px solid ${RULE}` }}
+        >
+          <CornerBrackets inset="-7px" size="16px" />
+        </div>
 
-        <section className="relative z-10 px-[max(22px,5vw)] pt-3 pb-2">
-          <div className="max-w-[1680px] mx-auto">
-            <p className="font-sans text-[10px] tracking-[0.28em] text-muted uppercase mb-0.5">
-              The People Behind ROAR
-            </p>
-            <h1 className="font-serif font-light text-[clamp(24px,3.2vw,38px)] text-ink mb-0 leading-[1.05]">
-              Team
-            </h1>
-            <p className="text-[12px] text-muted max-w-md mt-1">
-              The architects and designers shaping every ROAR project, from first sketch to handover.
-            </p>
+        {/* Studio line up the left margin. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[max(20px,3.4vw)] top-[26%] hidden select-none font-sans text-[8px] uppercase tracking-[0.3em] xl:block"
+          style={{ color: MUTED, writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+        >
+          ROAR Architects &nbsp;·&nbsp; Studio &nbsp;·&nbsp; Based in Visakhapatnam
+        </span>
+
+        {/* ══ Section 1 — the two leaders ══ */}
+        <section className="relative px-[max(26px,6vw)] pt-12 pb-4 lg:pt-16 lg:pb-6">
+          {/* Drawn in off the edges so each plate reads whole rather than as a
+              sliver. The percentages resolve against the section's width, which
+              is the full viewport, so these sit just inside the screen with
+              nothing clipped by main's overflow-x-clip. */}
+          <SketchPlate src={bgLeft} className="left-[1%] top-[26%] hidden w-[340px] lg:block" />
+          <SketchPlate src={bgRight} className="right-[11%] top-[58%] hidden w-[400px] lg:block" />
+
+          <div className="relative mx-auto w-full max-w-[1120px]">
+            {/* Two portraits interlocking: they share column 6 and the middle
+                row, which is what laps Surya's over Rohitha's rather than
+                setting them side by side. Below lg the blocks fall into one
+                column in DOM order. */}
+            <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
+              {/* Intro */}
+              <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
+                <p className="font-sans text-[8.5px] uppercase tracking-[0.26em]" style={{ color: MUTED }}>
+                  The People Behind ROAR
+                </p>
+                <h1
+                  className="mt-4 font-serif text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
+                  style={{ color: INK }}
+                >
+                  Team.
+                </h1>
+                <p
+                  className="mt-6 max-w-[26ch] font-sans text-[14px] font-light leading-[1.85]"
+                  style={{ color: MUTED }}
+                >
+                  Architects and designers shaping every ROAR project, from first sketch to
+                  handover.
+                </p>
+              </div>
+
+              {/* Rohitha — portrait, moved out to the right of the sheet. The
+                  small negative margin is what keeps Surya's portrait lapping
+                  over this one: at column 7 the two cells no longer touch, so
+                  without it the pair would sit apart rather than interlock. */}
+              <div className="relative lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:-ml-10">
+                <Dimension
+                  value={ROHITHA.dim}
+                  className="left-[-26px] top-0 hidden h-full lg:flex"
+                />
+                <Portrait
+                  photo={ROHITHA.photo}
+                  name={ROHITHA.name}
+                  className="mx-auto aspect-[0.8] w-full max-w-[260px] lg:mx-0 lg:max-w-[290px]"
+                />
+              </div>
+
+              {/* Rohitha — copy set beside the portrait on the same row
+                  rather than dropped below it. */}
+              <div className="lg:col-span-3 lg:col-start-10 lg:row-start-1 lg:mt-1">
+                <LeaderCopy
+                  name={ROHITHA.name}
+                  designation={ROHITHA.designation}
+                  bio={ROHITHA.bio}
+                />
+              </div>
+
+              {/* Surya — portrait, dropped lower and lapping Rohitha's. The
+                  filled square at its foot is the comp's solid corner tick. */}
+              <div className="relative lg:z-10 lg:col-span-3 lg:col-start-4 lg:row-span-2 lg:row-start-2">
+                <Portrait
+                  photo={SURYA.photo}
+                  name={SURYA.name}
+                  className="mx-auto aspect-[0.72] w-full max-w-[240px] lg:mx-0 lg:max-w-[265px]"
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-[-5px] right-[-5px] hidden h-2.5 w-2.5 lg:block"
+                  style={{ backgroundColor: INK }}
+                />
+                <Dimension
+                  value={SURYA.dim}
+                  orientation="horizontal"
+                  className="bottom-[-26px] left-0 hidden w-full lg:flex"
+                />
+              </div>
+
+              {/* Surya — copy, down the left margin */}
+              <div className="lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:mt-16">
+                <LeaderCopy name={SURYA.name} designation={SURYA.designation} bio={SURYA.bio} />
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Clipped so the off-screen start of the slide-in never opens a
-            horizontal scrollbar. */}
-        {/* Cards are sized off the viewport width and the page is meant to be
-            scrolled — the rows below the fold animate in as they are reached. */}
-        <section className="relative z-10 px-[max(22px,5vw)] pb-8 md:pb-10 overflow-x-hidden">
-          <div className="max-w-[1240px] mx-auto">
-            {/* Leadership row — founder and MD side by side, each reading photo
-                → name → designation → bio from top to bottom. Each card slides
-                in from its own side of the viewport and eases to a stop. */}
-            <div className="grid grid-cols-2 gap-x-6 sm:gap-x-10 items-start">
-              {LEADERSHIP.map((member, idx) => (
-                /* Card widths track the viewport so the two rows keep their
-                   proportions from a laptop up to a wide monitor. */
-                <article
-                  key={member.designation}
-                  className="flex flex-col items-center text-center"
-                >
-                  {/* Portrait frame — these are headshots, so a landscape crop
-                      would cut the face off. */}
-                  <motion.div
-                    initial={{ x: idx === 0 ? '-70vw' : '70vw', opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                    className="aspect-[4/5] w-[clamp(220px,24vw,360px)] overflow-hidden rounded-[1.5rem] bg-secondary-bg shadow-xl will-change-transform"
+        {/* ══ Section 2 — the wider studio ══ */}
+        <section className="relative px-[max(26px,6vw)] pb-10 lg:pb-14">
+          <div className="mx-auto w-full max-w-[1120px]">
+            <div className="h-px w-full" style={{ backgroundColor: RULE }} />
+
+            <div className="relative pt-8 lg:pt-10">
+              <div className="grid grid-cols-1 gap-y-5 lg:grid-cols-12 lg:items-start lg:gap-x-5">
+                <div className="lg:col-span-5 lg:col-start-1">
+                  <p
+                    className="font-sans text-[8.5px] uppercase tracking-[0.26em]"
+                    style={{ color: MUTED }}
                   >
-                    {member.photo ? (
-                      <img
-                        src={member.photo}
-                        alt={member.name}
-                        className="w-full h-full object-cover object-top"
-                      />
-                    ) : (
-                      <SilhouettePlaceholder />
-                    )}
-                  </motion.div>
-
-                  <h2 className="font-serif font-light text-[clamp(20px,2.4vw,28px)] text-ink mt-5 leading-tight">
-                    {member.name || <span className="text-muted/50">Name to be added</span>}
-                  </h2>
-                  <p className="font-sans text-[10px] tracking-[0.22em] uppercase text-accent mt-2">
-                    {member.designation}
+                    The Design Studio
                   </p>
+                  <h2
+                    className="mt-4 font-serif text-[clamp(30px,3.9vw,54px)] font-light leading-[1.06] tracking-[-0.01em]"
+                    style={{ color: INK }}
+                  >
+                    Designing
+                    <br />
+                    with Purpose.
+                  </h2>
+                </div>
+                <div className="lg:col-span-4 lg:col-start-6 lg:mt-1">
+                  <p
+                    className="max-w-[36ch] font-sans text-[14px] font-light leading-[1.85]"
+                    style={{ color: MUTED }}
+                  >
+                    A collaborative team of architects and designers turning bold ideas into
+                    meaningful spaces.
+                  </p>
+                </div>
+              </div>
 
-                  {/* One continuous pass like the home page, rather than a
-                      separate typewriter per line. The blank lines survive via
-                      the component's pre-wrap. min-h reserves the finished
-                      height so the grid below doesn't shift as it types. */}
-                  {member.bio.length > 0 && (
-                    <TypewriterText
-                      tag="div"
-                      className="mt-3 max-w-[42ch] font-sans text-[13px] leading-relaxed text-muted min-h-[64px]"
-                      text={member.bio.join('\n\n')}
-                      speed={9}
-                      delay={900 + idx * 250}
-                    />
-                  )}
-                </article>
-              ))}
+              {/* The plate number and its label used to sit in a column to the
+                  left of each photograph. That column is what set the caption
+                  below out of line with the picture — the caption starts at the
+                  figure's edge, which was the number's edge, not the photo's.
+                  With it gone the photograph starts the figure and the name
+                  below lines up with it. The dimension run is absolutely
+                  positioned, so it costs no width and does not reintroduce the
+                  offset. */}
+              {/* One row for the whole studio from md up — four columns for
+                  four people. Below md they fall to two across: four abreast on
+                  a phone leaves each portrait about 75px wide, too narrow to
+                  read a face in. The gap tightens at lg so four 230px portraits
+                  and their gutters still fit the 1120px sheet. */}
+              <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-12 sm:gap-x-12 md:grid-cols-5 lg:mt-14 lg:gap-x-10">
+                {TEAM_MEMBERS.map((member, idx) => (
+                  <figure key={member.photo ?? idx} className="relative flex flex-col">
+                    <div className="relative w-full max-w-full">
+                      <Dimension
+                        value="3200"
+                        className="left-[-14px] top-0 hidden h-full lg:flex"
+                      />
+                      <Portrait
+                        photo={member.photo}
+                        name={member.name}
+                        chamfer={CHAMFER_SM}
+                        className="aspect-[0.82] w-full"
+                      />
+                    </div>
+
+                    {/* Caption only where the details have arrived — an
+                        unnamed portrait shows as a portrait, with nothing
+                        standing in for a name. */}
+                    {(member.name || member.designation) && (
+                      <figcaption className="mt-5">
+                        <span className="mb-3 block h-px w-6" style={{ backgroundColor: RULE }} />
+                        {member.name && (
+                          <p
+                            className="font-serif text-[clamp(15px,1.4vw,19px)] font-light leading-tight"
+                            style={{ color: INK }}
+                          >
+                            {member.name}
+                          </p>
+                        )}
+                        {member.designation && (
+                          <p
+                            className="mt-1 font-sans text-[9.5px] font-medium leading-[1.6]"
+                            style={{ color: ACCENT }}
+                          >
+                            {member.designation}
+                          </p>
+                        )}
+                      </figcaption>
+                    )}
+                  </figure>
+                ))}
+              </div>
             </div>
+          </div>
+        </section>
 
-            {/* The rest of the studio, three across — filled photos and
-                silhouette placeholders share one rhythm. */}
-            <div ref={rowsRef} className="mt-6 grid grid-cols-3 gap-x-6 sm:gap-x-10 gap-y-10">
-              {TEAM_MEMBERS.map((member, idx) => (
-                <motion.article
-                  key={idx}
-                  /* Slides in from whichever edge of the screen it sits nearest
-                     — left column from the left, right column from the right,
-                     centre column straight up — once the grid is scrolled to. */
-                  initial={{
-                    x: idx % 3 === 0 ? '-60vw' : idx % 3 === 2 ? '60vw' : 0,
-                    y: idx % 3 === 1 ? 44 : 0,
-                    opacity: 0,
-                  }}
-                  animate={rowsInView ? { x: 0, y: 0, opacity: 1 } : undefined}
-                  transition={{
-                    duration: 1.1,
-                    delay: Math.floor(idx / 3) * 0.18 + (idx % 3) * 0.08,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className="flex flex-col items-center text-center"
+        {/* ══ Section 3 — the tally ══ */}
+        <section className="relative px-[max(26px,6vw)] pb-16 lg:pb-24">
+          <div className="mx-auto w-full max-w-[1120px]">
+            <div className="h-px w-full" style={{ backgroundColor: RULE }} />
+
+            <div className="relative pt-8 lg:pt-10">
+              <SketchPlate src={bgBottom} className="right-[2%] top-[-64%] hidden w-[600px] lg:block" />
+
+              {/* Dot grid, far right — the comp's tone patch. */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-0 top-2 hidden h-16 w-16 lg:block"
+                style={{
+                  backgroundImage: `radial-gradient(${RULE} 1px, transparent 1px)`,
+                  backgroundSize: '9px 9px',
+                }}
+              />
+
+              <div className="relative flex flex-wrap items-center gap-x-10 gap-y-6">
+                <p
+                  className="font-sans text-[15px] font-medium uppercase leading-[1.8] tracking-[0.22em]"
+                  style={{ color: ACCENT }}
                 >
-                  <div className="aspect-[4/5] w-[clamp(150px,16vw,255px)] overflow-hidden rounded-[1.1rem] bg-secondary-bg shadow-lg">
-                    {member.photo ? (
-                      <img
-                        src={member.photo}
-                        alt={member.name || 'ROAR Architects team member'}
-                        className="w-full h-full object-cover object-top"
-                      />
-                    ) : (
-                      <SilhouettePlaceholder />
-                    )}
-                  </div>
-
-                  <h2 className="font-serif font-light text-[clamp(16px,1.9vw,21px)] text-ink mt-4 leading-tight">
-                    {member.name || <span className="text-muted/50">Name to be added</span>}
-                  </h2>
-                  <p className="font-sans text-[10px] tracking-[0.22em] uppercase mt-1.5 text-accent">
-                    {member.designation || <span className="text-muted/50">Role to be added</span>}
-                  </p>
-                </motion.article>
-              ))}
+                  People
+                  <br />
+                  One Studio
+                </p>
+                <span className="hidden h-14 w-px lg:block" style={{ backgroundColor: RULE }} />
+                <p
+                  className="max-w-[34ch] font-sans text-[14px] font-light leading-[1.85]"
+                  style={{ color: MUTED }}
+                >
+                  Different perspectives. One shared vision — creating spaces that inspire and
+                  endure.
+                </p>
+              </div>
             </div>
           </div>
         </section>

@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useSearch, Link } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SiteHeader } from '../components/SiteHeader';
 import { Footer } from '../components/Footer';
+import { useDismissOnScroll } from '../hooks/useDismissOnScroll';
 import { WORK_CATEGORIES, type WorkItem } from '../data/workCategories';
 import { GALLERY_IMAGES } from '../data/galleryImages';
 import { SITE_URL } from '../lib/siteConfig';
@@ -65,30 +66,8 @@ export default function GalleryPage() {
     if (match) setActiveItem(match);
   }, [requestedId, category]);
 
-  useEffect(() => {
-    if (!activeItem) return;
-
-    const close = () => setActiveItem(null);
-    const handleWheel = (e: WheelEvent) => {
-      if (e.deltaY > 0) close();
-    };
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-    const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartY - e.touches[0].clientY > 10) close();
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [activeItem]);
+  const closeLightbox = useCallback(() => setActiveItem(null), []);
+  useDismissOnScroll(activeItem !== null, closeLightbox);
 
   if (!category) {
     return (
@@ -212,6 +191,17 @@ export default function GalleryPage() {
             }
             @media (prefers-reduced-motion: reduce) {
               .mosaic-tile { animation: none; }
+            }
+            /* The drift is a desktop flourish — space between the tiles is what
+               makes it read, and a two-column phone grid has almost none, so
+               the wall just judders. Dropping it also spares the phone a
+               permanent compositor job across every tile in the gallery. */
+            @media (max-width: 639.98px) {
+              .mosaic-tile {
+                animation: none;
+                will-change: auto;
+                box-shadow: 0 10px 20px -10px rgba(0,0,0,0.3);
+              }
             }
           `}</style>
         </div>

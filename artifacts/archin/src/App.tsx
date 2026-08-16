@@ -108,11 +108,15 @@ function useCountUp(target: number, durationMs = 1600) {
 function StatItem({ value, suffix, label, bordered }: { value: number; suffix: string; label: string; bordered: boolean }) {
   const count = useCountUp(value);
   return (
-    <div className={`flex flex-col py-4 pr-5 ${bordered ? 'border-l border-[rgba(42,36,32,0.12)] pl-5' : ''}`}>
+    /* Each column is as wide as its widest child, and on a phone that is the
+       label rather than the number — "COUNTRIES" at 0.22em tracking is wider
+       than "3+". Three of those plus the gutters run past a 320px screen, so
+       the padding and the tracking both come in until sm. */
+    <div className={`flex flex-col py-4 pr-3 sm:pr-5 ${bordered ? 'border-l border-[rgba(42,36,32,0.12)] pl-3 sm:pl-5' : ''}`}>
       <span className="hero-stat-value font-sans font-normal leading-none text-[#18140f]">
         {count}{suffix}
       </span>
-      <span className="font-sans text-[9px] tracking-[0.22em] text-black mt-1.5 uppercase">
+      <span className="font-sans text-[9px] tracking-[0.12em] sm:tracking-[0.22em] text-black mt-1.5 uppercase whitespace-nowrap">
         {label}
       </span>
     </div>
@@ -124,7 +128,10 @@ function StatItem({ value, suffix, label, bordered }: { value: number; suffix: s
 ───────────────────────────────────────────── */
 function HeroSection() {
   return (
-    <section id="top" className="hero-section flex flex-col" style={{ minHeight: 'calc(81vh - 53px)' }}>
+    /* Height lives on .hero-section in index.css rather than inline here, so
+       the tall-viewport rule there can override it — an inline style outranks
+       any stylesheet rule and would have pinned the hero at its dvh height. */
+    <section id="top" className="hero-section flex flex-col">
 
       {/* ── Main content area ── */}
       <div className="relative flex flex-1">
@@ -160,19 +167,24 @@ function HeroSection() {
               Explore Our Work &nbsp;→
             </a>
 
-            {/* ── Architectural sketch, below the headline ── */}
-            <div className="relative flex items-end justify-start h-full min-h-[200px]">
+            {/* ── Architectural sketch, below the headline ──
+                The three blueprint annotations are pinned to the corners and
+                mid-edge of this box. They are drawn to sit in the white space
+                around a wide sketch; once the box narrows to a phone they land
+                on top of the drawing instead, so they only appear from sm up.
+                The sketch reads on its own without them. */}
+            <div className="relative flex items-end justify-start h-full min-h-[140px] sm:min-h-[200px]">
               {/* Blueprint annotation — ELEVATION A */}
-              <div className="absolute top-2 right-6 flex items-center gap-2 pointer-events-none select-none">
+              <div className="hidden sm:flex absolute top-2 right-6 items-center gap-2 pointer-events-none select-none">
                 <span className="font-sans text-[9px] tracking-[0.22em] text-[#2a2420] opacity-35 uppercase">ELEVATION A</span>
                 <span className="block w-10 h-px bg-[#2a2420] opacity-25" />
               </div>
               {/* Blueprint annotation — SCALE */}
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none select-none">
+              <div className="hidden sm:block absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none select-none">
                 <span className="font-sans text-[9px] tracking-[0.22em] text-[#2a2420] opacity-35 uppercase">SCALE 1:100</span>
               </div>
               {/* Blueprint annotation — coordinates */}
-              <div className="absolute bottom-8 left-2 pointer-events-none select-none">
+              <div className="hidden sm:block absolute bottom-8 left-2 pointer-events-none select-none">
                 <span className="font-mono text-[9px] text-[#2a2420] opacity-30">23°02'N, 72°34'E</span>
               </div>
 
@@ -203,17 +215,12 @@ function HeroSection() {
             <div className="w-10 h-px bg-[#2a2420] opacity-20 mb-5" />
 
             {/* Services */}
-            <div className="flex items-baseline justify-between gap-4 mb-6">
-              <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY'].map(s => (
-                  <span key={s} className="font-sans text-[10px] tracking-[0.18em] text-black">
-                    {s}
-                  </span>
-                ))}
-              </div>
-              <p className="font-sans text-[10px] tracking-[0.22em] text-black uppercase whitespace-nowrap">
-                Since 2016
-              </p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mb-6">
+              {['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY'].map(s => (
+                <span key={s} className="font-sans text-[10px] tracking-[0.18em] text-black">
+                  {s}
+                </span>
+              ))}
             </div>
 
             {/* Stats */}
@@ -265,7 +272,16 @@ function HeroSection() {
 ───────────────────────────────────────────── */
 function Home() {
   useEffect(() => {
-    if (!window.location.hash) return;
+    /* No hash means a plain load or a refresh, which should begin at the top.
+       Browsers otherwise drop the visitor back at their previous scroll offset,
+       landing them mid-page with every entrance below them already triggered —
+       so the sections they scroll past afterwards are simply static. Starting
+       from the top lets the whole sequence play as they move down. */
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+      return;
+    }
+
     const id = window.location.hash.slice(1);
     const timer = window.setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
@@ -334,6 +350,18 @@ function Router() {
 }
 
 function App() {
+  /* Hand scroll position back to the app on reload. Left to itself the browser
+     restores the offset the visitor was at, which fights the per-page
+     scroll-to-top above and, on a refresh, reveals sections whose entrances
+     never got the chance to run. Set once for the whole app, before any page
+     mounts, since it governs the browser's own restore behaviour rather than
+     any one route's. */
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Router />

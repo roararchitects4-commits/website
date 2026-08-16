@@ -94,7 +94,7 @@ export default function BlogPostPage() {
 
       <SiteHeader />
 
-      <main className="flex-1 pt-[70px] pb-[100px] px-[max(22px,5vw)] bg-white">
+      <main className="flex-1 pt-8 sm:pt-[70px] pb-16 sm:pb-[100px] px-[max(22px,5vw)] bg-white">
         <div className="max-w-[760px] mx-auto">
           <Link
             href="/blog"
@@ -112,7 +112,12 @@ export default function BlogPostPage() {
           </div>
 
           <article
-            className="prose prose-neutral max-w-none
+            /* break-words so a long unbroken string in the copy — a bare URL,
+               an address — wraps instead of widening the article past the
+               screen. prose-table wrapping covers GFM tables, which the posts
+               don't use today but the renderer accepts. */
+            className="prose prose-neutral max-w-none break-words
+              prose-table:block prose-table:overflow-x-auto
               prose-headings:font-serif prose-headings:font-normal prose-headings:text-ink
               prose-h1:text-[clamp(28px,4.4vw,46px)] prose-h1:leading-[1.15] prose-h1:mb-5
               prose-h2:text-[24px] prose-h2:mt-12 prose-h2:mb-4

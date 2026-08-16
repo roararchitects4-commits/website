@@ -29,6 +29,23 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHome]);
 
+  /* Route links (TEAM) navigate client-side, so without this the dropdown is
+     still hanging open over the page you just landed on. The same-page hash
+     links close it in their own onClick, which doesn't fire here because the
+     location never changes. */
+  useEffect(() => setMenuOpen(false), [location]);
+
+  /* The dropdown covers the top of the page it sits over; letting that page
+     scroll underneath it leaves the menu floating over unrelated content. */
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
+
   const showBrand = scrolled || !isHome;
 
   return (
@@ -52,7 +69,10 @@ export function SiteHeader() {
         aria-label={menuOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={menuOpen}
         onClick={() => setMenuOpen(o => !o)}
-        className="md:hidden flex flex-col justify-center gap-[5px] w-8 h-8 -ml-1 flex-none"
+        /* 44px box around the 24px glyph — the bars themselves are far under
+           the minimum comfortable touch target, and the padding buys that back
+           without redrawing the icon. */
+        className="md:hidden flex flex-col justify-center items-start gap-[5px] w-11 h-11 -ml-3.5 -my-2.5 pl-2.5 flex-none"
       >
         <span className={`block h-[1.5px] w-6 bg-[#2a2420] transition-transform duration-200 ${menuOpen ? 'translate-y-[6.5px] rotate-45' : ''}`} />
         <span className={`block h-[1.5px] w-6 bg-[#2a2420] transition-opacity duration-200 ${menuOpen ? 'opacity-0' : ''}`} />
@@ -76,9 +96,11 @@ export function SiteHeader() {
         </a>
       </div>
 
-      {/* Mobile nav dropdown */}
+      {/* Mobile nav dropdown. Capped and scrollable so the list still reaches
+          its last item on a phone held sideways, where the viewport is barely
+          taller than the menu itself. */}
       {menuOpen && (
-        <nav className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-[rgba(42,36,32,0.15)] flex flex-col shadow-lg">
+        <nav className="md:hidden absolute top-full left-0 right-0 max-h-[calc(100dvh-56px)] overflow-y-auto bg-white border-b border-[rgba(42,36,32,0.15)] flex flex-col shadow-lg">
           {NAV_LINKS.map(link => (
             <a
               key={link.name}

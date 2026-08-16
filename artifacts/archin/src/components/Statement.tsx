@@ -12,7 +12,12 @@ export function Statement({ quote, kicker }: StatementProps) {
      text splits above and below — it sets the gap to the section before this
      one as much as the padding does. */
   return (
-    <section className="min-h-[9vh] flex flex-col items-center justify-center text-center px-[max(22px,8vw)] py-6 bg-white relative z-10">
+    /* A fixed floor rather than 9vh. The two resolve alike on a desktop — 9vh
+       of a ~950px window is about this — but on a phone the viewport is pinned
+       to a desktop width and scaled down, which leaves it thousands of CSS
+       pixels tall. 9vh of that reserved a few hundred pixels of empty space
+       between the philosophy line and Get In Touch. */
+    <section className="min-h-[85px] flex flex-col items-center justify-center text-center px-[max(22px,8vw)] py-6 bg-white relative z-10">
       <FadeIn className="max-w-[1000px] w-full flex flex-col items-center">
         {kicker && (
           <div className="flex flex-col items-center mb-5">

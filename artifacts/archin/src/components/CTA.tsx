@@ -192,7 +192,15 @@ export function CTA() {
                 className="group absolute z-10 flex flex-col items-center -translate-x-1/2 -translate-y-full"
                 style={{ left: office.left, top: office.top }}
               >
-                <div className="w-[150px] bg-white rounded-lg shadow-lg p-2.5 text-left transition-transform duration-200 group-hover:-translate-y-0.5">
+                {/* Two 150px cards pinned at 25.8% and 75% of the map's width
+                    need roughly 400px of map to stand clear of each other; on a
+                    phone the map is barely 300px and they overlap into an
+                    unreadable stack. Below sm the pin alone stays on the map
+                    and the addresses move to the list underneath, which is
+                    where they can actually be read. Dropping the card leaves
+                    the pin's point on the same coordinate — the anchor is
+                    bottom-aligned to it. */}
+                <div className="hidden sm:block w-[150px] bg-white rounded-lg shadow-lg p-2.5 text-left transition-transform duration-200 group-hover:-translate-y-0.5">
                   <span className="flex items-center gap-2 text-[8.5px] tracking-[0.18em] text-accent uppercase mb-1">
                     {office.city}
                   </span>
@@ -206,7 +214,7 @@ export function CTA() {
                   </address>
                 </div>
 
-                <span className="w-px h-3 bg-accent/70" />
+                <span className="hidden sm:block w-px h-3 bg-accent/70" />
 
                 <MapPin
                   size={26}
@@ -216,6 +224,31 @@ export function CTA() {
               </a>
             ))}
           </div>
+
+          {/* Phone-only counterpart to the on-map cards above — same two
+              addresses, same links, at a size that can be read and tapped. */}
+          <ul className="sm:hidden flex flex-col gap-3 -mt-2">
+            {OFFICES.map((office) => (
+              <li key={office.city}>
+                <a
+                  href={office.mapsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-2.5 rounded-xl border border-line bg-white/85 p-3.5"
+                >
+                  <MapPin size={16} strokeWidth={1.75} className="text-accent flex-none mt-0.5" />
+                  <span className="min-w-0">
+                    <span className="block text-[10px] tracking-[0.18em] text-accent uppercase mb-1">
+                      {office.city}
+                    </span>
+                    <address className="not-italic text-[12px] leading-snug text-muted">
+                      {office.lines.join(' ')}
+                    </address>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
 
           {/* Let's Connect + form */}
           <div className="flex flex-col justify-center">

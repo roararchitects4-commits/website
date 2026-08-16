@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
+import { useScaledDownView, SCALED_VIEW_ENTRANCE_DELAY } from '../hooks/useScaledDownView';
 import rohithaImg from '@assets/aboutusimage.jpeg';
-import saiKiranImg from '@assets/MD.jpeg';
+import suryaKiranImg from '@assets/MD.jpeg';
 
 /* Stand-in for a portrait not supplied yet, matching the one on the team page. */
 function SilhouettePlaceholder() {
@@ -26,9 +27,9 @@ function SilhouettePlaceholder() {
 
 const LEADERS = [
   {
-    name: 'Sai Kiran',
+    name: 'Surya Kiran',
     role: 'Managing Director',
-    photo: saiKiranImg as string | undefined,
+    photo: suryaKiranImg as string | undefined,
     imageClass: 'scale-100 hover:scale-[0.97]',
     bio: 'Leads the business strategy, operations, and client relationships at Roar Architects. With a focus on growth and execution, he ensures every project is delivered with excellence and integrity.',
     /* Mirrored tilts: the left card leans up to the right, the right card down. */
@@ -50,7 +51,15 @@ export function About() {
   const [rotate, setRotate] = useState<Record<string, { x: number; y: number }>>({});
   const rowRef = React.useRef<HTMLDivElement | null>(null);
   const rowInView = useInView(rowRef, { once: true, amount: 0.25 });
+  const scaledView = useScaledDownView();
+  const entranceDelay = scaledView ? SCALED_VIEW_ENTRANCE_DELAY : 0;
   const handleMouseMove = (name: string) => (e: React.MouseEvent<HTMLDivElement>) => {
+    /* Touch browsers synthesise a mousemove on tap but never the matching
+       mouseleave, so on a phone a tap would tilt the portrait and leave it
+       tilted for good. The effect is a cursor affordance — there is no cursor
+       to follow on a touch screen, so skip it entirely there. */
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
     const box = e.currentTarget.getBoundingClientRect();
     const centerX = box.width / 2;
     const centerY = box.height / 2;
@@ -69,7 +78,11 @@ export function About() {
   };
 
   return (
-    <section id="studio" className="relative overflow-hidden bg-white px-[max(20px,4vw)] pb-[38px] pt-[132px]">
+    /* The 132px top padding is clearance for the statement block, which on
+       desktop is pulled up out of the row by -112px into exactly that space.
+       Stacked on a phone the statement sits in normal flow and the padding is
+       just an empty screen to scroll past. */
+    <section id="studio" className="relative overflow-hidden bg-white px-[max(20px,4vw)] pb-[38px] pt-[56px] lg:pt-[132px]">
       <div className="relative z-10 mx-auto w-full max-w-[1780px]">
         {/* text | portrait | statement | portrait | text. The middle column is
             the clearing between the cards, holding the studio line.
@@ -82,7 +95,7 @@ export function About() {
             number alone does little; the space has to come off its neighbours —
             here from the statement column and the gutters, so the bios keep
             their measure and the names don't shift further toward the edge. */}
-        <div ref={rowRef} className="grid grid-cols-1 items-center gap-x-[clamp(16px,1.6vw,28px)] gap-y-14 lg:grid-cols-[minmax(0,250px)_minmax(0,520px)_minmax(0,190px)_minmax(0,520px)_minmax(0,250px)]">
+        <div ref={rowRef} className="about-leaders-row grid grid-cols-1 items-center gap-x-[clamp(16px,1.6vw,28px)] gap-y-14 lg:grid-cols-[minmax(0,250px)_minmax(0,520px)_minmax(0,190px)_minmax(0,520px)_minmax(0,250px)]">
           {LEADERS.map((leader, idx) => {
             const tilt = rotate[leader.name] ?? { x: 0, y: 0 };
             const onLeft = leader.side === 'left';
@@ -140,7 +153,11 @@ export function About() {
                     rotate: leader.tilt + (onLeft ? 360 : -360),
                   }}
                   animate={rowInView ? { opacity: 1, x: 0, rotate: leader.tilt } : undefined}
-                  transition={{ duration: 2.2, delay: 0.15 + idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: 2.2,
+                    delay: entranceDelay + 0.15 + idx * 0.12,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   {/* Entrance lives on the element above and the cursor tilt on
                       this one — a single element can't carry both, because the

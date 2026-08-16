@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedLines } from './AnimatedLines';
+import { useDismissOnScroll } from '../hooks/useDismissOnScroll';
+import { useScaledDownView } from '../hooks/useScaledDownView';
 import { WORK_CATEGORIES, type WorkItem } from '../data/workCategories';
 
 interface WorkRowProps {
@@ -133,44 +135,40 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
 export function WorkGrid() {
   const [activeItem, setActiveItem] = useState<WorkItem | null>(null);
 
-  useEffect(() => {
-    if (!activeItem) return;
-
-    const close = () => setActiveItem(null);
-    const handleWheel = (e: WheelEvent) => {
-      if (e.deltaY > 0) close();
-    };
-    let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartY = e.touches[0].clientY;
-    };
-    const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartY - e.touches[0].clientY > 10) close();
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
-  }, [activeItem]);
+  const closeLightbox = useCallback(() => setActiveItem(null), []);
+  useDismissOnScroll(activeItem !== null, closeLightbox);
+  const scaledView = useScaledDownView();
 
   return (
     <section id="work" className="pt-[40px] pb-[24px] px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
-      <AnimatedLines
-        className="z-0"
-        scrollDraw
-        localScrollOffset
-        lines={[
-          { start: [-0.2, 0.98], cp1: [0.4, 0.92], cp2: [0.6, -0.1], end: [1.2, -0.2] },
-          { start: [1.2, 0.8], cp1: [0.5, 0.9], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
-          /* Nudged up off the INTERIORS label it used to run straight through. */
-          { start: [-0.2, 0.135], cp1: [0.3, 0.385], cp2: [0.7, -0.15], end: [1.2, 0.1] },
-        ]}
-      />
+      {/* Desktop: lines draw progressively as the user scrolls. */}
+      {!scaledView && (
+        <AnimatedLines
+          className="z-0"
+          scrollDraw
+          localScrollOffset
+          lines={[
+            { start: [-0.2, 0.98], cp1: [0.4, 0.92], cp2: [0.6, -0.1], end: [1.2, -0.2] },
+            { start: [1.2, 0.8], cp1: [0.5, 0.9], cp2: [0.2, 0.1], end: [-0.2, 0.4] },
+            { start: [-0.2, 0.135], cp1: [0.3, 0.385], cp2: [0.7, -0.15], end: [1.2, 0.1] },
+          ]}
+        />
+      )}
+      {/* Mobile: lines live-draw their path on page load (revealDelay=0),
+          with shorter curves so they don't cross too far beyond the
+          architecture row. */}
+      {scaledView && (
+        <AnimatedLines
+          className="z-0"
+          revealDelay={0}
+          localScrollOffset
+          lines={[
+            { start: [0.05, 0.75], cp1: [0.35, 0.65], cp2: [0.65, 0.15], end: [0.95, 0.08] },
+            { start: [0.95, 0.6], cp1: [0.55, 0.7], cp2: [0.3, 0.25], end: [0.05, 0.35] },
+            { start: [0.05, 0.18], cp1: [0.3, 0.35], cp2: [0.7, 0.02], end: [0.95, 0.12] },
+          ]}
+        />
+      )}
       <div className="relative z-10">
         {WORK_CATEGORIES.map((category, idx) => (
           <WorkRow
