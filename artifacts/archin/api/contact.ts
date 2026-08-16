@@ -9,7 +9,12 @@
  *
  * Required environment variables (set in Vercel → Settings → Environment Variables):
  *   RESEND_API_KEY     — from resend.com/api-keys
- *   CONTACT_TO_EMAIL   — where submissions land
+ *   CONTACT_TO_EMAIL   — where submissions land. Comma-separate to notify
+ *                        several people:
+ *                          studio@example.com,rohitha@example.com
+ *                        A second variable cannot be added for this — env var
+ *                        names are unique per environment, so the list lives
+ *                        in this one value.
  *   CONTACT_FROM_EMAIL — a sender Resend accepts, e.g.
  *                        "ROAR Architects <onboarding@resend.dev>", or an
  *                        address on a domain verified in Resend.
@@ -60,10 +65,18 @@ export default async function handler(req: Req, res: Res): Promise<void> {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
+  /* One variable, one or many recipients. Splitting here rather than adding a
+     CONTACT_TO_EMAIL_2 because env var names are unique per environment —
+     there is no second slot to add. Empty entries are dropped so a stray
+     trailing comma cannot send Resend a blank address and fail the whole
+     delivery. */
+  const recipients = (process.env.CONTACT_TO_EMAIL ?? '')
+    .split(',')
+    .map((address) => address.trim())
+    .filter(Boolean);
   const from = process.env.CONTACT_FROM_EMAIL;
 
-  if (!apiKey || !to || !from) {
+  if (!apiKey || recipients.length === 0 || !from) {
     // Logged for the deploy owner, but never echoed to the browser — which of
     // your env vars are missing is not a visitor's business.
     console.error('contact: missing RESEND_API_KEY, CONTACT_TO_EMAIL or CONTACT_FROM_EMAIL');
@@ -147,7 +160,7 @@ ${message}`;
       },
       body: JSON.stringify({
         from,
-        to: [to],
+        to: recipients,
         // Hitting reply in the inbox answers the visitor directly.
         reply_to: email,
         subject: `New enquiry — ${name}`,
