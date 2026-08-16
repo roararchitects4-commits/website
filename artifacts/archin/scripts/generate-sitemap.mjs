@@ -25,7 +25,11 @@ const blogSlugs = readdirSync(blogDir)
 const workCategoriesSrc = readFileSync(path.join(root, 'src/data/workCategories.ts'), 'utf8');
 const gallerySlugs = [...workCategoriesSrc.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1]);
 
-const staticPaths = ['/', '/blog'];
+/* Routes with no data source behind them, so they cannot be derived the way the
+   blog and gallery paths below are — they have to be listed by hand. Keep this
+   in step with the <Route> list in src/App.tsx; a route missing here is a page
+   Google is never told about. */
+const staticPaths = ['/', '/team', '/blog'];
 const galleryPaths = gallerySlugs.map((slug) => `/gallery/${slug}`);
 const blogPaths = blogSlugs.map((slug) => `/blog/${slug}`);
 

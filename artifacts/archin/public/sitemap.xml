@@ -1,36 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://roarchitects.co/</loc>
+    <loc>https://www.roararchitects.com/</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog</loc>
+    <loc>https://www.roararchitects.com/team</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/gallery/architecture</loc>
+    <loc>https://www.roararchitects.com/blog</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/gallery/interiors</loc>
+    <loc>https://www.roararchitects.com/gallery/architecture</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/gallery/terrace-scaping</loc>
+    <loc>https://www.roararchitects.com/gallery/interiors</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/best-architects-in-hyderabad</loc>
+    <loc>https://www.roararchitects.com/gallery/terrace-scaping</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/best-interior-designers-in-hyderabad</loc>
+    <loc>https://www.roararchitects.com/blog/best-architects-in-hyderabad</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/best-architects-in-visakhapatnam</loc>
+    <loc>https://www.roararchitects.com/blog/best-interior-designers-in-hyderabad</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/best-interior-designers-in-visakhapatnam</loc>
+    <loc>https://www.roararchitects.com/blog/best-architects-in-visakhapatnam</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/villa-independent-house-design-hyderabad</loc>
+    <loc>https://www.roararchitects.com/blog/best-interior-designers-in-visakhapatnam</loc>
   </url>
   <url>
-    <loc>https://roarchitects.co/blog/commercial-interior-design-hyderabad-visakhapatnam</loc>
+    <loc>https://www.roararchitects.com/blog/villa-independent-house-design-hyderabad</loc>
+  </url>
+  <url>
+    <loc>https://www.roararchitects.com/blog/commercial-interior-design-hyderabad-visakhapatnam</loc>
   </url>
 </urlset>

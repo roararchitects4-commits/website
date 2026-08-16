@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://roarchitects.co/sitemap.xml
+Sitemap: https://www.roararchitects.com/sitemap.xml
