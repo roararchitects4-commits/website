@@ -4,22 +4,22 @@ import { SiteHeader } from '../components/SiteHeader';
 import { Footer } from '../components/Footer';
 import { SITE_URL } from '../lib/siteConfig';
 
-import rohithaPhoto from '@assets/aboutusimage.jpeg';
-import team1 from '@assets/team1.jpeg';
-import team2 from '@assets/team2.jpeg';
-import team3 from '@assets/team3.png';
-import team4 from '@assets/team4.jpeg';
-import team5 from '@assets/team5.jpeg'
-import suryaKiranPhoto from '@assets/MD.jpeg';
-/* The supplied team_bg drawings with their paper keyed out. The sources are
+import rohithaPhoto from '@assets/team/rohitha-surya.jpeg';
+import team1 from '@assets/team/member-1.jpeg';
+import team2 from '@assets/team/member-2.jpeg';
+import team3 from '@assets/team/member-3.png';
+import team4 from '@assets/team/member-4.jpeg';
+import team5 from '@assets/team/member-5.jpeg'
+import suryaKiranPhoto from '@assets/team/surya-kiran.jpeg';
+/* The supplied sketch drawings with their paper keyed out. The sources are
    opaque JPEGs on an off-white ground, so as-is they would drop a grey slab
    over the sheet's rules; keyed, the hairlines and border read straight
    through. The key normalises against each drawing's own paper tone rather
    than assuming pure white, which is why no rectangle edge shows. Long edge
    capped at 700px — they never draw wider than ~420 on the page. */
-import bgLeft from '@assets/team-bg3.png';
-import bgRight from '@assets/team-bg5.png';
-import bgBottom from '@assets/team-bg4.png';
+import bgLeft from '@assets/team/sketch-left.png';
+import bgRight from '@assets/team/sketch-right.png';
+import bgBottom from '@assets/team/sketch-bottom.png';
 
 /* Drawn to a supplied comp: an architectural drawing sheet — near-white paper,
    hairline rules, dimension runs and registration marks, everything in ink. No
@@ -208,12 +208,16 @@ function Portrait({
 
 function LeaderCopy({ name, designation, bio }: { name: string; designation: string; bio: string }) {
   return (
-    <div>
+    /* Centred below lg, where the portrait above it is centred too and copy
+       ranged left would hang off to one side of it. The column returns to
+       ranged left at lg, where the block sits in its own grid cell beside the
+       photograph and the sheet's left-hand alignment is the point. */
+    <div className="flex flex-col items-center text-center lg:block lg:text-left">
       {/* Leading rule, left over from the tag that used to sit here — it keeps
           the block anchored to the sheet's furniture now the label is gone. */}
       <span className="mb-5 block h-px w-6" style={{ backgroundColor: RULE }} />
       <h2
-        className="font-serif text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
+        className="font-serif text-[clamp(26px,7vw,42px)] sm:text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
         style={{ color: INK }}
       >
         {name}
@@ -277,7 +281,7 @@ export default function TeamPage() {
         </span>
 
         {/* ══ Section 1 — the two leaders ══ */}
-        <section className="relative px-[max(26px,6vw)] pt-12 pb-4 lg:pt-16 lg:pb-6">
+        <section className="relative px-[max(16px,6vw)] pt-10 pb-4 lg:pt-16 lg:pb-6">
           {/* Drawn in off the edges so each plate reads whole rather than as a
               sliver. The percentages resolve against the section's width, which
               is the full viewport, so these sit just inside the screen with
@@ -290,14 +294,19 @@ export default function TeamPage() {
                 row, which is what laps Surya's over Rohitha's rather than
                 setting them side by side. Below lg the blocks fall into one
                 column in DOM order. */}
-            <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
+            {/* Stacked, the row gap is the only thing separating one leader
+                from the next — 48px left the pair reading as two unrelated
+                screens on a phone. 24px still parts them without the scroll
+                between. From lg the blocks are placed on the 12-column grid
+                and the gap goes back to zero. */}
+            <div className="grid grid-cols-1 gap-y-6 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
               {/* Intro */}
               <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
                 <p className="font-sans text-[8.5px] uppercase tracking-[0.26em]" style={{ color: MUTED }}>
                   The People Behind ROAR
                 </p>
                 <h1
-                  className="mt-4 font-serif text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
+                  className="mt-4 font-serif text-[clamp(40px,11vw,96px)] sm:text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
                   style={{ color: INK }}
                 >
                   Team.
@@ -366,7 +375,7 @@ export default function TeamPage() {
         </section>
 
         {/* ══ Section 2 — the wider studio ══ */}
-        <section className="relative px-[max(26px,6vw)] pb-10 lg:pb-14">
+        <section className="relative px-[max(16px,6vw)] pb-10 lg:pb-14">
           <div className="mx-auto w-full max-w-[1120px]">
             <div className="h-px w-full" style={{ backgroundColor: RULE }} />
 

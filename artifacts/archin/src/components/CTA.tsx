@@ -3,8 +3,8 @@ import { Helmet } from 'react-helmet-async';
 import { MapPin } from 'lucide-react';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
-import officesMap from '@assets/generated_images/offices-map.png';
-import contactBg from '@assets/generated_images/realconatctimage.png';
+import officesMap from '@assets/contact/offices-map.png';
+import contactBg from '@assets/contact/contact-bg.png';
 import { SITE_URL, SITE_NAME } from '../lib/siteConfig';
 
 const MARQUEE_WORDS = ['Dedicated', 'Creative', 'Innovative', 'Sustainable', 'Passionate', 'Timeless'];
@@ -98,6 +98,18 @@ export function CTA() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
+  /* `type="tel"` only tells a phone which keyboard to raise — it accepts any
+     character typed into it, so the field has to be filtered here to actually
+     stay numeric. Doing it on change rather than on keypress means pastes and
+     browser autofill are cleaned up too, not just typing. A leading `+`
+     survives so an international number can still be given as +91…; 15 digits
+     is the most any real number carries (E.164). */
+  const updatePhone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    const plus = raw.trimStart().startsWith('+') ? '+' : '';
+    setForm((f) => ({ ...f, phone: plus + raw.replace(/\D/g, '').slice(0, 15) }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (sending) return;
@@ -148,7 +160,7 @@ export function CTA() {
       ref={sectionRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden flex flex-col items-center pt-8 pb-0 px-[22px] bg-white"
+      className="relative overflow-hidden flex flex-col items-center pt-6 sm:pt-8 pb-0 px-4 sm:px-[22px] bg-white"
     >
       <Helmet>
         <script type="application/ld+json">{JSON.stringify(localBusinessJsonLd)}</script>
@@ -192,19 +204,17 @@ export function CTA() {
                 className="group absolute z-10 flex flex-col items-center -translate-x-1/2 -translate-y-full"
                 style={{ left: office.left, top: office.top }}
               >
-                {/* Two 150px cards pinned at 25.8% and 75% of the map's width
-                    need roughly 400px of map to stand clear of each other; on a
-                    phone the map is barely 300px and they overlap into an
-                    unreadable stack. Below sm the pin alone stays on the map
-                    and the addresses move to the list underneath, which is
-                    where they can actually be read. Dropping the card leaves
-                    the pin's point on the same coordinate — the anchor is
-                    bottom-aligned to it. */}
-                <div className="hidden sm:block w-[150px] bg-white rounded-lg shadow-lg p-2.5 text-left transition-transform duration-200 group-hover:-translate-y-0.5">
-                  <span className="flex items-center gap-2 text-[8.5px] tracking-[0.18em] text-accent uppercase mb-1">
+                {/* The card sits above its pin at every width now. Two of them
+                    centred on 25.8% and 75% clear each other once the map is
+                    wider than about twice the card, so the phone card comes
+                    down to 124px: at the narrowest phone the section allows —
+                    320px less its 16px gutters — that still leaves ~33px
+                    between the two, and neither runs off the map's edge. */}
+                <div className="w-[124px] sm:w-[150px] bg-white rounded-lg shadow-lg p-2 sm:p-2.5 text-left transition-transform duration-200 group-hover:-translate-y-0.5">
+                  <span className="flex items-center gap-2 text-[7px] sm:text-[8.5px] tracking-[0.16em] sm:tracking-[0.18em] text-accent uppercase mb-1">
                     {office.city}
                   </span>
-                  <address className="not-italic text-[9.5px] leading-snug text-muted">
+                  <address className="not-italic text-[8px] sm:text-[9.5px] leading-snug text-muted">
                     {office.lines.map((line, i) => (
                       <React.Fragment key={i}>
                         {line}
@@ -214,7 +224,7 @@ export function CTA() {
                   </address>
                 </div>
 
-                <span className="hidden sm:block w-px h-3 bg-accent/70" />
+                <span className="block w-px h-2 sm:h-3 bg-accent/70" />
 
                 <MapPin
                   size={26}
@@ -225,30 +235,10 @@ export function CTA() {
             ))}
           </div>
 
-          {/* Phone-only counterpart to the on-map cards above — same two
-              addresses, same links, at a size that can be read and tapped. */}
-          <ul className="sm:hidden flex flex-col gap-3 -mt-2">
-            {OFFICES.map((office) => (
-              <li key={office.city}>
-                <a
-                  href={office.mapsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex gap-2.5 rounded-xl border border-line bg-white/85 p-3.5"
-                >
-                  <MapPin size={16} strokeWidth={1.75} className="text-accent flex-none mt-0.5" />
-                  <span className="min-w-0">
-                    <span className="block text-[10px] tracking-[0.18em] text-accent uppercase mb-1">
-                      {office.city}
-                    </span>
-                    <address className="not-italic text-[12px] leading-snug text-muted">
-                      {office.lines.join(' ')}
-                    </address>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/* The phone-only address list that used to sit here stood in for the
+              on-map cards while those were hidden below sm. The cards show at
+              every width now, so the list would only print both addresses a
+              second time, directly under the ones on the map. */}
 
           {/* Let's Connect + form */}
           <div className="flex flex-col justify-center">
@@ -256,10 +246,10 @@ export function CTA() {
                 heading. At the inherited 1.5 line height the text sat ~10px
                 below the top of its own box, so the two columns starting on the
                 same grid line still looked misaligned. */}
-            <span className="text-[38px] font-serif leading-none text-accent mb-5">
+            <span className="text-[clamp(28px,8vw,38px)] font-serif leading-none text-accent mb-4 sm:mb-5">
               Get In Touch
             </span>
-            <p className="text-[16px] leading-relaxed text-muted mb-8 max-w-lg">
+            <p className="text-[15px] sm:text-[16px] leading-relaxed text-muted mb-6 sm:mb-8 max-w-lg">
               We are excited to hear about your project. Please leave your details and a brief message. We aim to respond within 24 hours.
             </p>
 
@@ -279,10 +269,12 @@ export function CTA() {
                 />
                 <input
                   type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
                   placeholder="Phone Number"
                   required
                   value={form.phone}
-                  onChange={updateField('phone')}
+                  onChange={updatePhone}
                   className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
                 />
                 <input
@@ -325,7 +317,7 @@ export function CTA() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full self-start mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-accent"
+                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full sm:self-start w-full sm:w-auto mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-accent"
                 >
                   {sending ? 'Sending…' : 'Submit'}
                 </button>

@@ -29,9 +29,9 @@ export default function BlogPage() {
 
       <SiteHeader />
 
-      <main className="flex-1 pt-1 pb-[70px] px-[max(22px,5vw)] bg-white">
+      <main className="flex-1 pt-1 pb-[70px] px-4 sm:px-[max(22px,5vw)] bg-white">
         <div className="max-w-[1680px] mx-auto">
-          <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(28px,4vw,48px)] text-ink mb-1 leading-[1.05]">
+          <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(24px,8vw,48px)] sm:text-[clamp(28px,4vw,48px)] text-ink mb-1 leading-[1.05]">
             <Link
               href="/#top"
               aria-label="Back to Home"
@@ -50,7 +50,7 @@ export default function BlogPage() {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group block w-full max-w-[320px] mx-auto rounded-2xl overflow-hidden border border-line bg-white shadow-sm hover:shadow-lg transition-shadow duration-300"
+                className="group block w-full sm:max-w-[320px] mx-auto rounded-2xl overflow-hidden border border-line bg-white shadow-sm hover:shadow-lg transition-shadow duration-300"
               >
                 <div
                   role="img"

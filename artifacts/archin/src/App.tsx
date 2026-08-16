@@ -14,7 +14,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import TeamPage from './pages/TeamPage';
 import { SITE_URL } from './lib/siteConfig';
-import housePlan from '@assets/house-plan.png';
+import housePlan from '@assets/site/house-plan.png';
 import logo from '@/assets/logo/logo.png';
 import floorPlanIcon from '@/assets/icons/floor-plan.png';
 import foundationIcon from '@/assets/icons/foundation.png';
@@ -144,19 +144,19 @@ function HeroSection() {
         </div>
 
         {/* Two-column layout: headline + sketch stacked on the left, ROAR brand on the right */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] items-center px-5 sm:px-8 lg:px-10 py-6 gap-x-6 gap-y-10">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] items-center px-4 sm:px-8 lg:px-10 py-5 sm:py-6 gap-x-6 gap-y-6 sm:gap-y-10">
 
           {/* ── Left: headline + body, with sketch below ── */}
           <div className="flex flex-col justify-center z-10 sm:pr-4 order-2 lg:order-1 lg:translate-x-8">
-            <p className="font-sans text-[11px] tracking-[0.28em] text-[#2a2420] opacity-55 uppercase mb-2">
+            <p className="font-sans text-[10px] sm:text-[11px] tracking-[0.22em] sm:tracking-[0.28em] text-[#2a2420] opacity-55 uppercase mb-2">
               Designing Spaces That
             </p>
             <h1 className="hero-headline font-sans font-normal leading-[0.88] tracking-[-0.02em] text-[#18140f] mb-3">
               INSPIRE.
               <span className="sr-only"> — Architects in Hyderabad, designing across Hyderabad and Visakhapatnam</span>
             </h1>
-            <div className="w-8 h-[2px] bg-[#18140f] mb-4" />
-            <p className="font-sans font-light text-[13px] leading-[1.75] text-[#2a2420] opacity-65 max-w-[230px] mb-5">
+            <div className="w-8 h-[2px] bg-[#18140f] mb-3 sm:mb-4" />
+            <p className="font-sans font-light text-[13px] leading-[1.75] text-[#2a2420] opacity-65 max-w-[280px] sm:max-w-[230px] mb-4 sm:mb-5">
               We believe great architecture goes beyond structures&nbsp;— it shapes
               experiences and leaves a lasting impact.
             </p>
@@ -173,7 +173,7 @@ function HeroSection() {
                 around a wide sketch; once the box narrows to a phone they land
                 on top of the drawing instead, so they only appear from sm up.
                 The sketch reads on its own without them. */}
-            <div className="relative flex items-end justify-start h-full min-h-[140px] sm:min-h-[200px]">
+            <div className="relative flex items-end justify-start h-full min-h-[120px] sm:min-h-[200px]">
               {/* Blueprint annotation — ELEVATION A */}
               <div className="hidden sm:flex absolute top-2 right-6 items-center gap-2 pointer-events-none select-none">
                 <span className="font-sans text-[9px] tracking-[0.22em] text-[#2a2420] opacity-35 uppercase">ELEVATION A</span>
@@ -191,7 +191,7 @@ function HeroSection() {
               <img
                 src={housePlan}
                 alt="Architectural sketch of a modern house"
-                className="w-full max-w-[260px] sm:max-w-[380px] md:max-w-[520px] lg:max-w-[640px] object-contain select-none sm:translate-x-6 md:translate-x-14 lg:translate-x-24 md:-translate-y-4 lg:-translate-y-6"
+                className="w-full max-w-[clamp(200px,75vw,640px)] sm:max-w-[380px] md:max-w-[520px] lg:max-w-[640px] object-contain select-none sm:translate-x-6 md:translate-x-14 lg:translate-x-24 md:-translate-y-4 lg:-translate-y-6"
                 style={{ filter: 'drop-shadow(0 6px 28px rgba(0,0,0,0.05))' }}
               />
             </div>
@@ -201,8 +201,8 @@ function HeroSection() {
           <div className="flex flex-col justify-center sm:pl-6 lg:pl-8 order-1 lg:order-3 lg:translate-x-6">
 
             {/* Logo + name */}
-            <div className="flex items-center gap-3 sm:gap-4 mb-5">
-              <img src={logo} alt="ROAR Architects logo" className="w-12 sm:w-16 lg:w-[92px] h-auto flex-none" />
+            <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
+              <img src={logo} alt="ROAR Architects logo" className="w-10 sm:w-16 lg:w-[92px] h-auto flex-none" />
               <p
                 className="hero-roar-name leading-tight sm:leading-none tracking-[-0.01em] sm:whitespace-nowrap"
                 style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, color: '#A5342C' }}
@@ -212,19 +212,19 @@ function HeroSection() {
             </div>
 
             {/* Thin divider */}
-            <div className="w-10 h-px bg-[#2a2420] opacity-20 mb-5" />
+            <div className="w-10 h-px bg-[#2a2420] opacity-20 mb-4 sm:mb-5" />
 
             {/* Services */}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mb-6">
+            <div className="flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1 mb-4 sm:mb-6">
               {['RESIDENTIAL', 'COMMERCIAL', 'HOSPITALITY'].map(s => (
-                <span key={s} className="font-sans text-[10px] tracking-[0.18em] text-black">
+                <span key={s} className="font-sans text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.18em] text-black">
                   {s}
                 </span>
               ))}
             </div>
 
             {/* Stats */}
-            <div className="flex items-stretch justify-between border-t border-[rgba(42,36,32,0.12)] mt-6">
+            <div className="flex items-stretch justify-between border-t border-[rgba(42,36,32,0.12)] mt-4 sm:mt-6">
               {STATS.map((stat, i) => (
                 <StatItem key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} bordered={i > 0} />
               ))}

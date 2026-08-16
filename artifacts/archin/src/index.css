@@ -86,69 +86,16 @@
   background-color: #ffffff;
 }
 
-/* Hero fills most of the first screen, less the sticky header.
-   dvh rather than vh: on a phone vh is measured against the viewport with the
-   browser chrome retracted, so a vh floor reserves more height than is actually
-   on screen and pushes the bottom bar below the fold on first paint. */
+/* Hero fills most of the first screen on mobile, measured in dvh so
+   the browser chrome doesn't count against it on a phone. */
 .hero-section {
   min-height: calc(81dvh - 53px);
 }
 
-/* ── Scaled-down desktop layout on phones ──────────────────────────────
-   index.html pins the viewport to width=1440 so a phone renders the desktop
-   layout and scales it to fit. That fixes the width but inflates the height:
-   the browser divides the device height by the same scale factor, so a
-   440x956 phone reports a viewport 1440 wide and about 3100 CSS px TALL.
-   Every viewport-height unit then balloons — 81dvh became ~2500px, which is
-   the vast empty band that opened under the hero.
-
-   Re-express those heights against the viewport WIDTH instead, which is pinned
-   at 1440 and so behaves identically everywhere. 34vw reproduces the hero's
-   desktop proportion (a ~652px hero on a 1920px-wide screen).
-
-   Keyed on an absurd viewport height so it can only match the scaled case: no
-   real browser window is 1500px tall and 1440 CSS px wide, while every phone
-   in this mode lands between roughly 1900 and 3100. */
-@media (min-height: 1500px) {
+/* On very short viewports (landscape phones) don't let the hero dominate
+   the whole screen — let content breathe. */
+@media (max-height: 500px) {
   .hero-section {
-    min-height: 34vw;
-  }
-
-  /* About's leader row, tightened for the phone. Two changes: the middle
-     column — the clearing between the portraits that holds the studio line —
-     is narrowed so the two photographs sit closer together, and the row is
-     capped and centred so the outer copy columns come in off the screen edges
-     instead of hugging them.
-
-     The tracks stay deliberately over-subscribed, as on desktop: they total
-     more than the row can hand out, so grid grows each one until it caps, and
-     the slack the copy and statement columns release goes to the portraits.
-     That is what keeps the photographs the widest thing in the row. */
-  .about-leaders-row {
-    max-width: 860px;
-    margin-inline: auto;
-    grid-template-columns:
-      minmax(0, 140px) minmax(0, 300px) minmax(0, 130px) minmax(0, 300px) minmax(0, 140px);
-    column-gap: 12px;
-  }
-}
-
-/* min-h-screen exists to pin a footer to the bottom of the screen on pages
-   whose content is too short to reach it. In the scaled-down view that
-   backfires: the viewport is over 2200 CSS px tall while a page like the team
-   sheet runs to about 1400, so <main> stretches by the difference and opens
-   ~800px of empty paper between the last section and the footer.
-
-   Releasing it lets the footer sit directly under the content. The screen below
-   that point shows the page background rather than a gap inside the layout,
-   which reads as the page simply ending.
-
-   Note this cannot be removed entirely, only relocated: a document shorter than
-   the viewport always leaves something visible beneath it. The only true fix is
-   for the content to fill the screen, which the desktop layout cannot do at
-   this scale. */
-@media (min-height: 1500px) {
-  .min-h-screen {
     min-height: 0;
   }
 }
@@ -184,35 +131,29 @@
 
 /* Big "INSPIRE." headline */
 .hero-headline {
-  font-size: clamp(48px, 6.5vw, 78px);
+  font-size: clamp(36px, 11vw, 78px);
 }
 
 /* ROAR ARCHITECTS wordmark, single line */
 .hero-roar-name {
-  font-size: clamp(30px, 3.6vw, 48px);
+  font-size: clamp(22px, 6vw, 48px);
 }
 
 /* Stat numbers */
 .hero-stat-value {
-  font-size: clamp(32px, 3.8vw, 50px);
+  font-size: clamp(26px, 6.5vw, 50px);
 }
 
-/* Each clamp above bottoms out at a size chosen for a laptop, so on a phone the
-   floor is what renders — and the floor alone is too big for a 360px screen
-   (the wordmark and the three stat columns both run past the gutters). These
-   carry on shrinking below the point where the desktop clamps go flat, and each
-   one's own max meets that floor exactly at 640px, so nothing steps in size as
-   the breakpoint is crossed. Scoped to a media query rather than folded into
-   the clamps above so the desktop ramp is left exactly as drawn. */
-@media (max-width: 639.98px) {
+/* At desktop widths, tighten to the original desktop proportions */
+@media (min-width: 640px) {
   .hero-headline {
-    font-size: clamp(38px, 11.5vw, 48px);
+    font-size: clamp(48px, 6.5vw, 78px);
   }
   .hero-roar-name {
-    font-size: clamp(23px, 6vw, 30px);
+    font-size: clamp(30px, 3.6vw, 48px);
   }
   .hero-stat-value {
-    font-size: clamp(26px, 5vw, 32px);
+    font-size: clamp(32px, 3.8vw, 50px);
   }
 }
 
@@ -249,3 +190,27 @@
     stroke-dashoffset: 0;
   }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE-SPECIFIC IMPROVEMENTS
+═══════════════════════════════════════════ */
+
+/* About section: on mobile the portraits are full-width and large — 
+   constrain them to a comfortable size so bios don't get pushed way down. */
+@media (max-width: 1023px) {
+  .about-leaders-row .perspective-1000 {
+    max-width: 340px;
+    margin-inline: auto;
+  }
+}
+
+/* Give TypewriterText bio paragraphs a saner min-height on mobile so they 
+   don't reserve 146px of whitespace while the text types in at small scale. */
+@media (max-width: 767px) {
+  .about-leaders-row p[class*='min-h-'] {
+    min-height: 0 !important;
+  }
+}
+
+/* Contact section marquee: use a larger font on narrow screens where
+   the 4.2vw already reads as 15px+, matching the desktop vw value. */

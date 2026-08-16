@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import instagramIcon from '@assets/instagram.jpeg';
-import whatsappIcon from '@assets/whatsapp.jpeg';
+import instagramIcon from '@assets/social/instagram.jpeg';
+import whatsappIcon from '@assets/social/whatsapp.jpeg';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/roar.architects?igsh=ZzR6NmI0OHo1dTQ0';
 const WHATSAPP_NUMBER = '917659024247';

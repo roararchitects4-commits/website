@@ -3,8 +3,8 @@ import { motion, useInView } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
 import { useScaledDownView, SCALED_VIEW_ENTRANCE_DELAY } from '../hooks/useScaledDownView';
-import rohithaImg from '@assets/aboutusimage.jpeg';
-import suryaKiranImg from '@assets/MD.jpeg';
+import rohithaImg from '@assets/team/rohitha-surya.jpeg';
+import suryaKiranImg from '@assets/team/surya-kiran.jpeg';
 
 /* Stand-in for a portrait not supplied yet, matching the one on the team page. */
 function SilhouettePlaceholder() {
@@ -82,7 +82,7 @@ export function About() {
        desktop is pulled up out of the row by -112px into exactly that space.
        Stacked on a phone the statement sits in normal flow and the padding is
        just an empty screen to scroll past. */
-    <section id="studio" className="relative overflow-hidden bg-white px-[max(20px,4vw)] pb-[38px] pt-[56px] lg:pt-[132px]">
+    <section id="studio" className="relative overflow-hidden bg-white px-[max(16px,4vw)] pb-[38px] pt-[48px] lg:pt-[132px]">
       <div className="relative z-10 mx-auto w-full max-w-[1780px]">
         {/* text | portrait | statement | portrait | text. The middle column is
             the clearing between the cards, holding the studio line.
@@ -95,18 +95,25 @@ export function About() {
             number alone does little; the space has to come off its neighbours —
             here from the statement column and the gutters, so the bios keep
             their measure and the names don't shift further toward the edge. */}
-        <div ref={rowRef} className="about-leaders-row grid grid-cols-1 items-center gap-x-[clamp(16px,1.6vw,28px)] gap-y-14 lg:grid-cols-[minmax(0,250px)_minmax(0,520px)_minmax(0,190px)_minmax(0,520px)_minmax(0,250px)]">
+        {/* Below lg the five columns collapse to two, not one: each leader reads
+            as portrait on the left and their copy on the right, on a single row.
+            The statement spans both columns above them. */}
+        <div ref={rowRef} className="about-leaders-row grid grid-cols-2 items-center gap-x-[clamp(12px,3vw,28px)] gap-y-9 lg:gap-x-[clamp(16px,1.6vw,28px)] lg:gap-y-14 lg:grid-cols-[minmax(0,250px)_minmax(0,520px)_minmax(0,190px)_minmax(0,520px)_minmax(0,250px)]">
           {LEADERS.map((leader, idx) => {
             const tilt = rotate[leader.name] ?? { x: 0, y: 0 };
             const onLeft = leader.side === 'left';
 
             const copy = (
               <FadeIn delay={0.15 + idx * 0.1}>
-                <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-                  <h2 className="font-serif text-[clamp(32px,3.2vw,47px)] font-light leading-none text-ink lg:whitespace-nowrap">
+                {/* Left-aligned at every width now: beside a portrait on a
+                    phone, centred copy would read as drifting away from it. */}
+                <div className="flex flex-col items-start text-left">
+                  {/* Sharing the row with the portrait leaves the copy half a
+                      phone wide, so the name and role step down to fit it. */}
+                  <h2 className="font-serif text-[clamp(17px,4.6vw,26px)] font-light leading-tight text-ink lg:text-[clamp(32px,3.2vw,47px)] lg:leading-none lg:whitespace-nowrap">
                     {leader.name}
                   </h2>
-                  <p className="mt-3 font-sans text-[12px] font-medium uppercase tracking-[0.22em] text-accent">
+                  <p className="mt-1.5 font-sans text-[8.5px] font-medium uppercase tracking-[0.14em] text-accent lg:mt-3 lg:text-[12px] lg:tracking-[0.22em]">
                     {leader.role}
                   </p>
                   {/* min-height reserves the finished paragraph's box so the
@@ -114,7 +121,7 @@ export function About() {
                       track the type size. */}
                   <TypewriterText
                     tag="p"
-                    className="mt-5 min-h-[146px] max-w-[290px] font-sans text-[15px] leading-relaxed text-muted"
+                    className="mt-2.5 min-h-0 max-w-full font-sans text-[11px] leading-[1.6] text-black lg:mt-5 lg:min-h-[146px] lg:max-w-[290px] lg:text-[15px] lg:leading-relaxed"
                     text={leader.bio}
                     speed={11}
                     delay={300 + idx * 200}
@@ -146,7 +153,7 @@ export function About() {
             const portrait = (
               <div className="perspective-1000 flex justify-center lg:-mt-6">
                 <motion.div
-                  className="w-full max-w-[560px]"
+                  className="w-full max-w-[340px] sm:max-w-[560px]"
                   initial={{
                     opacity: 0,
                     x: onLeft ? '85vw' : '-85vw',
@@ -192,7 +199,7 @@ export function About() {
               <React.Fragment key={leader.name}>
                 <div className="order-2 lg:order-1">{copy}</div>
                 <div className="order-1 lg:order-2">{portrait}</div>
-                <div className="order-first lg:order-3 lg:self-start lg:-mt-[112px]">{statement}</div>
+                <div className="order-first col-span-2 lg:order-3 lg:col-span-1 lg:self-start lg:-mt-[112px]">{statement}</div>
               </React.Fragment>
             ) : (
               <React.Fragment key={leader.name}>

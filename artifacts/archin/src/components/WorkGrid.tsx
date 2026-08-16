@@ -25,24 +25,30 @@ function ShowcasePanel({ slug, items, delay }: { slug: string; items: WorkItem[]
 
   return (
     <motion.figure
-      className="group w-full max-w-[380px] mx-auto cursor-pointer"
+      className="group w-full cursor-pointer"
       initial={{ x: -100, opacity: 0 }}
       whileInView={{ x: 0, opacity: 1 }}
       viewport={{ once: true, amount: 0.45, margin: '0px 0px -120px 0px' }}
       transition={{ duration: 2.2, delay, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => navigate(`/gallery/${slug}`)}
     >
+      {/* On a phone the panel is full width (it spans both columns), so a 3/4
+          box would run half a screen tall for what is only a teaser. It drops
+          to one row of two tiles in a wide, shallow box instead; the other two
+          tiles stay in the markup and reappear from md up. */}
       <motion.div
-        className="aspect-[4/5] bg-secondary-bg relative rounded-[2.5rem] shadow-2xl will-change-transform border border-white/10 p-3 grid grid-cols-2 grid-rows-2 gap-3"
+        className="aspect-[2/1] md:aspect-[4/5] bg-secondary-bg relative rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl md:shadow-2xl will-change-transform border border-white/10 p-2 md:p-3 grid grid-cols-2 grid-rows-1 md:grid-rows-2 gap-2 md:gap-3"
         whileHover={{ scale: 1.14 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        {items.map((item) => (
+        {items.map((item, idx) => (
           <button
             key={item.id}
             type="button"
             aria-label={`Open ${item.title}`}
-            className="relative overflow-hidden rounded-[1.1rem] shadow-lg ring-1 ring-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className={`relative overflow-hidden rounded-[0.9rem] md:rounded-[1.1rem] shadow-lg ring-1 ring-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              idx > 1 ? 'hidden md:block' : ''
+            }`}
             onClick={(event) => {
               // Otherwise the panel's own handler would also fire and drop the
               // selected photo.
@@ -58,11 +64,8 @@ function ShowcasePanel({ slug, items, delay }: { slug: string; items: WorkItem[]
           </button>
         ))}
       </motion.div>
-      <figcaption className="mt-4 text-[11px] tracking-[0.03em] text-muted leading-relaxed">
-        <b className="block font-serif italic text-[15px] text-ink mb-1 font-normal tracking-normal">
-          The Catalogue
-        </b>
-        Four more projects from the archive — open one, or step into the full gallery.
+      <figcaption className="mt-4 text-[11px] tracking-[0.13em] uppercase text-muted">
+        Explore more →
       </figcaption>
     </motion.figure>
   );
@@ -76,23 +79,43 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
   const cards = showcase.length === 4 ? items.slice(0, showcaseFrom) : items;
 
   return (
+    /* Matched to the earlier live iteration: the row keeps its full 1680px and
+       the cards are sized down by the gutters instead, which is what gave that
+       version its ~476px cards with a wide clearing between them. Narrowing the
+       row got a similar card size but crowded the columns together and pulled
+       the whole section in off the page — the gutters are the part that reads. */
     <div className="max-w-[1680px] mx-auto mb-[34px] last:mb-0">
       <FadeIn yOffset={20}>
         <div className="flex items-center gap-3 mb-6">
           <span className="w-[22px] h-[1px] bg-accent flex-none" />
-          <span className="text-[11px] tracking-[0.32em] text-muted uppercase">
+          {/* The label already sits above the animated lines — the section
+              stacks them at z-0 and this content at z-10 — but 0.32em of
+              letter-spacing leaves the curve visible through every gap between
+              the letters, which is what makes it read as crossing the word. An
+              opaque ground on the text itself closes those gaps, so the line
+              passes behind the label and resumes on the far side. The negative
+              inline margin cancels the padding, leaving the label positioned
+              exactly where it was. Phone only: on desktop the curves run wide
+              of the labels and a white patch would just break the line. */}
+          <span className="bg-white px-1 -mx-1 text-[11px] tracking-[0.32em] text-black uppercase md:bg-transparent md:px-0 md:mx-0">
             {label}
           </span>
         </div>
       </FadeIn>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-[clamp(8px,1.2vw,16px)]">
+      {/* The column gutter is what sets the card size here: at three columns in
+          1680px, a 126px gutter lands each card at ~476×595, the reference
+          proportion. It stays on vw so the cards shrink with the window rather
+          than snapping at a breakpoint. Row gap and the two-column phone layout
+          keep the old tight spacing — wide gutters there would leave the cards
+          too narrow to read. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-[clamp(8px,1.2vw,16px)] md:gap-x-[clamp(16px,6.6vw,126px)]">
         {cards.map((item, idx) => {
           const delay = reverseDelay ? (2 - idx) * 0.2 : idx * 0.2;
           return (
             <motion.figure
               key={item.id}
-              className="group w-full max-w-[380px] mx-auto cursor-pointer"
+              className="group w-full cursor-pointer"
               initial={{ x: -100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true, amount: 0.45, margin: '0px 0px -120px 0px' }}
@@ -100,7 +123,7 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
               onClick={() => onOpen(item)}
             >
               <motion.div
-                className="overflow-hidden aspect-[4/5] bg-secondary-bg relative rounded-[2.5rem] shadow-2xl will-change-transform border border-white/10"
+                className="overflow-hidden aspect-[3/4] md:aspect-[4/5] bg-secondary-bg relative rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl md:shadow-2xl will-change-transform border border-white/10"
                 whileHover={{ scale: 1.14 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
@@ -110,22 +133,31 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
                   className="w-full h-full object-cover transition-transform duration-700"
                 />
               </motion.div>
-              <figcaption className="mt-4 text-[11px] tracking-[0.03em] text-muted leading-relaxed">
-                <b className="block font-serif italic text-[15px] text-ink mb-1 font-normal tracking-normal">
+              <figcaption className="mt-2 md:mt-4 text-[10px] md:text-[11px] tracking-[0.03em] text-black leading-relaxed">
+                <b className="block font-serif italic text-[13px] md:text-[15px] text-ink mb-0.5 font-normal tracking-normal">
                   {item.title}
                 </b>
-                {item.desc}
+                {/* Was `hidden md:block`, which is display:none on a phone.
+                    Google crawls this site as Googlebot smartphone, so at that
+                    width the description was not merely unseen by visitors — it
+                    was absent from the rendered page the crawler indexes, and
+                    display:none copy is discounted regardless. Clamping to two
+                    lines keeps the card as compact as hiding it did while the
+                    text stays real, rendered, selectable content. */}
+                <span className="block line-clamp-2 md:line-clamp-none">{item.desc}</span>
               </figcaption>
             </motion.figure>
           );
         })}
 
         {showcase.length === 4 && (
-          <ShowcasePanel
-            slug={slug}
-            items={showcase}
-            delay={reverseDelay ? 0 : cards.length * 0.2}
-          />
+          <div className="col-span-2 md:col-span-1">
+            <ShowcasePanel
+              slug={slug}
+              items={showcase}
+              delay={reverseDelay ? 0 : cards.length * 0.2}
+            />
+          </div>
         )}
       </div>
     </div>
@@ -140,7 +172,7 @@ export function WorkGrid() {
   const scaledView = useScaledDownView();
 
   return (
-    <section id="work" className="pt-[40px] pb-[24px] px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
+    <section id="work" className="pt-[32px] sm:pt-[40px] pb-[24px] px-4 sm:px-[max(22px,5vw)] bg-white relative z-10 overflow-hidden">
       {/* Desktop: lines draw progressively as the user scrolls. */}
       {!scaledView && (
         <AnimatedLines

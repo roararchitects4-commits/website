@@ -94,7 +94,7 @@ export default function BlogPostPage() {
 
       <SiteHeader />
 
-      <main className="flex-1 pt-8 sm:pt-[70px] pb-16 sm:pb-[100px] px-[max(22px,5vw)] bg-white">
+      <main className="flex-1 pt-8 sm:pt-[70px] pb-16 sm:pb-[100px] px-4 sm:px-[max(22px,5vw)] bg-white">
         <div className="max-w-[760px] mx-auto">
           <Link
             href="/blog"
