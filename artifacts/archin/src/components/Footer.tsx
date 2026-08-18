@@ -1,22 +1,27 @@
 import React from 'react';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
+import { sectionIdFor, scrollToSection } from '../lib/sections';
 
 const FOOTER_LINKS = [
-  { name: 'Home',         href: '#top' },
-  { name: 'Work',         href: '#work' },
-  { name: 'About Us',     href: '#studio' },
-  { name: 'Get in Touch', href: '#contact' },
+  { name: 'Home',         href: '/' },
+  { name: 'Work',         href: '/work' },
+  { name: 'About Us',     href: '/about' },
+  { name: 'Get in Touch', href: '/contact' },
   { name: 'Blog',         href: '/blog' },
 ];
 
 export function Footer() {
   const [location] = useLocation();
-  const isHome = location === '/';
 
-  const navHref = (href: string) => {
-    if (href.startsWith('/')) return href;
-    return isHome ? href : `/${href}`;
+  /* Same as the header: a click on the path you are already on is a click
+     wouter ignores, so scroll to the section here instead. Blog falls straight
+     through — it is a page, and has no section to scroll to. */
+  const handleNavClick = (href: string) => (event: React.MouseEvent) => {
+    const id = sectionIdFor(href);
+    if (!id || href !== location) return;
+    event.preventDefault();
+    scrollToSection(id);
   };
 
   return (
@@ -27,7 +32,7 @@ export function Footer() {
           centred instead. Extra bottom padding clears the floating
           WhatsApp/Instagram buttons, which are fixed over this corner. */}
       <div className="pt-[22px] pb-[16px] max-sm:pb-24 px-[max(22px,6vw)] border-t border-line flex flex-wrap gap-6 max-sm:gap-4 justify-center sm:justify-between items-center max-sm:text-center text-[11px] text-muted leading-relaxed">
-        <a href="#top" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+        <Link href="/" onClick={handleNavClick('/')} className="flex items-center gap-3 transition-opacity hover:opacity-80">
           <img src={logo} alt="" className="w-9 h-auto flex-none" aria-hidden="true" />
           <span
             className="tracking-[-0.01em] whitespace-nowrap"
@@ -35,13 +40,13 @@ export function Footer() {
           >
             ROAR ARCHITECTS
           </span>
-        </a>
+        </Link>
 
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-3 uppercase tracking-wider">
           {FOOTER_LINKS.map(link => (
-            <a key={link.name} href={navHref(link.href)} className="hover:text-accent transition-colors">
+            <Link key={link.name} href={link.href} onClick={handleNavClick(link.href)} className="hover:text-accent transition-colors">
               {link.name}
-            </a>
+            </Link>
           ))}
         </nav>
 

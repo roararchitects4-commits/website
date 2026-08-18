@@ -3,6 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { TypewriterText } from './TypewriterText';
 import { useScaledDownView, SCALED_VIEW_ENTRANCE_DELAY } from '../hooks/useScaledDownView';
+import { BIO_INITIAL } from '../lib/typography';
 import rohithaImg from '@assets/team/rohitha-surya.jpeg';
 import suryaKiranImg from '@assets/team/surya-kiran.jpeg';
 
@@ -27,12 +28,10 @@ function SilhouettePlaceholder() {
 
 const LEADERS = [
   {
-    name: 'Surya Kiran',
+    name: 'A.Surya Kiran',
     role: 'Managing Director',
     photo: suryaKiranImg as string | undefined,
-    imageClass: 'scale-100 hover:scale-[0.97]',
-    /* His photograph is 4:5, near enough the 9/10 frame that anchoring the
-       crop to the top costs only a sliver off his feet. */
+    imageClass: 'scale-[1.05] hover:scale-[1.03]',
     objectClass: 'object-top',
     bio: 'Leads the business strategy, operations, and client relationships at Roar Architects. With a focus on growth and execution, he ensures every project is delivered with excellence and integrity.',
     /* Mirrored tilts: the left card leans up to the right, the right card down. */
@@ -40,10 +39,16 @@ const LEADERS = [
     side: 'left' as const,
   },
   {
-    name: 'Rohitha Surya',
-    role: 'Principal Architect',
+    name: 'A.Rohitha Surya',
+    role: 'Founder & Principal Architect',
     photo: rohithaImg,
-    imageClass: 'scale-100 hover:scale-[0.97]',
+    /* Slid a little left in its frame. Object-position cannot do it: her source
+       is narrower than the frame, so cover matches the width and there is no
+       horizontal overflow to re-anchor — only the vertical crop below responds.
+       The shift is a transform instead, and the scale is what pays for it: at
+       1.08 the photograph overhangs the frame by 4% each side, so a 2.5% slide
+       still leaves it covered, hover included. */
+    imageClass: 'scale-[1.08] -translate-x-[2.5%] hover:scale-[1.06]',
     /* Hers is 2:3, appreciably taller than the frame, so cover throws away a
        quarter of it. Anchored to the top that quarter came off the bottom and
        cut the desk through the notebook. Sliding the crop down to 65% spends
@@ -121,7 +126,7 @@ export function About() {
                 <div className="flex flex-col items-start text-left">
                   {/* Sharing the row with the portrait leaves the copy half a
                       phone wide, so the name and role step down to fit it. */}
-                  <h2 className="font-serif text-[clamp(17px,4.6vw,26px)] font-light leading-tight text-ink lg:text-[clamp(32px,3.2vw,47px)] lg:leading-none lg:whitespace-nowrap">
+                  <h2 className="font-serif text-[clamp(15px,4vw,22px)] font-light leading-tight text-ink lg:text-[clamp(26px,2.5vw,36px)] lg:leading-none lg:whitespace-nowrap">
                     {leader.name}
                   </h2>
                   <p className="mt-1.5 font-sans text-[8.5px] font-medium uppercase tracking-[0.14em] text-accent lg:mt-3 lg:text-[12px] lg:tracking-[0.22em]">
@@ -133,6 +138,7 @@ export function About() {
                   <TypewriterText
                     tag="p"
                     className="mt-2.5 min-h-0 max-w-full font-sans text-[11px] leading-[1.6] text-black lg:mt-5 lg:min-h-[146px] lg:max-w-[290px] lg:text-[15px] lg:leading-relaxed"
+                    initialClassName={BIO_INITIAL}
                     text={leader.bio}
                     speed={11}
                     delay={300 + idx * 200}
@@ -152,7 +158,17 @@ export function About() {
                   <p className="whitespace-nowrap font-sans text-[11px] font-medium uppercase tracking-[0.3em] text-ink">
                     The People Behind ROAR
                   </p>
-                  <h2 className="mt-6 whitespace-nowrap font-serif text-[clamp(28px,2.85vw,41px)] font-light leading-[0.98] text-accent">
+                  {/* Set in Inter, the same face as the label above it, rather
+                      than the serif every other heading on the page uses — the
+                      two lines read as one block that way.
+
+                      The negative tracking comes with the face, not with the
+                      change of mind: Inter is drawn for text sizes and opens up
+                      noticeably at 41px, where Cormorant did not. -0.02em is
+                      what the hero headline already uses at display size, so
+                      this is the site's existing setting for large Inter rather
+                      than a new one. */}
+                  <h2 className="mt-6 whitespace-nowrap font-sans text-[clamp(28px,2.85vw,41px)] font-light leading-[0.98] tracking-[-0.02em] text-accent">
                     Two minds.
                     <br />
                     One vision.
@@ -191,11 +207,30 @@ export function About() {
                     data-cursor="view"
                   >
                     {leader.photo ? (
-                      <img
-                        src={leader.photo}
-                        alt={`${leader.name}, ${leader.role} at ROAR Architects`}
-                        className={`h-full w-full object-cover transition-transform duration-1000 ${leader.objectClass} ${leader.imageClass}`}
-                      />
+                      <>
+                        {/* Fills the strip either side of a contained
+                            photograph with a blown-up blur of the photograph
+                            itself. His backdrop is a plain studio grey shading
+                            to near-black at the foot, so the blur carries it
+                            on; one flat colour could match the middle or the
+                            bottom but not both, and would show as a band beside
+                            the dark of his suit. */}
+                        {leader.fit === 'contain' && (
+                          <img
+                            src={leader.photo}
+                            alt=""
+                            aria-hidden="true"
+                            className="pointer-events-none absolute inset-0 h-full w-full scale-125 object-cover blur-2xl"
+                          />
+                        )}
+                        <img
+                          src={leader.photo}
+                          alt={`${leader.name}, ${leader.role} at ROAR Architects`}
+                          className={`relative h-full w-full transition-transform duration-1000 ${
+                            leader.fit === 'contain' ? 'object-contain' : 'object-cover'
+                          } ${leader.objectClass} ${leader.imageClass}`}
+                        />
+                      </>
                     ) : (
                       <SilhouettePlaceholder />
                     )}

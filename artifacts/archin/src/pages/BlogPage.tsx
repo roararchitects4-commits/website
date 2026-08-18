@@ -33,7 +33,7 @@ export default function BlogPage() {
         <div className="max-w-[1680px] mx-auto">
           <h1 className="flex items-center gap-3 font-serif font-light text-[clamp(24px,8vw,48px)] sm:text-[clamp(28px,4vw,48px)] text-ink mb-1 leading-[1.05]">
             <Link
-              href="/#top"
+              href="/"
               aria-label="Back to Home"
               className="text-muted hover:text-accent transition-colors text-[0.6em]"
             >

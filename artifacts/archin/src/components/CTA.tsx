@@ -246,7 +246,14 @@ export function CTA() {
                 heading. At the inherited 1.5 line height the text sat ~10px
                 below the top of its own box, so the two columns starting on the
                 same grid line still looked misaligned. */}
-            <span className="text-[clamp(28px,8vw,38px)] font-serif leading-none text-accent mb-4 sm:mb-5">
+            {/* Inter, matching "The People Behind ROAR" and the statement it
+                heads in the About section, rather than the serif this used to
+                carry. The tracking comes with the face: Inter is drawn for text
+                sizes and opens up at 38px, so it takes the same -0.02em the
+                hero headline and the About statement already use at display
+                size. font-light is written out rather than left to inherit from
+                body — it was always 300, but only by inheritance. */}
+            <span className="text-[clamp(28px,8vw,38px)] font-sans font-light leading-none tracking-[-0.02em] text-accent mb-4 sm:mb-5">
               Get In Touch
             </span>
             {/* Solid black, not the site's --muted: over the blurred sketch

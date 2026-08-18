@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence, easeIn } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedLines, type LineDef } from './AnimatedLines';
@@ -103,6 +103,30 @@ function ShowcasePanel({ slug, items, delay }: { slug: string; items: WorkItem[]
         whileHover={{ scale: 1.14 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
+        <div className="absolute top-2.5 right-2.5 md:top-4 md:right-4 z-20 flex justify-end pointer-events-none">
+          <button
+            type="button"
+            className="group/btn pointer-events-auto inline-flex items-center gap-1 h-[24px] transition-all duration-300 hover:-translate-y-[1px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate(`/gallery/${slug}`);
+            }}
+          >
+            <span className="text-white drop-shadow-md font-[500] tracking-[0.04em] whitespace-nowrap text-[11px] md:text-[13px]">
+              View More
+            </span>
+            <svg 
+              className="w-[16px] h-[16px] text-[#A94F3D] transition-transform duration-300 group-hover/btn:translate-x-[2px] group-hover/btn:-translate-y-[2px]" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              strokeWidth={3}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+            </svg>
+          </button>
+        </div>
+
         {items.map((item, idx) => (
           <button
             key={item.id}
@@ -134,37 +158,7 @@ function ShowcasePanel({ slug, items, delay }: { slug: string; items: WorkItem[]
             />
           </button>
         ))}
-
-        {/* Phone only: the label sits on the panel instead of below it. The
-            wrapper spans the panel so the pill centres on it, but stays
-            transparent to clicks — only the pill itself takes them, leaving the
-            four tiles underneath reachable everywhere else.
-
-            No plate behind it — the words sit straight on the photographs, so
-            the panel reads as one picture with a label over it rather than as
-            a picture with a chip stuck to it. Two things stand in for the
-            plate the type has lost: it is white, because black held up only
-            while it had an opaque ground under it and these tiles run from
-            pale interiors to a night elevation; and it carries its own shadow,
-            which is what keeps it legible over the lighter shots now nothing
-            else separates the two. The blur on the tiles does the rest. */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none md:hidden">
-          <button
-            type="button"
-            className="pointer-events-auto rounded-sm px-1 text-[15px] leading-none tracking-[0.16em] uppercase text-white font-medium whitespace-nowrap [text-shadow:0_1px_12px_rgba(0,0,0,0.65),0_1px_3px_rgba(0,0,0,0.55)] transition-opacity hover:opacity-75 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
-            onClick={(event) => {
-              event.stopPropagation();
-              navigate(`/gallery/${slug}`);
-            }}
-          >
-            Explore more →
-          </button>
-        </div>
       </motion.div>
-      {/* Desktop keeps the label below the panel, where it always sat. */}
-      <figcaption className="mt-4 hidden md:block text-[11px] tracking-[0.13em] uppercase text-muted">
-        Explore more →
-      </figcaption>
     </motion.figure>
   );
 }
@@ -234,28 +228,58 @@ function WorkRow({ slug, label, items, showcaseFrom, reverseDelay, onOpen }: Wor
                   alt={item.title}
                   className="w-full h-full object-cover transition-transform duration-700"
                 />
+                {/* Album cards lead with one cover photo; this is the way
+                    through to the rest of the folder. It sits in the top
+                    corner, where the render carries sky rather than the
+                    building — over the foot of the picture it landed on the
+                    facade itself. An <a> rather than a button, so the album
+                    page is crawlable from the home page and opens in a new tab
+                    like any other link. The click is stopped here because the
+                    figure around it opens the lightbox — without that, the
+                    cover photo would be thrown over the page just navigated
+                    to. */}
+                {item.album && (
+                  <Link
+                    href={`/gallery/${item.album}`}
+                    onClick={(event) => event.stopPropagation()}
+                    aria-label={`View the full ${item.title} album`}
+                    className="group/btn absolute top-2.5 right-2.5 md:top-4 md:right-4 z-10 pointer-events-auto inline-flex items-center gap-1 h-[24px] transition-all duration-300 hover:-translate-y-[1px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <span className="text-white drop-shadow-md font-[500] tracking-[0.04em] whitespace-nowrap text-[11px] md:text-[13px]">
+                      View Album
+                    </span>
+                    <svg 
+                      className="w-[16px] h-[16px] text-[#A94F3D] transition-transform duration-300 group-hover/btn:translate-x-[2px] group-hover/btn:-translate-y-[2px]" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor" 
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H8M17 7V16" />
+                    </svg>
+                  </Link>
+                )}
               </motion.div>
               <figcaption className="mt-2 md:mt-4 text-[9px] md:text-[11px] tracking-[0.03em] text-black leading-snug md:leading-relaxed">
-                <b className="block font-serif italic text-[11px] md:text-[15px] text-ink mb-0.5 font-normal tracking-normal">
+                <b className="block font-sans text-[11px] md:text-[15px] text-ink mb-0.5 font-normal tracking-normal">
                   {item.title}
                 </b>
-                {/* Was `hidden md:block`, which is display:none on a phone.
-                    Google crawls this site as Googlebot smartphone, so at that
-                    width the description was not merely unseen by visitors — it
-                    was absent from the rendered page the crawler indexes, and
-                    display:none copy is discounted regardless. Clamping keeps
-                    the card as compact as hiding it did while the text stays
-                    real, rendered, selectable content — one line on a phone,
-                    where the card is half a screen wide and a second line
-                    crowds the row; the full description from md up. The clamp
-                    is a visual truncation, so the whole sentence is still in
-                    the DOM for the crawler either way. */}
-                {/* No `block` here on purpose: `line-clamp-*` works by setting
-                    `display:-webkit-box`, and `.block` is emitted after it in
-                    Tailwind's output, so at equal specificity `display:block`
-                    won and the clamp silently did nothing. Desktop still gets
-                    `display:block` — `line-clamp-none` sets it itself. */}
-                <span className="line-clamp-1 md:line-clamp-none">{item.desc}</span>
+                {/* One line at every width. It was `hidden md:block` once, which
+                    is display:none on a phone — and Google crawls this site as
+                    Googlebot smartphone, so the description was absent from the
+                    page the crawler indexes rather than merely unseen. Clamping
+                    keeps the card as compact as hiding it did while the whole
+                    sentence stays real, rendered, selectable content: the clamp
+                    is a visual truncation, so the crawler still gets all of it.
+                    Holding every card to a single line is also what keeps the
+                    three cards in a row bottoming out together — a two-line
+                    description pushed its own "View album" a line lower than
+                    its neighbour's. */}
+                {/* `block` is load bearing: `truncate` works by hiding the
+                    overflow, and an inline box ignores overflow entirely — so
+                    without it the nowrap ran the sentence straight out of the
+                    card and across the description of the card beside it. */}
+                <span className="block truncate">{item.desc}</span>
               </figcaption>
             </motion.figure>
           );

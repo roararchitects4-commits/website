@@ -7,6 +7,11 @@ interface TypewriterTextProps {
   delay?: number;
   tag?: 'p' | 'span' | 'div' | 'h2' | 'h3' | 'h4';
   once?: boolean;
+  /* When set, the first character is split out into a span of its own carrying
+     these classes — an initial cap. It has to happen in here rather than at the
+     call site: the text arrives one character at a time, so the caller has no
+     element to style until the animation has already run. */
+  initialClassName?: string;
 }
 
 export function TypewriterText({
@@ -16,6 +21,7 @@ export function TypewriterText({
   delay = 150,
   tag = 'p',
   once = true,
+  initialClassName,
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState('');
   const [isAnimated, setIsAnimated] = useState(false);
@@ -80,7 +86,14 @@ export function TypewriterText({
       className={className}
       style={{ whiteSpace: 'pre-wrap' }}
     >
-      {displayed}
+      {initialClassName && displayed.length > 0 ? (
+        <>
+          <span className={initialClassName}>{displayed.charAt(0)}</span>
+          {displayed.slice(1)}
+        </>
+      ) : (
+        displayed
+      )}
     </Tag>
   );
 }

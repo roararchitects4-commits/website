@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { PageTransition } from './components/PageTransition';
 import { About } from './components/About';
@@ -14,6 +14,7 @@ import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import TeamPage from './pages/TeamPage';
 import { SITE_URL } from './lib/siteConfig';
+import { sectionIdFor } from './lib/sections';
 import housePlan from '@assets/site/house-plan.png';
 import logo from '@/assets/logo/logo.png';
 import floorPlanIcon from '@/assets/icons/floor-plan.png';
@@ -160,12 +161,12 @@ function HeroSection() {
               We believe great architecture goes beyond structures&nbsp;— it shapes
               experiences and leaves a lasting impact.
             </p>
-            <a
-              href="#work"
+            <Link
+              href="/work"
               className="hero-cta inline-flex items-center gap-2 font-sans font-semibold text-[12px] tracking-[0.16em] uppercase text-[#18140f] w-fit hover:text-[#9b3a2c] transition-colors duration-200 mb-5"
             >
               Explore Our Work &nbsp;→
-            </a>
+            </Link>
 
             {/* ── Architectural sketch, below the headline ──
                 The three blueprint annotations are pinned to the corners and
@@ -271,23 +272,36 @@ function HeroSection() {
    Page layouts
 ───────────────────────────────────────────── */
 function Home() {
+  const [location] = useLocation();
+  /* The first pass through is the page load itself, which has to land without
+     animating — the visitor never asked to travel there, and the entrance cover
+     is still over the page. Every pass after it is a nav click, which reads
+     better as a glide. */
+  const landed = useRef(false);
+
   useEffect(() => {
-    /* No hash means a plain load or a refresh, which should begin at the top.
-       Browsers otherwise drop the visitor back at their previous scroll offset,
-       landing them mid-page with every entrance below them already triggered —
-       so the sections they scroll past afterwards are simply static. Starting
-       from the top lets the whole sequence play as they move down. */
-    if (!window.location.hash) {
-      window.scrollTo(0, 0);
+    /* Links pointing at /#work rather than /work are still out in the wild —
+       older shares, and anything already indexed — so a fragment still wins. */
+    const hash = window.location.hash.slice(1);
+    const id = hash || sectionIdFor(location) || 'top';
+    const behavior = (landed.current ? 'smooth' : 'instant') as ScrollBehavior;
+    landed.current = true;
+
+    if (id === 'top') {
+      /* The home path should begin at the top. Browsers otherwise drop the
+         visitor back at their previous scroll offset, landing them mid-page
+         with every entrance below them already triggered — so the sections they
+         scroll past afterwards are simply static. Starting from the top lets
+         the whole sequence play as they move down. */
+      window.scrollTo({ top: 0, behavior });
       return;
     }
 
-    const id = window.location.hash.slice(1);
     const timer = window.setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'instant' as ScrollBehavior });
+      document.getElementById(id)?.scrollIntoView({ behavior });
     }, 50);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [location]);
 
   return (
     <div className="relative bg-background">
@@ -327,24 +341,34 @@ function Home() {
   );
 }
 
+function NotFound() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background text-ink">
+      <div className="text-center">
+        <h1 className="font-serif text-4xl mb-4">404</h1>
+        <a href="/" className="text-[11px] tracking-[0.2em] border-b border-accent pb-1">
+          RETURN HOME
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function Router() {
+  const [location] = useLocation();
+
   return (
     <Switch>
-      <Route path="/" component={Home} />
       <Route path="/team" component={TeamPage} />
       <Route path="/gallery/:slug" component={GalleryPage} />
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogPostPage} />
-      <Route>
-        <div className="min-h-screen flex items-center justify-center bg-background text-ink">
-          <div className="text-center">
-            <h1 className="font-serif text-4xl mb-4">404</h1>
-            <a href="/" className="text-[11px] tracking-[0.2em] border-b border-accent pb-1">
-              RETURN HOME
-            </a>
-          </div>
-        </div>
-      </Route>
+      {/* Home answers to four paths — "/", "/work", "/about", "/contact" — held
+          in lib/sections rather than spelled out as four Routes here, so the
+          table the header and footer link against is the same one the router
+          matches on. Anything this last Route catches that isn't in it is a
+          genuine 404. */}
+      <Route>{sectionIdFor(location) ? <Home /> : <NotFound />}</Route>
     </Switch>
   );
 }

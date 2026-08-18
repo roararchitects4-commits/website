@@ -53,6 +53,10 @@ Thumbs.db
 # Raw photo drops — multi-GB iCloud archives. The web-sized exports committed
 # under attached_assets/gallery are what the site actually uses.
 attached_assets/ALL IMAGES/*.zip
+# Same again for the iCloud drops that arrive inside a project folder: the
+# originals stay on disk for re-exporting, the 1280px copies beside them are
+# what the album globs pick up and the site serves.
+attached_assets/gallery/**/iCloud Photos from */
 
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md

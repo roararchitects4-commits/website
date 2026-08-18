@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
+import { sectionIdFor, scrollToSection } from '../lib/sections';
 
+/* Every entry is a real path, including the four that are sections of the home
+   page rather than pages of their own — see lib/sections. */
 const NAV_LINKS = [
-  { name: 'HOME',         href: '#top' },
-  { name: 'WORK',         href: '#work' },
-  { name: 'ABOUT US',     href: '#studio' },
+  { name: 'HOME',         href: '/' },
+  { name: 'ABOUT US',     href: '/about' },
+  { name: 'WORK',         href: '/work' },
   { name: 'TEAM',         href: '/team' },
-  { name: 'GET IN TOUCH', href: '#contact' },
+  { name: 'GET IN TOUCH', href: '/contact' },
 ];
-
-const navHref = (isHome: boolean, href: string) => {
-  if (href.startsWith('/')) return href;
-  return isHome ? href : `/${href}`;
-};
 
 export function SiteHeader() {
   const [location] = useLocation();
-  const isHome = location === '/';
+  /* True on every one of the home page's paths, not just "/" — the brand mark
+     and the scroll listener belong to the page, and /work is the same page. */
+  const isHome = sectionIdFor(location) !== undefined;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -29,11 +29,21 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHome]);
 
-  /* Route links (TEAM) navigate client-side, so without this the dropdown is
-     still hanging open over the page you just landed on. The same-page hash
-     links close it in their own onClick, which doesn't fire here because the
-     location never changes. */
+  /* Links navigate client-side, so without this the dropdown is still hanging
+     open over the page you just landed on. */
   useEffect(() => setMenuOpen(false), [location]);
+
+  /* wouter drops a navigation to the path you are already on, which would
+     leave HOME inert while you sit at "/" and WORK inert once you had followed
+     it. Take those clicks over and scroll to the section by hand — cancelling
+     the event is also what tells wouter to keep out of it. */
+  const handleNavClick = (href: string) => (event: React.MouseEvent) => {
+    setMenuOpen(false);
+    const id = sectionIdFor(href);
+    if (!id || href !== location) return;
+    event.preventDefault();
+    scrollToSection(id);
+  };
 
   /* The dropdown covers the top of the page it sits over; letting that page
      scroll underneath it leaves the menu floating over unrelated content. */
@@ -53,13 +63,14 @@ export function SiteHeader() {
       {/* Desktop nav */}
       <nav className="hidden md:flex items-center gap-8">
         {NAV_LINKS.map(link => (
-          <a
+          <Link
             key={link.name}
-            href={navHref(isHome, link.href)}
+            href={link.href}
+            onClick={handleNavClick(link.href)}
             className="font-sans font-bold text-[13px] tracking-[0.13em] text-[#2a2420] hover:text-[#9b3a2c] transition-colors duration-200"
           >
             {link.name}
-          </a>
+          </Link>
         ))}
       </nav>
 
@@ -80,8 +91,9 @@ export function SiteHeader() {
       </button>
 
       <div className="relative h-6 flex items-center min-w-[140px] md:min-w-[220px] justify-end">
-        <a
-          href={isHome ? '#top' : '/#top'}
+        <Link
+          href="/"
+          onClick={handleNavClick('/')}
           className={`flex items-center gap-2 md:gap-3 absolute right-0 transition-opacity duration-300 ${
             showBrand ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
@@ -93,7 +105,7 @@ export function SiteHeader() {
           >
             ROAR ARCHITECTS
           </span>
-        </a>
+        </Link>
       </div>
 
       {/* Mobile nav dropdown. Capped and scrollable so the list still reaches
@@ -102,14 +114,14 @@ export function SiteHeader() {
       {menuOpen && (
         <nav className="md:hidden absolute top-full left-0 right-0 max-h-[calc(100dvh-56px)] overflow-y-auto bg-white border-b border-[rgba(42,36,32,0.15)] flex flex-col shadow-lg">
           {NAV_LINKS.map(link => (
-            <a
+            <Link
               key={link.name}
-              href={navHref(isHome, link.href)}
-              onClick={() => setMenuOpen(false)}
+              href={link.href}
+              onClick={handleNavClick(link.href)}
               className="px-5 py-4 font-sans font-bold text-[13px] tracking-[0.13em] text-[#2a2420] border-b border-[rgba(42,36,32,0.08)] last:border-b-0 hover:text-[#9b3a2c] transition-colors duration-200"
             >
               {link.name}
-            </a>
+            </Link>
           ))}
         </nav>
       )}

@@ -328,4 +328,31 @@ export const GALLERY_CAPTIONS: Record<string, string> = {
   'terr-052': 'Poolside Party Lawn',
   'terr-053': 'Skyline Terrace Deck',
   'terr-054': 'Open Terrace Platform',
+
+  /* The work-grid stills from attached_assets/site, which the category pages
+     now carry as well. Two-digit stems, so they cannot collide with the
+     three-digit gallery keys above. The fourteen that already appear as cards
+     reuse the titles written for them in `workCategories.ts`, so a photograph
+     is not named one thing on the home page and another in the gallery; the
+     four that were previously unused anywhere are named off what they show. */
+  'arch-01': 'Corner Plot Villa',
+  'arch-02': 'Green Wall Elevation',
+  'arch-03': 'Midnight Elevation',
+  'arch-04': 'Sculpted Corner',
+  'arch-05': 'Cascade House',
+  'arch-06': 'Slatted Screen',
+
+  'int-01': 'Timber Panel Living Room',
+  'int-02': 'Island Kitchen & Dining',
+  'int-03': 'Open Living & Dining',
+  'int-04': 'Stairwell Lounge',
+  'int-05': 'Monochrome Kitchen',
+  'int-06': 'Marble Suite',
+
+  'terr-01': 'Skyline Terrace',
+  'terr-02': 'Poolside Pergola',
+  'terr-03': 'Garden Dining Deck',
+  'terr-04': 'Planted Deck',
+  'terr-05': 'Evening Terrace',
+  'terr-06': 'Shaded Retreat',
 };

@@ -1,14 +1,13 @@
-/* All project imagery is drawn from attached_assets/site, curated out of the
- * client's ALL IMAGES drop. */
-import arch1 from '@assets/site/arch-01.jpg';
-import arch2 from '@assets/site/arch-02.jpg';
+/* Card imagery is drawn from attached_assets/site, curated out of the client's
+ * ALL IMAGES drop — except the album cards, which lead with the cover photo of
+ * the project folder they open (see `albums.ts`). */
+import { ALBUM_COVERS } from './albums';
+
 import arch3 from '@assets/site/arch-03.jpg';
 import arch4 from '@assets/site/arch-04.jpg';
 import arch5 from '@assets/site/arch-05.jpg';
 import arch6 from '@assets/site/arch-06.jpg';
 
-import int1 from '@assets/site/int-01.jpg';
-import int2 from '@assets/site/int-02.jpg';
 import int3 from '@assets/site/int-03.jpg';
 import int4 from '@assets/site/int-04.jpg';
 import int5 from '@assets/site/int-05.jpg';
@@ -26,6 +25,10 @@ export interface WorkItem {
   img: string;
   title: string;
   desc: string;
+  /** Set when the card stands for a whole project folder rather than a single
+   * photograph: the slug of an `albums.ts` album. The card then carries a
+   * "view album" button onto /gallery/<slug>. */
+  album?: string;
 }
 
 export interface WorkCategory {
@@ -44,8 +47,8 @@ export const WORK_CATEGORIES: WorkCategory[] = [
     // Items 2-5 fill the four-up showcase panel in the third cell.
     showcaseFrom: 2,
     items: [
-      { id: 'a1', img: arch1, title: 'Layered Facade', desc: 'Stacked white volumes cut by timber soffits and planted terraces.' },
-      { id: 'a2', img: arch2, title: 'Onyx Facade', desc: 'Dark stone-clad residence layered with wood-slat canopies and vertical greenery.' },
+      { id: 'a1', album: 'layered-facade-villa', img: ALBUM_COVERS['layered-facade-villa'], title: 'Layered Facade Villa', desc: 'Stacked white volumes cut by timber soffits and planted terraces.' },
+      { id: 'a2', album: 'onyx-facade-villa', img: ALBUM_COVERS['onyx-facade-villa'], title: 'Onyx Facade Villa', desc: 'Dark stone-clad residence layered with wood-slat canopies and vertical greenery.' },
       { id: 'a3', img: arch3, title: 'Midnight Elevation', desc: 'Cantilevered upper floors lit against a deep night sky.' },
       { id: 'a4', img: arch4, title: 'Sculpted Corner', desc: 'Angular contemporary villa wrapped in stone, timber and glass.' },
       { id: 'a5', img: arch5, title: 'Cascade House', desc: 'Multi-level home stepping down its site with planted balconies at every turn.' },
@@ -57,8 +60,8 @@ export const WORK_CATEGORIES: WorkCategory[] = [
     label: 'Interiors',
     showcaseFrom: 2,
     items: [
-      { id: 'i1', img: int1, title: 'Timber Living Wall', desc: 'Warm panelled media wall anchoring a calm, low-slung living room.' },
-      { id: 'i2', img: int2, title: 'Island Kitchen', desc: 'Stone-topped island opening straight onto the dining table.' },
+      { id: 'i1', album: 'synstek', img: ALBUM_COVERS['synstek'], title: 'Synstek - Corporate Office', desc: 'Workplace interiors — open workstation floors, glazed cabins and a stone reception counter.' },
+      { id: 'i2', album: 'amogham', img: ALBUM_COVERS['amogham'], title: 'Amogham - Restaurant', desc: 'Restaurant interiors in warm timber and cane, opening onto a full-height street window.' },
       { id: 'i3', img: int3, title: 'Open Living & Dining', desc: 'Sunlit open-plan living and dining space finished in warm timber and marble.' },
       { id: 'i4', img: int4, title: 'Stairwell Lounge', desc: 'Double-height lounge wrapped around a sculptural timber stair.' },
       { id: 'i5', img: int5, title: 'Monochrome Kitchen', desc: 'Crisp cabinetry and backlit display shelving in a graphite palette.' },

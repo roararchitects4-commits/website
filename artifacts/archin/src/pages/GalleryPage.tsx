@@ -7,6 +7,7 @@ import { Footer } from '../components/Footer';
 import { useDismissOnScroll } from '../hooks/useDismissOnScroll';
 import { WORK_CATEGORIES, type WorkItem } from '../data/workCategories';
 import { GALLERY_IMAGES } from '../data/galleryImages';
+import { albumBySlug } from '../data/albums';
 import { SITE_URL } from '../lib/siteConfig';
 
 /** Repeating span pattern for the mosaic. Mixed rectangles plus `grid-auto-flow:
@@ -49,6 +50,10 @@ export default function GalleryPage() {
   const { slug } = useParams<{ slug: string }>();
   const search = useSearch();
   const category = WORK_CATEGORIES.find((c) => c.slug === slug);
+  /* Categories and named project albums share the /gallery/:slug namespace.
+     The page is the same mosaic either way — only the heading, where the ←
+     arrow goes and the meta block differ. */
+  const album = category ? undefined : albumBySlug(slug);
   const [activeItem, setActiveItem] = useState<Lightbox | null>(null);
 
   useEffect(() => {
@@ -69,14 +74,35 @@ export default function GalleryPage() {
   const closeLightbox = useCallback(() => setActiveItem(null), []);
   useDismissOnScroll(activeItem !== null, closeLightbox);
 
-  if (!category) {
+  /* One shape for both, so everything below reads off a single object rather
+     than branching on which of the two was matched. */
+  const view = category
+    ? {
+        slug: category.slug,
+        label: category.label,
+        photos: GALLERY_IMAGES[category.slug] ?? [],
+        meta: CATEGORY_META[category.slug],
+      }
+    : album
+      ? {
+          slug: album.slug,
+          label: album.label,
+          photos: album.photos,
+          meta: {
+            title: `${album.label} | ROAR Architects, Hyderabad`,
+            description: album.blurb,
+          },
+        }
+      : null;
+
+  if (!view) {
     return (
       <div className="relative bg-background min-h-screen flex flex-col">
         <SiteHeader />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="font-serif text-4xl mb-4 text-ink">Gallery not found</h1>
-            <Link href="/#work" className="text-[11px] tracking-[0.2em] border-b border-accent pb-1 text-ink">
+            <Link href="/work" className="text-[11px] tracking-[0.2em] border-b border-accent pb-1 text-ink">
               RETURN TO OUR WORK
             </Link>
           </div>
@@ -86,51 +112,99 @@ export default function GalleryPage() {
     );
   }
 
-  const meta = CATEGORY_META[category.slug];
-  const photos = GALLERY_IMAGES[category.slug] ?? [];
-
   return (
     <div className="relative bg-background min-h-screen flex flex-col">
-      {meta && (
+      {view.meta && (
         <Helmet>
-          <title>{meta.title}</title>
-          <meta name="description" content={meta.description} />
-          <link rel="canonical" href={`${SITE_URL}/gallery/${category.slug}`} />
+          <title>{view.meta.title}</title>
+          <meta name="description" content={view.meta.description} />
+          <link rel="canonical" href={`${SITE_URL}/gallery/${view.slug}`} />
           <meta property="og:type" content="website" />
-          <meta property="og:title" content={meta.title} />
-          <meta property="og:description" content={meta.description} />
-          <meta property="og:url" content={`${SITE_URL}/gallery/${category.slug}`} />
+          <meta property="og:title" content={view.meta.title} />
+          <meta property="og:description" content={view.meta.description} />
+          <meta property="og:url" content={`${SITE_URL}/gallery/${view.slug}`} />
         </Helmet>
       )}
 
       <SiteHeader />
 
-      <main className="flex-1 pt-2 pb-[100px] px-4 sm:px-[max(22px,5vw)] bg-white">
-        <div className="max-w-[1680px] mx-auto">
+      {/* pt-6 rather than the pt-2 this started at: the title's leading-none
+          trims the half-line of air that used to sit above its cap, which left
+          it sitting almost against the header. The padding gives that clearance
+          back deliberately, where the line height was giving it by accident.
+          It lifts the whole column, so the 32px between the title and the first
+          row of tiles is unchanged. */}
+      <main className="flex-1 pt-6 pb-[100px] px-4 sm:px-[max(22px,5vw)] bg-white">
           {/* The arrow is the whole back control — it sits inline with the
-              title rather than on its own line above it. */}
-          <div className="flex items-baseline gap-4">
+              title rather than on its own line above it.
+
+              The negative margins cancel main's own gutter so this row can take
+              the header's instead, which is what puts the arrow on the same
+              vertical line as the HOME link directly above it — the two were
+              about 88px apart, since the header pads by a flat 32px while the
+              page below pads by 5vw.
+
+              It also has to sit outside the 1680px column the grid uses. That
+              column is centred, so past roughly 1867px it starts drifting
+              inward under its own cap and no fixed padding here could have
+              followed it. */}
+          <div className="flex items-center gap-4 -mx-4 px-5 sm:-mx-[max(22px,5vw)] md:px-8">
+            {/* Always back to the work grid, for an album as much as for a
+                category. An album is opened from a card in that grid, and
+                sending the arrow to the album's category instead landed the
+                visitor on a page of every photograph in the category — not
+                anywhere they had been. */}
             <Link
-              href="/#work"
+              href="/work"
               aria-label="Back to our work"
-              className="font-serif font-light text-[clamp(18px,5.5vw,29px)] sm:text-[clamp(18px,2.2vw,29px)] leading-none text-muted hover:text-accent transition-colors"
+              /* The mb-3 matches the title's own bottom margin, and that is what
+                 lifts the arrow. The row centres on `items-center`, which
+                 centres each child's *margin* box — so the title, carrying 12px
+                 of margin below it, already sat 6px above the line the arrow
+                 was centring on. Giving the arrow the same margin puts the two
+                 glyphs on one centre instead of the boxes. */
+              className="group mb-3 inline-flex items-center justify-center transition-transform duration-300 hover:-translate-x-1"
             >
-              ←
+              <svg 
+                className="w-[clamp(18px,5.5vw,26px)] h-[clamp(18px,5.5vw,26px)] text-[#A94F3D]" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor" 
+                strokeWidth={3}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
             </Link>
             {/* leading-none as well as the smaller size: at the default line
                 height the title carries half a line of air above its cap, which
                 reads as a gap under the header no amount of padding tuning
                 explains. */}
-            <h1 className="font-serif font-light text-[clamp(18px,6vw,32px)] sm:text-[clamp(20px,2.6vw,32px)] leading-none text-ink mb-3">
-              {category.label}
+            {/* Inter rather than the serif every other page title uses. This
+                heading sits directly over a wall of photographs, where the
+                serif's light strokes had little to hold against; the sans keeps
+                its weight at the same size. font-normal, not the font-light the
+                serif carried — Inter at 300 is appreciably thinner than
+                Cormorant at 300 and would have read as weaker, not lighter. */}
+            <h1 className="font-sans font-normal text-[clamp(18px,6vw,32px)] sm:text-[clamp(20px,2.6vw,32px)] leading-none text-ink mb-3">
+              {view.label.includes(' - ') ? (
+                <>
+                  {/* The separator kept its own size and margins — it was only
+                      set in font-sans to escape the serif, which the heading no
+                      longer uses. */}
+                  {view.label.split(' - ')[0]} <span className="mx-1 text-[0.9em]">-</span> {view.label.split(' - ')[1]}
+                </>
+              ) : (
+                view.label
+              )}
             </h1>
           </div>
           <div className="mb-8" />
 
+        <div className="max-w-[1680px] mx-auto">
           {/* Fewer columns and taller rows than a thumbnail wall, so each
               project actually reads at a glance. */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 auto-rows-[clamp(120px,11.5vw,230px)] gap-2.5 sm:gap-3 [grid-auto-flow:dense]">
-            {photos.map((photo, idx) => (
+            {view.photos.map((photo, idx) => (
               <button
                 key={photo.id}
                 type="button"

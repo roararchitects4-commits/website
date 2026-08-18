@@ -3,9 +3,14 @@ import { Helmet } from 'react-helmet-async';
 import { SiteHeader } from '../components/SiteHeader';
 import { Footer } from '../components/Footer';
 import { SITE_URL } from '../lib/siteConfig';
+import { BIO_INITIAL } from '../lib/typography';
 
 import rohithaPhoto from '@assets/team/rohitha-surya.jpeg';
-import team1 from '@assets/team/member-1.jpeg';
+/* Maria's portrait, re-framed: the original is shot closer than the other five
+   and read zoomed-in beside them. member-1-wide is that photograph with its
+   backdrop extended by 14% off its own edge pixels, so the subject sits at the
+   same scale in frame as the rest of the sheet. member-1.jpeg is untouched. */
+import team1 from '@assets/team/member-1-wide.jpeg';
 import team2 from '@assets/team/member-2.jpeg';
 import team3 from '@assets/team/member-3.png';
 import team4 from '@assets/team/member-4.jpeg';
@@ -52,31 +57,91 @@ interface TeamMember {
    dropped, so no field carries them any more. */
 const LEADERSHIP: (TeamMember & { bio: string; dim: string })[] = [
   {
-    name: 'Surya Kiran',
+    name: 'A.Surya Kiran',
     designation: 'Managing Director',
     photo: suryaKiranPhoto,
-    bio: 'Leads the overall business strategy, operations and client relationships at ROAR — ensuring every project is delivered with excellence and integrity.',
+    bio: "Oversees the firm's strategic direction, daily operations, and client relationships, driving exceptional outcomes across every project.",
     dim: '2600',
   },
   {
-    name: 'Rohitha Surya',
+    name: 'A.Rohitha Surya',
     designation: 'Founder & Principal Architect',
     photo: rohithaPhoto,
-    bio: 'Leads ROAR from Hyderabad, with an active studio in Visakhapatnam — homes, villas, commercial and hospitality projects, concept through execution.',
+    bio: 'Leads the creative vision of ROAR, designing thoughtful residential, commercial, and hospitality spaces that balance innovation, functionality, and timeless aesthetics.',
     dim: '4200',
   },
 ];
 
 const [SURYA, ROHITHA] = LEADERSHIP;
 
-const TEAM_MEMBERS: TeamMember[] = [
-  { name: 'Maria Mustajaab Ahmed', designation: 'Interior Designer', photo: team1 },
-  { name: 'Balla Janakiram', designation: 'Senior 2d designer', photo: team2 },
-  { name: 'Naveen B', designation: 'Senior 3D Designer', photo: team3 },
-  { name: 'KM Naidu', designation: 'Execution Head', photo: team4 },
-  {name:'Angarapu Manikanta', designation:'Site Engineer', photo:team5},
-  {name:'Patnala Nagesh', designation:'Site Co-ordinator', photo:team6}
+/* The studio by bench rather than as one run of faces — the page now sets a
+ * column per team, and this is the order they read in. */
+const TEAM_GROUPS: { label: string; members: TeamMember[] }[] = [
+  {
+    label: 'Architecture Team',
+    members: [
+      { name: 'Naveen B', designation: 'Senior 3D Designer', photo: team3 },
+      { name: 'Balla Janakiram', designation: 'Senior 2d designer', photo: team2 },
+    ],
+  },
+  {
+    label: 'Interior Team',
+    members: [
+      { name: 'Maria Mustajaab Ahmed', designation: 'Interior Designer', photo: team1 },
+    ],
+  },
+  {
+    label: 'Site Execution',
+    members: [
+      { name: 'KM Naidu', designation: 'Execution Head', photo: team4 },
+      { name: 'Angarapu Manikanta', designation: 'Site Engineer', photo: team5 },
+      { name: 'Patnala Nagesh', designation: 'Site Co-ordinator', photo: team6 },
+    ],
+  },
 ];
+
+/* A bench's column is as wide as the number of people on it — two units for
+ * architecture, one for interiors, three for site execution — against a
+ * six-unit row. Every portrait then comes out the same width and all six sit in
+ * one row, instead of three equal thirds leaving the one-person column half
+ * empty. Written out as whole class names rather than built from the count,
+ * because Tailwind only emits the classes it can see in the source. */
+const GROUP_COLS: Record<number, string> = {
+  1: 'lg:grid-cols-1',
+  2: 'lg:grid-cols-2',
+  3: 'lg:grid-cols-3',
+};
+
+/* The row is laid out on one track per person plus a fixed gap track between
+ * benches, rather than on six equal columns. Six equal columns can only give
+ * every gap the same width — the space between Balla and Maria read as no
+ * different from the space between Naveen and Balla, so the three benches ran
+ * together as one line of faces. With a track of its own between them, the
+ * separation is wider than the spacing inside a bench and every portrait still
+ * comes out exactly the same width.
+ *
+ * Both values are handed over as custom properties and only read back at lg,
+ * because below that the benches stack into a single column and a `4 / span 1`
+ * would conjure implicit columns out of the one-column grid. */
+/* The member gap is set on the outer row as well as inside each bench. Without
+ * it the gap between two people came out of their bench's own width, so the
+ * one-person bench sat on a full track while everyone else lost half a gap —
+ * Maria's frame came out 10px wider than the rest. With both gaps equal, every
+ * portrait is exactly one track wide, and a bench is separated from its
+ * neighbour by the extra track plus the two gaps either side of it. */
+const BENCH_GAP = '2rem';
+const MEMBER_GAP = '1.5rem';
+
+const TEAM_COLUMNS = TEAM_GROUPS.map(
+  (group) => `repeat(${group.members.length}, minmax(0, 1fr))`,
+).join(` ${BENCH_GAP} `);
+
+/* Where each bench starts on that track list: its own columns, then the gap. */
+const GROUP_PLACEMENT: string[] = [];
+TEAM_GROUPS.reduce((column, group) => {
+  GROUP_PLACEMENT.push(`${column} / span ${group.members.length}`);
+  return column + group.members.length + 1;
+}, 1);
 
 /* ─────────────────────────────────────────────
    Drawing-sheet furniture
@@ -236,7 +301,10 @@ function LeaderCopy({ name, designation, bio }: { name: string; designation: str
         className="mt-5 max-w-[28ch] font-sans text-[13px] font-light leading-[1.85]"
         style={{ color: MUTED }}
       >
-        {bio}
+        {/* The initial cap takes its colour from its own class, which beats the
+            ink inherited from the paragraph's inline style. */}
+        <span className={BIO_INITIAL}>{bio.charAt(0)}</span>
+        {bio.slice(1)}
       </p>
     </div>
   );
@@ -379,7 +447,12 @@ export default function TeamPage() {
 
             <div className="relative pt-8 lg:pt-10">
               <div className="grid grid-cols-1 gap-y-5 lg:grid-cols-12 lg:items-start lg:gap-x-5">
-                <div className="lg:col-span-5 lg:col-start-1">
+                {/* Eight columns rather than five: at 54px the line needs about
+                    500px and the five-column cell gave it 445, so it broke after
+                    "with" whether or not the markup asked it to. The nowrap is
+                    the guarantee — the cell is now wide enough at every width
+                    the clamp can serve. Below lg it wraps as it always did. */}
+                <div className="lg:col-span-8 lg:col-start-1">
                   <p
                     className="font-sans text-[8.5px] uppercase tracking-[0.26em]"
                     style={{ color: MUTED }}
@@ -387,12 +460,10 @@ export default function TeamPage() {
                     The Design Studio
                   </p>
                   <h2
-                    className="mt-4 font-serif text-[clamp(30px,3.9vw,54px)] font-light leading-[1.06] tracking-[-0.01em]"
+                    className="mt-4 font-serif text-[clamp(30px,3.9vw,54px)] font-light leading-[1.06] tracking-[-0.01em] lg:whitespace-nowrap"
                     style={{ color: INK }}
                   >
-                    Designing
-                    <br />
-                    with Purpose.
+                    Designing with Purpose.
                   </h2>
                 </div>
               </div>
@@ -405,53 +476,129 @@ export default function TeamPage() {
                   below lines up with it. The dimension run is absolutely
                   positioned, so it costs no width and does not reintroduce the
                   offset. */}
-              {/* One row for the whole studio at lg, where the 1120px sheet
-                  gives six portraits about 150px each once the tightened gutters
-                  are taken out. Below lg they step down rather than keep the row:
-                  six abreast at md would leave each face near 100px, and on a
-                  phone about 50px, too narrow to read. Two rows of three at md,
-                  three rows of two below it. */}
-              <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-12 sm:gap-x-12 md:grid-cols-3 lg:mt-14 lg:grid-cols-6 lg:gap-x-10">
-                {TEAM_MEMBERS.map((member, idx) => (
-                  <figure key={member.photo ?? idx} className="relative flex flex-col">
-                    <div className="relative w-full max-w-full">
-                      <Dimension
-                        value="3200"
-                        className="left-[-14px] top-0 hidden h-full lg:flex"
-                      />
-                      <Portrait
-                        photo={member.photo}
-                        name={member.name}
-                        chamfer={CHAMFER_SM}
-                        className="aspect-[0.82] w-full"
-                      />
-                    </div>
+              {/* One row, three columns — a column per bench, so the studio
+                  reads as architecture, interiors and site execution rather
+                  than as six faces in a line. The columns run to their own
+                  length; interiors is one person and site execution three,
+                  which is what the studio is.
 
-                    {/* Caption only where the details have arrived — an
-                        unnamed portrait shows as a portrait, with nothing
-                        standing in for a name. */}
-                    {(member.name || member.designation) && (
-                      <figcaption className="mt-5">
-                        <span className="mb-3 block h-px w-6" style={{ backgroundColor: RULE }} />
-                        {member.name && (
-                          <p
-                            className="font-serif text-[clamp(15px,1.4vw,19px)] font-light leading-tight"
-                            style={{ color: INK }}
-                          >
-                            {member.name}
-                          </p>
-                        )}
-                        {member.designation && (
-                          <p
-                            className="mt-1 font-sans text-[9.5px] font-medium leading-[1.6]"
-                            style={{ color: ACCENT }}
-                          >
-                            {member.designation}
-                          </p>
-                        )}
-                      </figcaption>
-                    )}
-                  </figure>
+                  Two abreast inside each column, at every width. At lg that
+                  puts each portrait near 160px — the size they were when the
+                  six sat in a single row — and keeps the tallest column to two
+                  rows rather than three stacked full-width portraits. Below sm
+                  the three columns fall into one, and the pairing inside them
+                  is what stops a phone scrolling through six of them. */}
+              <div
+                /* The row gap only ever separates the three benches, and only
+                   on a phone — from lg up they sit side by side on a single
+                   row, where a row gap has nothing to space. 56px there left
+                   each bench label floating well clear of the portraits above
+                   it; 32px still reads as a break between benches without the
+                   sheet turning into a long scroll of gaps. The lg value is
+                   kept as a statement of intent, not because it renders. */
+                className="mt-10 grid grid-cols-1 gap-y-8 lg:mt-14 lg:gap-y-14 lg:[column-gap:var(--member-gap)] lg:[grid-template-columns:var(--team-columns)]"
+                style={
+                  {
+                    '--team-columns': TEAM_COLUMNS,
+                    '--member-gap': MEMBER_GAP,
+                  } as React.CSSProperties
+                }
+              >
+                {TEAM_GROUPS.map((group, groupIdx) => (
+                  <div
+                    key={group.label}
+                    className="lg:[grid-column:var(--bench-placement)]"
+                    style={{ '--bench-placement': GROUP_PLACEMENT[groupIdx] } as React.CSSProperties}
+                  >
+                    {/* Solid ink, both the name and the line under it: these
+                        divide the sheet into its three benches, so they are
+                        read as structure rather than as the faint furniture
+                        the dimension runs and crop marks are drawn in. */}
+                    <p
+                      className="text-center font-sans text-[11px] font-medium uppercase tracking-[0.2em] lg:text-[12px]"
+                      style={{ color: INK }}
+                    >
+                      {group.label}
+                    </p>
+                    <span className="mt-3 block h-px w-full" style={{ backgroundColor: INK }} />
+
+                    <div
+                      className={`mt-8 grid grid-cols-2 gap-y-12 [column-gap:var(--member-gap)] ${
+                        GROUP_COLS[group.members.length]
+                      }`}
+                      style={{ '--member-gap': MEMBER_GAP } as React.CSSProperties}
+                    >
+                      {group.members.map((member, idx) => (
+                        /* A bench of one lands in the left half of the phone
+                           grid's two columns, which reads as hanging off the
+                           label centred over it. Spanning both columns and then
+                           taking a single column's width back centres it
+                           without drawing it any larger than the portraits on
+                           the benches either side — the width is the column
+                           formula itself, (row - gap) / 2, so it follows
+                           MEMBER_GAP rather than restating it.
+
+                           Below lg only. From lg up each bench sets its own
+                           column count through GROUP_COLS, where a bench of one
+                           already fills its single track. */
+                        <figure
+                          key={member.photo ?? idx}
+                          className={`relative flex flex-col ${
+                            group.members.length === 1
+                              ? 'max-lg:col-span-2 max-lg:mx-auto max-lg:w-[calc((100%_-_var(--member-gap))/2)]'
+                              : ''
+                          }`}
+                        >
+                          <div className="relative w-full max-w-full">
+                            <Dimension
+                              value="3200"
+                              className="left-[-14px] top-0 hidden h-full lg:flex"
+                            />
+                            <Portrait
+                              photo={member.photo}
+                              name={member.name}
+                              chamfer={CHAMFER_SM}
+                              className="aspect-[0.82] w-full"
+                            />
+                          </div>
+
+                          {/* Caption only where the details have arrived — an
+                              unnamed portrait shows as a portrait, with nothing
+                              standing in for a name. */}
+                          {(member.name || member.designation) && (
+                            <figcaption className="mt-5">
+                              <span
+                                className="mb-3 block h-px w-6"
+                                style={{ backgroundColor: RULE }}
+                              />
+                              {/* Sized to the longest name on the sheet:
+                                  "Maria Mustajaab Ahmed" measures 164px at 17px
+                                  against a 148px column, so it broke after the
+                                  second word while every other name sat on one
+                                  line. The clamp stays tied to the viewport, so
+                                  it goes on fitting as the columns narrow. */}
+                              {member.name && (
+                                <p
+                                  className="font-serif text-[clamp(11px,1.05vw,15px)] font-light leading-tight"
+                                  style={{ color: INK }}
+                                >
+                                  {member.name}
+                                </p>
+                              )}
+                              {member.designation && (
+                                <p
+                                  className="mt-1 font-sans text-[9.5px] font-medium leading-[1.6]"
+                                  style={{ color: ACCENT }}
+                                >
+                                  {member.designation}
+                                </p>
+                              )}
+                            </figcaption>
+                          )}
+                        </figure>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -459,12 +606,23 @@ export default function TeamPage() {
         </section>
 
         {/* ══ Section 3 — the tally ══ */}
-        <section className="relative px-[max(26px,6vw)] pb-16 lg:pb-24">
+        <section className="relative px-[max(26px,6vw)] pb-8 lg:pb-12">
           <div className="mx-auto w-full max-w-[1120px]">
             <div className="h-px w-full" style={{ backgroundColor: RULE }} />
 
-            <div className="relative pt-8 lg:pt-10">
-              <SketchPlate src={bgBottom} className="right-[2%] top-[-64%] hidden w-[600px] lg:block" />
+            {/* Tighter top and bottom than the sections above: this is a closing
+                strip of one line, and the air it used to carry read as an empty
+                panel under the studio rather than as the foot of the sheet. */}
+            <div className="relative pt-5 lg:pt-6">
+              {/* Smaller and lifted, now the strip under it is one line tall:
+                  at 600px the drawing stood 279px high against a 90px band, so
+                  it ran out under the footer and was cut in half. A pixel offset
+                  rather than a percentage — percentages resolve against the
+                  band's own height, so the plate would move again the next time
+                  this block's padding changed. Sat on the strip rather than
+                  above it: at -120px the drawing climbed into the row of names
+                  over it. */}
+              <SketchPlate src={bgBottom} className="right-[2%] top-[-56px] hidden w-[420px] lg:block" />
 
               {/* Dot grid, far right — the comp's tone patch. */}
               <span
@@ -478,17 +636,27 @@ export default function TeamPage() {
 
               <div className="relative flex flex-wrap items-center gap-x-10 gap-y-6">
                 <p
-                  className="font-sans text-[15px] font-medium uppercase leading-[1.8] tracking-[0.22em]"
+                  className="font-sans text-[15px] font-medium uppercase leading-[1.5] tracking-[0.22em]"
                   style={{ color: ACCENT }}
                 >
-                  People
+                  One Studio.
                   <br />
-                  One Studio
+                  Shared Purpose.
                 </p>
-                <span className="hidden h-14 w-px lg:block" style={{ backgroundColor: RULE }} />
+                <span className="hidden h-10 w-px lg:block" style={{ backgroundColor: RULE }} />
+                {/* Set in the same voice as "Designing with Purpose." above it
+                    — the sheet's light serif rather than the sans the body copy
+                    uses — so the two read as the pair of statements they are.
+                    Held at 22px rather than the heading's clamp: this is a full
+                    sentence, and at heading size it could not stay on the one
+                    line it is meant to close the page with.
+
+                    That single line runs from lg up, where the 1120px column
+                    has room for it beside the label. The measure and the wrap
+                    are kept for narrower screens, where nothing would fit. */}
                 <p
-                  className="max-w-[34ch] font-sans text-[14px] font-light leading-[1.85]"
-                  style={{ color: MUTED }}
+                  className="max-w-[34ch] font-serif text-[17px] font-light leading-snug tracking-[-0.01em] lg:max-w-none lg:whitespace-nowrap lg:text-[22px]"
+                  style={{ color: INK }}
                 >
                   Different perspectives. One shared vision — creating spaces that inspire and
                   endure.

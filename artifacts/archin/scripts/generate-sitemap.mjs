@@ -23,7 +23,15 @@ const blogSlugs = readdirSync(blogDir)
   .filter(Boolean);
 
 const workCategoriesSrc = readFileSync(path.join(root, 'src/data/workCategories.ts'), 'utf8');
-const gallerySlugs = [...workCategoriesSrc.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1]);
+const categorySlugs = [...workCategoriesSrc.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1]);
+
+/* The named project albums answer to the same /gallery/<slug> route as the
+   categories, so they belong in the sitemap on the same terms. Only the quoted
+   values match, which leaves the `slug: string` on the interface out. */
+const albumsSrc = readFileSync(path.join(root, 'src/data/albums.ts'), 'utf8');
+const albumSlugs = [...albumsSrc.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1]);
+
+const gallerySlugs = [...categorySlugs, ...albumSlugs];
 
 /* Routes with no data source behind them, so they cannot be derived the way the
    blog and gallery paths below are — they have to be listed by hand. Keep this
