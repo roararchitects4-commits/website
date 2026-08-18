@@ -72,8 +72,8 @@ const STATS = [
   { value: 7,   suffix: '+', label: 'CITIES'    },
 ];
 
-/* PageTransition holds the arc/loading cover for ~1950ms (800ms hold + 1150ms wipe) — wait for it to clear before counting up. */
-const COUNT_UP_START_DELAY_MS = 2000;
+/* PageTransition holds the arc/loading cover for ~2950ms (1800ms hold + 1150ms wipe) — wait for it to clear before counting up. */
+const COUNT_UP_START_DELAY_MS = 3000;
 
 function useCountUp(target: number, durationMs = 1600) {
   const [count, setCount] = useState(0);

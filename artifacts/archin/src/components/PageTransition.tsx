@@ -4,10 +4,11 @@ export function PageTransition() {
   const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
-    // Wait a brief moment to show "LOADING", then animate out
+    // Hold long enough for one full 1.7s light sweep across the wordmark
+    // (see .loading-wordmark in index.css), then animate out.
     const timer = setTimeout(() => {
       setIsLeaving(true);
-    }, 800);
+    }, 1800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -25,11 +26,12 @@ export function PageTransition() {
       aria-hidden="true"
     >
       <span
-        className={`text-white text-[11px] font-sans tracking-[0.5em] pl-[0.5em] uppercase transition-opacity duration-500 ${
+        className={`loading-wordmark leading-none tracking-[-0.01em] whitespace-nowrap transition-opacity duration-500 ${
           isLeaving ? 'opacity-0' : 'opacity-100'
         }`}
+        style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600 }}
       >
-        Loading
+        ROAR ARCHITECTS
       </span>
     </div>
   );
