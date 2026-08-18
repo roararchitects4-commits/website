@@ -214,7 +214,7 @@ export function CTA() {
                   <span className="flex items-center gap-2 text-[7px] sm:text-[8.5px] tracking-[0.16em] sm:tracking-[0.18em] text-accent uppercase mb-1">
                     {office.city}
                   </span>
-                  <address className="not-italic text-[8px] sm:text-[9.5px] leading-snug text-muted">
+                  <address className="not-italic text-[8px] sm:text-[9.5px] leading-snug text-black">
                     {office.lines.map((line, i) => (
                       <React.Fragment key={i}>
                         {line}
@@ -249,7 +249,11 @@ export function CTA() {
             <span className="text-[clamp(28px,8vw,38px)] font-serif leading-none text-accent mb-4 sm:mb-5">
               Get In Touch
             </span>
-            <p className="text-[15px] sm:text-[16px] leading-relaxed text-muted mb-6 sm:mb-8 max-w-lg">
+            {/* Solid black, not the site's --muted: over the blurred sketch
+                behind this section a 60% ink grey had too little left to read
+                against. The same goes for the field labels and the addresses on
+                the map cards — every run of copy in here is set in black. */}
+            <p className="text-[15px] sm:text-[16px] leading-relaxed text-black mb-6 sm:mb-8 max-w-lg">
               We are excited to hear about your project. Please leave your details and a brief message. We aim to respond within 24 hours.
             </p>
 
@@ -265,7 +269,7 @@ export function CTA() {
                   required
                   value={form.name}
                   onChange={updateField('name')}
-                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
+                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-black text-[15px] tracking-wide placeholder:text-black placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
                 />
                 <input
                   type="tel"
@@ -275,7 +279,7 @@ export function CTA() {
                   required
                   value={form.phone}
                   onChange={updatePhone}
-                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
+                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-black text-[15px] tracking-wide placeholder:text-black placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
                 />
                 <input
                   type="email"
@@ -283,7 +287,7 @@ export function CTA() {
                   required
                   value={form.email}
                   onChange={updateField('email')}
-                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
+                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-black text-[15px] tracking-wide placeholder:text-black placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none"
                 />
                 <textarea
                   placeholder="Message"
@@ -291,7 +295,7 @@ export function CTA() {
                   rows={3}
                   value={form.message}
                   onChange={updateField('message')}
-                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-ink text-[15px] tracking-wide placeholder:text-muted placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none resize-none"
+                  className="w-full bg-transparent border-b border-line py-3.5 px-2 text-black text-[15px] tracking-wide placeholder:text-black placeholder:text-[11px] placeholder:tracking-[0.4em] placeholder:uppercase placeholder:font-bold focus:outline-none focus:border-ink transition-colors rounded-none resize-none"
                 />
 
                 {/* Honeypot — off-screen rather than display:none, since some
@@ -317,7 +321,7 @@ export function CTA() {
                 <button
                   type="submit"
                   disabled={sending}
-                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-ink hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full sm:self-start w-full sm:w-auto mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink disabled:hover:border-accent"
+                  className="inline-block text-[12px] tracking-[0.34em] font-normal uppercase border border-accent py-3.5 px-10 text-black hover:bg-ink hover:text-white hover:border-ink transition-all duration-350 rounded-full sm:self-start w-full sm:w-auto mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black disabled:hover:border-accent"
                 >
                   {sending ? 'Sending…' : 'Submit'}
                 </button>

@@ -238,15 +238,21 @@ export default function GalleryPage() {
                 >
                   {/* Mosaic photos carry a caption but no blurb, so the
                       paragraph is dropped rather than rendered empty. */}
+                  {/* Phone sizes only — the `sm:` values are what this block
+                      shipped with. The caption lies over the photograph, so on
+                      a phone every line it takes is a line of picture covered.
+                      Kept in step with the same overlay in WorkGrid; the two
+                      are separate lightboxes and a change to one wants making
+                      to the other. */}
                   <b
-                    className={`block font-serif italic text-[20px] sm:text-[22px] text-white font-normal tracking-normal ${
-                      activeItem.desc ? 'mb-1.5' : ''
+                    className={`block font-serif italic text-[12px] sm:text-[22px] text-white font-normal tracking-normal ${
+                      activeItem.desc ? 'mb-0.5 sm:mb-1.5' : ''
                     }`}
                   >
                     {activeItem.title}
                   </b>
                   {activeItem.desc && (
-                    <p className="text-[13px] text-white/80 leading-relaxed tracking-[0.03em] max-w-lg">
+                    <p className="text-[9px] sm:text-[13px] text-white/80 leading-relaxed tracking-[0.03em] max-w-lg">
                       {activeItem.desc}
                     </p>
                   )}

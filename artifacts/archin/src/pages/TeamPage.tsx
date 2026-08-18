@@ -10,6 +10,7 @@ import team2 from '@assets/team/member-2.jpeg';
 import team3 from '@assets/team/member-3.png';
 import team4 from '@assets/team/member-4.jpeg';
 import team5 from '@assets/team/member-5.jpeg'
+import team6 from '@assets/team/member6.jpeg';
 import suryaKiranPhoto from '@assets/team/surya-kiran.jpeg';
 /* The supplied sketch drawings with their paper keyed out. The sources are
    opaque JPEGs on an off-white ground, so as-is they would drop a grey slab
@@ -26,10 +27,15 @@ import bgBottom from '@assets/team/sketch-bottom.png';
    accent colour appears in the comp, so the site's --accent is deliberately
    unused on this page. */
 const PAPER = '#FBFAF8';
-const INK = '#111111';
-const MUTED = 'rgba(17,17,17,0.56)';
-const FAINT = 'rgba(17,17,17,0.38)';
-const RULE = 'rgba(17,17,17,0.20)';
+const INK = '#000000';
+/* Named for the role it plays in the layout, not for a tint any more: the body
+   copy was set back at 56% ink and read washed out against the paper, so every
+   run of type on this sheet is now solid black. Only the sheet's furniture — the
+   rules and the dimension figures below — is still held back, since those are
+   drawing marks rather than something to read. */
+const MUTED = '#000000';
+const FAINT = 'rgba(0,0,0,0.38)';
+const RULE = 'rgba(0,0,0,0.20)';
 const FRAME_BG = '#E8E5E0';
 /* The one colour on an otherwise monochrome sheet — the site's brand red,
    carried here so job titles read as ROAR's rather than as more ink. */
@@ -68,7 +74,8 @@ const TEAM_MEMBERS: TeamMember[] = [
   { name: 'Balla Janakiram', designation: 'Senior 2d designer', photo: team2 },
   { name: 'Naveen B', designation: 'Senior 3D Designer', photo: team3 },
   { name: 'KM Naidu', designation: 'Execution Head', photo: team4 },
-  {name:'Angarapu Manikanta', designation:'Site Engineer', photo:team5}
+  {name:'Angarapu Manikanta', designation:'Site Engineer', photo:team5},
+  {name:'Patnala Nagesh', designation:'Site Co-ordinator', photo:team6}
 ];
 
 /* ─────────────────────────────────────────────
@@ -208,16 +215,12 @@ function Portrait({
 
 function LeaderCopy({ name, designation, bio }: { name: string; designation: string; bio: string }) {
   return (
-    /* Centred below lg, where the portrait above it is centred too and copy
-       ranged left would hang off to one side of it. The column returns to
-       ranged left at lg, where the block sits in its own grid cell beside the
-       photograph and the sheet's left-hand alignment is the point. */
-    <div className="flex flex-col items-center text-center lg:block lg:text-left">
+    <div>
       {/* Leading rule, left over from the tag that used to sit here — it keeps
           the block anchored to the sheet's furniture now the label is gone. */}
       <span className="mb-5 block h-px w-6" style={{ backgroundColor: RULE }} />
       <h2
-        className="font-serif text-[clamp(26px,7vw,42px)] sm:text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
+        className="font-serif text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
         style={{ color: INK }}
       >
         {name}
@@ -281,7 +284,7 @@ export default function TeamPage() {
         </span>
 
         {/* ══ Section 1 — the two leaders ══ */}
-        <section className="relative px-[max(16px,6vw)] pt-10 pb-4 lg:pt-16 lg:pb-6">
+        <section className="relative px-[max(26px,6vw)] pt-12 pb-4 lg:pt-16 lg:pb-6">
           {/* Drawn in off the edges so each plate reads whole rather than as a
               sliver. The percentages resolve against the section's width, which
               is the full viewport, so these sit just inside the screen with
@@ -294,19 +297,14 @@ export default function TeamPage() {
                 row, which is what laps Surya's over Rohitha's rather than
                 setting them side by side. Below lg the blocks fall into one
                 column in DOM order. */}
-            {/* Stacked, the row gap is the only thing separating one leader
-                from the next — 48px left the pair reading as two unrelated
-                screens on a phone. 24px still parts them without the scroll
-                between. From lg the blocks are placed on the 12-column grid
-                and the gap goes back to zero. */}
-            <div className="grid grid-cols-1 gap-y-6 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
+            <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
               {/* Intro */}
               <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
                 <p className="font-sans text-[8.5px] uppercase tracking-[0.26em]" style={{ color: MUTED }}>
                   The People Behind ROAR
                 </p>
                 <h1
-                  className="mt-4 font-serif text-[clamp(40px,11vw,96px)] sm:text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
+                  className="mt-4 font-serif text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
                   style={{ color: INK }}
                 >
                   Team.
@@ -375,7 +373,7 @@ export default function TeamPage() {
         </section>
 
         {/* ══ Section 2 — the wider studio ══ */}
-        <section className="relative px-[max(16px,6vw)] pb-10 lg:pb-14">
+        <section className="relative px-[max(26px,6vw)] pb-10 lg:pb-14">
           <div className="mx-auto w-full max-w-[1120px]">
             <div className="h-px w-full" style={{ backgroundColor: RULE }} />
 
@@ -397,15 +395,6 @@ export default function TeamPage() {
                     with Purpose.
                   </h2>
                 </div>
-                <div className="lg:col-span-4 lg:col-start-6 lg:mt-1">
-                  <p
-                    className="max-w-[36ch] font-sans text-[14px] font-light leading-[1.85]"
-                    style={{ color: MUTED }}
-                  >
-                    A collaborative team of architects and designers turning bold ideas into
-                    meaningful spaces.
-                  </p>
-                </div>
               </div>
 
               {/* The plate number and its label used to sit in a column to the
@@ -416,12 +405,13 @@ export default function TeamPage() {
                   below lines up with it. The dimension run is absolutely
                   positioned, so it costs no width and does not reintroduce the
                   offset. */}
-              {/* One row for the whole studio from md up — four columns for
-                  four people. Below md they fall to two across: four abreast on
-                  a phone leaves each portrait about 75px wide, too narrow to
-                  read a face in. The gap tightens at lg so four 230px portraits
-                  and their gutters still fit the 1120px sheet. */}
-              <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-12 sm:gap-x-12 md:grid-cols-5 lg:mt-14 lg:gap-x-10">
+              {/* One row for the whole studio at lg, where the 1120px sheet
+                  gives six portraits about 150px each once the tightened gutters
+                  are taken out. Below lg they step down rather than keep the row:
+                  six abreast at md would leave each face near 100px, and on a
+                  phone about 50px, too narrow to read. Two rows of three at md,
+                  three rows of two below it. */}
+              <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-12 sm:gap-x-12 md:grid-cols-3 lg:mt-14 lg:grid-cols-6 lg:gap-x-10">
                 {TEAM_MEMBERS.map((member, idx) => (
                   <figure key={member.photo ?? idx} className="relative flex flex-col">
                     <div className="relative w-full max-w-full">

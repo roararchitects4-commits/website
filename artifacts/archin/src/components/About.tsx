@@ -31,6 +31,9 @@ const LEADERS = [
     role: 'Managing Director',
     photo: suryaKiranImg as string | undefined,
     imageClass: 'scale-100 hover:scale-[0.97]',
+    /* His photograph is 4:5, near enough the 9/10 frame that anchoring the
+       crop to the top costs only a sliver off his feet. */
+    objectClass: 'object-top',
     bio: 'Leads the business strategy, operations, and client relationships at Roar Architects. With a focus on growth and execution, he ensures every project is delivered with excellence and integrity.',
     /* Mirrored tilts: the left card leans up to the right, the right card down. */
     tilt: -4,
@@ -41,6 +44,14 @@ const LEADERS = [
     role: 'Principal Architect',
     photo: rohithaImg,
     imageClass: 'scale-100 hover:scale-[0.97]',
+    /* Hers is 2:3, appreciably taller than the frame, so cover throws away a
+       quarter of it. Anchored to the top that quarter came off the bottom and
+       cut the desk through the notebook. Sliding the crop down to 65% spends
+       the loss on the empty wall overhead instead, which brings the desk,
+       drawings and tablet back in and drops her face to a little above centre.
+       Not a zoom: the source is narrower than the frame, so shrinking her to
+       fit would open background down both sides. */
+    objectClass: 'object-[center_65%]',
     bio: 'Leads the design vision and architectural direction at Roar Architects. She believes in creating spaces that are contextual, timeless, and deeply connected to the people who use them.',
     tilt: 5,
     side: 'right' as const,
@@ -183,7 +194,7 @@ export function About() {
                       <img
                         src={leader.photo}
                         alt={`${leader.name}, ${leader.role} at ROAR Architects`}
-                        className={`h-full w-full object-cover object-top transition-transform duration-1000 ${leader.imageClass}`}
+                        className={`h-full w-full object-cover transition-transform duration-1000 ${leader.objectClass} ${leader.imageClass}`}
                       />
                     ) : (
                       <SilhouettePlaceholder />

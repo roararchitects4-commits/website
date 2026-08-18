@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-interface LineDef {
+export interface LineDef {
   start?: [number, number];
   cp1?: [number, number];
   cp2?: [number, number];
@@ -25,6 +25,28 @@ interface AnimatedLinesProps {
    * Lower it where the curves have to thread past copy — at the 0.15 default a
    * curve can wander far enough to run straight through a text block. */
   drift?: number;
+  /** Stroke opacity the curves settle at once drawn. The accent is a saturated
+   * red, so over a white ground it carries far more weight than its opacity
+   * suggests — lower this where the lines run behind copy and would otherwise
+   * compete with it. */
+  strokeOpacity?: number;
+  /** `scrollDraw` only. The scroll window progress is measured across. The
+   * default starts counting the moment the section's top edge appears at the
+   * bottom of the viewport, which suits a section around a screen tall. For one
+   * several screens tall that window is mostly spent before the section is
+   * really in view, so the drawing is over by the time there is anything to
+   * watch — measure from `start start` there instead, which counts from the
+   * point the section reaches the top of the screen and so tracks scrolling
+   * *through* it. */
+  drawOffset?: ScrollDrawOffset;
+  /** `scrollDraw` only. How much of that window a line takes to draw itself, as
+   * a fraction. Raise it to keep the drawing going deeper into the section. */
+  drawSpan?: number;
+  /** `scrollDraw` only. Shapes the draw against scroll instead of running it
+   * flat: pass an ease-in and the curve hangs back through the body of the
+   * section then runs away with itself at the end. Omit for a linear draw, one
+   * unit of line per unit of scroll. */
+  drawEase?: (t: number) => number;
 }
 
 /** Smooths a series of points into a multi-segment cubic-Bezier path (uniform
@@ -55,15 +77,38 @@ export function smoothPathThrough(points: { x: number; y: number }[]): string {
   return d;
 }
 
-function ScrollDrawnPath({ containerRef, index }: { containerRef: React.RefObject<HTMLDivElement | null>; index: number }) {
+/** Derived from `useScroll` itself so the offset stays in step with whatever
+ * shape the library expects. */
+type ScrollDrawOffset = NonNullable<Parameters<typeof useScroll>[0]>['offset'];
+
+function ScrollDrawnPath({
+  containerRef,
+  index,
+  strokeOpacity,
+  drawSpan,
+  drawOffset,
+  drawEase,
+}: {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+  index: number;
+  strokeOpacity: number;
+  drawSpan: number;
+  drawOffset: ScrollDrawOffset;
+  drawEase?: (t: number) => number;
+}) {
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start end', 'end start'],
+    offset: drawOffset,
   });
 
   const start = index * 0.045;
-  const pathLength = useTransform(scrollYProgress, [start, start + 0.5], [0, 1]);
-  const opacity = useTransform(scrollYProgress, [start, start + 0.08], [0, 0.6]);
+  const pathLength = useTransform(
+    scrollYProgress,
+    [start, start + drawSpan],
+    [0, 1],
+    drawEase ? { ease: drawEase } : undefined,
+  );
+  const opacity = useTransform(scrollYProgress, [start, start + 0.08], [0, strokeOpacity]);
 
   return (
     <motion.path
@@ -75,7 +120,7 @@ function ScrollDrawnPath({ containerRef, index }: { containerRef: React.RefObjec
   );
 }
 
-export function AnimatedLines({ className = '', lines = [], revealDelay, scrollDraw, localScrollOffset = false, drift = 0.15 }: AnimatedLinesProps) {
+export function AnimatedLines({ className = '', lines = [], revealDelay, scrollDraw, localScrollOffset = false, drift = 0.15, strokeOpacity = 0.6, drawOffset = ['start end', 'end start'], drawSpan = 0.5, drawEase }: AnimatedLinesProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -186,7 +231,17 @@ export function AnimatedLines({ className = '', lines = [], revealDelay, scrollD
       >
         {defaultLines.map((_, i) => {
           if (scrollDraw) {
-            return <ScrollDrawnPath key={i} containerRef={containerRef} index={i} />;
+            return (
+              <ScrollDrawnPath
+                key={i}
+                containerRef={containerRef}
+                index={i}
+                strokeOpacity={strokeOpacity}
+                drawOffset={drawOffset}
+                drawSpan={drawSpan}
+                drawEase={drawEase}
+              />
+            );
           }
           if (revealDelay !== undefined) {
             return (
@@ -196,7 +251,7 @@ export function AnimatedLines({ className = '', lines = [], revealDelay, scrollD
                 stroke="var(--color-accent)"
                 strokeWidth="3"
                 initial={{ pathLength: 0, opacity: 0 }}
-                whileInView={{ pathLength: 1, opacity: 0.6 }}
+                whileInView={{ pathLength: 1, opacity: strokeOpacity }}
                 viewport={{ once: true, margin: '-20%' }}
                 transition={{ duration: 1.6, delay: revealDelay + i * 0.15, ease: 'easeInOut' }}
               />
@@ -208,7 +263,7 @@ export function AnimatedLines({ className = '', lines = [], revealDelay, scrollD
               fill="none"
               stroke="var(--color-accent)"
               strokeWidth="3"
-              className="opacity-60"
+              style={{ opacity: strokeOpacity }}
             />
           );
         })}
