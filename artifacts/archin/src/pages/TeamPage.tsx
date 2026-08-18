@@ -107,7 +107,7 @@ const TEAM_GROUPS: { label: string; members: TeamMember[] }[] = [
     ],
   },
   {
-    label: 'Site Execution',
+    label: 'Site Execution Team',
     members: [
       { name: 'KM Naidu', designation: 'Execution Head', photo: team4 },
       { name: 'Angarapu Manikanta', designation: 'Site Engineer', photo: team5 },
