@@ -5,13 +5,19 @@ interface TypewriterTextProps {
   className?: string;
   speed?: number;
   delay?: number;
-  tag?: 'p' | 'span' | 'div' | 'h2' | 'h3' | 'h4';
+  tag?: 'p' | 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'h4';
   once?: boolean;
   /* When set, the first character is split out into a span of its own carrying
      these classes — an initial cap. It has to happen in here rather than at the
      call site: the text arrives one character at a time, so the caller has no
      element to style until the animation has already run. */
   initialClassName?: string;
+  /* `pre-wrap` is set inline so newlines and runs of spaces survive being typed
+     one character at a time. It is inline, so it also outranks any
+     `whitespace-*` class the caller sets — pass false to stand it down and let
+     the classes decide, which is what a line pinned with `whitespace-nowrap`
+     needs. Only safe for text with no newlines of its own. */
+  preserveWhitespace?: boolean;
 }
 
 export function TypewriterText({
@@ -22,6 +28,7 @@ export function TypewriterText({
   tag = 'p',
   once = true,
   initialClassName,
+  preserveWhitespace = true,
 }: TypewriterTextProps) {
   const [displayed, setDisplayed] = useState('');
   const [isAnimated, setIsAnimated] = useState(false);
@@ -84,7 +91,7 @@ export function TypewriterText({
         }
       }}
       className={className}
-      style={{ whiteSpace: 'pre-wrap' }}
+      style={preserveWhitespace ? { whiteSpace: 'pre-wrap' } : undefined}
     >
       {initialClassName && displayed.length > 0 ? (
         <>

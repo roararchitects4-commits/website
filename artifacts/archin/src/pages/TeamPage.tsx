@@ -1,9 +1,16 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { SiteHeader } from '../components/SiteHeader';
 import { Footer } from '../components/Footer';
+import { TypewriterText } from '../components/TypewriterText';
 import { SITE_URL } from '../lib/siteConfig';
 import { BIO_INITIAL } from '../lib/typography';
+
+/* The entrance shared by everything that slides onto this sheet. Matches the
+ * About block on the home page, so a visitor moving between the two reads one
+ * motion language rather than two. */
+const SETTLE = { duration: 1.8, ease: [0.22, 1, 0.36, 1] as const };
 
 import rohithaPhoto from '@assets/team/rohitha-surya.jpeg';
 /* Maria's portrait, re-framed: the original is shot closer than the other five
@@ -60,14 +67,23 @@ const LEADERSHIP: (TeamMember & { bio: string; dim: string })[] = [
     name: 'A.Surya Kiran',
     designation: 'Managing Director',
     photo: suryaKiranPhoto,
-    bio: "Oversees the firm's strategic direction, daily operations, and client relationships, driving exceptional outcomes across every project.",
+    /* Written to a short-word vocabulary on purpose. The bios are justified in
+       a 30-character measure, and a long word landing at the end of a line is
+       what forces the spaces on that line open — "relationships" and
+       "exceptional" were doing exactly that. Nothing longer than nine letters
+       here, so every line fills on word spacing alone and none has to break. */
+    bio: "Guides the firm's strategy, daily work and client relations, driving strong results on every ROAR project.",
     dim: '2600',
   },
   {
     name: 'A.Rohitha Surya',
     designation: 'Founder & Principal Architect',
     photo: rohithaPhoto,
-    bio: 'Leads the creative vision of ROAR, designing thoughtful residential, commercial, and hospitality spaces that balance innovation, functionality, and timeless aesthetics.',
+    /* Same rule as above. "residential", "commercial", "hospitality",
+       "functionality" and "aesthetics" were the five words breaking her
+       paragraph open; the three project types survive as homes, offices and
+       places to gather, which is what those categories are. */
+    bio: 'Leads design at ROAR, shaping homes, offices and places to gather that blend new ideas with comfort, function and lasting style.',
     dim: '4200',
   },
 ];
@@ -135,6 +151,15 @@ const MEMBER_GAP = '1.5rem';
 const TEAM_COLUMNS = TEAM_GROUPS.map(
   (group) => `repeat(${group.members.length}, minmax(0, 1fr))`,
 ).join(` ${BENCH_GAP} `);
+
+/* Where each bench's first member falls in the row read left to right, so a
+ * card can be given its place in the deal from its bench and its index within
+ * it. With benches of 2, 1 and 3 this is [0, 2, 3]. */
+const MEMBER_INDEX: number[] = [];
+TEAM_GROUPS.reduce((count, group) => {
+  MEMBER_INDEX.push(count);
+  return count + group.members.length;
+}, 0);
 
 /* Where each bench starts on that track list: its own columns, then the gap. */
 const GROUP_PLACEMENT: string[] = [];
@@ -284,33 +309,148 @@ function LeaderCopy({ name, designation, bio }: { name: string; designation: str
       {/* Leading rule, left over from the tag that used to sit here — it keeps
           the block anchored to the sheet's furniture now the label is gone. */}
       <span className="mb-5 block h-px w-6" style={{ backgroundColor: RULE }} />
-      <h2
-        className="font-serif text-[clamp(30px,3vw,42px)] font-light leading-[1.06]"
-        style={{ color: INK }}
-      >
-        {name}
-      </h2>
-      <p
-        className="mt-2 font-sans text-[13px] font-medium leading-[1.5]"
-        style={{ color: ACCENT }}
-      >
-        {designation}
-      </p>
+      {/* "A.Rohitha Surya" is the long one, and it was breaking after
+          "A.Rohitha". Its copy sits in three of the twelve columns, which is
+          about 265px at the 1120px cap — the name wanted a little over that at
+          42px. Capping at 36px brings it inside the column at every width the
+          clamp serves, and the nowrap is the guarantee that it stays there.
+          Below lg the copy has a full-width column and never needed either. */}
+      {/* preserveWhitespace is off so the nowrap class above actually applies —
+          the component's inline `pre-wrap` would otherwise outrank it and put
+          the name back on two lines. Safe here: a name carries no newlines. */}
+      <TypewriterText
+        tag="h2"
+        preserveWhitespace={false}
+        className="min-h-[1.06em] font-serif text-[clamp(30px,2.6vw,36px)] font-light leading-[1.06] text-black lg:whitespace-nowrap"
+        text={name}
+        speed={45}
+        delay={0}
+      />
+      <TypewriterText
+        tag="p"
+        className="mt-2 min-h-[1.5em] font-sans text-[13px] font-medium leading-[1.5] text-accent"
+        text={designation}
+        speed={22}
+        delay={150}
+      />
       <span className="mt-5 block h-px w-6" style={{ backgroundColor: RULE }} />
-      <p
-        className="mt-5 max-w-[28ch] font-sans text-[13px] font-light leading-[1.85]"
-        style={{ color: MUTED }}
-      >
-        {/* The initial cap takes its colour from its own class, which beats the
-            ink inherited from the paragraph's inline style. */}
-        <span className={BIO_INITIAL}>{bio.charAt(0)}</span>
-        {bio.slice(1)}
-      </p>
+      {/* Typed in as it scrolls into view, the way the leader bios on the home
+          page are. `text-black` rather than the MUTED inline style the other
+          runs here use — MUTED is #000 anyway, and TypewriterText takes a
+          className but no style.
+
+          The min-height reserves the finished paragraph's box. Without it the
+          rule above and the portrait beside it would be shoved down a line at
+          a time as the text fills; 150px is the taller of the two bios at this
+          size, so both blocks hold still.
+
+          Justified, so both bios square off against the same right edge instead
+          of ragging out to wherever each line happens to end — at this measure
+          one line was running a third longer than the one above it.
+
+          No hyphenation: a justified line is normally kept even by letting a
+          long word break across it, but a broken word reads badly in a bio this
+          short. The bios are written to a short-word vocabulary instead, so
+          each line fills on word spacing alone and nothing needs breaking —
+          which is why the copy in LEADERSHIP above is worded the way it is. */}
+      <TypewriterText
+        tag="p"
+        className="mt-5 min-h-0 max-w-[30ch] text-justify font-sans text-[13px] font-light leading-[1.85] text-black lg:min-h-[120px]"
+        initialClassName={BIO_INITIAL}
+        text={bio}
+        speed={11}
+        delay={300}
+      />
     </div>
   );
 }
 
 export default function TeamPage() {
+  /* Arriving here from the nav is a fresh page, so it opens at its own top
+     rather than at whatever offset the previous page was left at — wouter swaps
+     the component but never touches the window's scroll position. The other
+     three pages already do this; this one was the only route that did not.
+
+     useLayoutEffect rather than useEffect so the jump happens before the
+     browser paints. On the effect timing the visitor gets one frame of the team
+     sheet already scrolled down before it snaps back.
+
+     It also matters for what is on this page in particular: the two leader
+     portraits animate in on mount, so landing mid-page would spend their
+     entrance somewhere above the fold and leave a visitor scrolling up to
+     static pictures. */
+  React.useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const reduceMotion = useReducedMotion();
+
+  /* Rohitha enters from the left of the screen and Surya from the right, so the
+     two cross past each other on the way to the positions they interlock in —
+     the same pairing the About block on the home page uses, mirrored. Both are
+     above the fold, so these run on mount rather than on scroll.
+
+     The travel is in vw so each portrait genuinely starts off the edge of the
+     screen at any width, rather than a fixed distance that reads as a nudge on
+     a desktop and a flight on a phone. `main` clips overflow on the x axis, so
+     nothing here can widen the document while it is out there. */
+  const enterFrom = (side: 'left' | 'right') =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, x: side === 'left' ? '-60vw' : '60vw' },
+          animate: { opacity: 1, x: 0 },
+          transition: SETTLE,
+        };
+
+  /* The studio's six portraits arrive as a deck of cards: every one starts
+     stacked at the same point just off the left edge of the screen, then they
+     peel off one at a time and stick where they belong.
+
+     Stacking them means each card needs its own travel — a card that belongs
+     three columns in has further to come than the first one — so the distance
+     is measured rather than written. `deckX` below is where the whole stack
+     sits, and each card's offset is whatever moves it from its own laid-out
+     position to there.
+
+     The trigger cannot live on the cards themselves. `whileInView` watches the
+     element it is on, and a card parked off the left of the screen never
+     intersects the viewport — so the only thing that could bring it into view
+     is the animation that is waiting for it to come into view. The leftmost
+     bench sat invisible for exactly that reason. The observer goes on the row
+     instead, which never moves. */
+  const benchRowRef = React.useRef<HTMLDivElement>(null);
+  const cardRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const [deckOffsets, setDeckOffsets] = React.useState<number[]>([]);
+  const benchRowInView = useInView(benchRowRef, { once: true, amount: 0.15 });
+
+  React.useLayoutEffect(() => {
+    if (reduceMotion) return;
+    setDeckOffsets(
+      cardRefs.current.map((card) => {
+        if (!card) return 0;
+        const box = card.getBoundingClientRect();
+        /* One card-width clear of the left edge, so the stack is fully hidden
+           before it is dealt. */
+        const deckX = -(box.width + 40);
+        return deckX - box.left;
+      }),
+    );
+    /* Measured once, on mount. Any drift between now and the moment the row is
+       scrolled to only moves where the stack waits while it is off-screen —
+       every card still animates to x: 0, which is its true laid-out position,
+       so the places they stick are exact either way. */
+  }, [reduceMotion]);
+
+  const dealCard = (index: number) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0, x: deckOffsets[index] ?? -600, rotate: -8 + index * 2 },
+          animate: benchRowInView ? { opacity: 1, x: 0, rotate: 0 } : undefined,
+          transition: { ...SETTLE, delay: index * 0.13 },
+        };
+
   return (
     <div className="relative flex min-h-screen flex-col" style={{ backgroundColor: PAPER }}>
       <Helmet>
@@ -368,29 +508,49 @@ export default function TeamPage() {
             <div className="grid grid-cols-1 gap-y-12 lg:grid-cols-12 lg:items-start lg:gap-x-5 lg:gap-y-0">
               {/* Intro */}
               <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
-                <p className="font-sans text-[8.5px] uppercase tracking-[0.26em]" style={{ color: MUTED }}>
-                  The People Behind ROAR
-                </p>
-                <h1
-                  className="mt-4 font-serif text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.015em]"
-                  style={{ color: INK }}
-                >
-                  Team.
-                </h1>
-                <p
-                  className="mt-6 max-w-[26ch] font-sans text-[14px] font-light leading-[1.85]"
-                  style={{ color: MUTED }}
-                >
-                  Architects and designers shaping every ROAR project, from first sketch to
-                  handover.
-                </p>
+                <TypewriterText
+                  tag="p"
+                  className="font-sans text-[8.5px] uppercase tracking-[0.26em] text-black"
+                  text="The People Behind ROAR"
+                  speed={26}
+                  delay={200}
+                />
+                {/* min-height on the display line specifically: at 96px a single
+                    typed line costs 86px of layout, so without it the intro
+                    below jumps most of a screen as the word lands. */}
+                {/* Inter, the same face as the label above it, rather than the
+                    serif. -0.02em is the tracking the hero headline, the About
+                    statement and Get In Touch all use for Inter at display
+                    size, and at 96px this is the largest of them. */}
+                <TypewriterText
+                  tag="h1"
+                  className="mt-4 min-h-[1em] font-sans text-[clamp(52px,6.6vw,96px)] font-light leading-[0.9] tracking-[-0.02em] text-black"
+                  text="Team."
+                  speed={90}
+                  delay={500}
+                />
+                <TypewriterText
+                  tag="p"
+                  className="mt-6 min-h-0 max-w-[26ch] font-sans text-[14px] font-light leading-[1.85] text-black lg:min-h-[78px]"
+                  text="Architects and designers shaping every ROAR project, from first sketch to handover."
+                  speed={11}
+                  delay={900}
+                />
               </div>
 
               {/* Rohitha — portrait, moved out to the right of the sheet. The
                   small negative margin is what keeps Surya's portrait lapping
                   over this one: at column 7 the two cells no longer touch, so
                   without it the pair would sit apart rather than interlock. */}
-              <div className="relative lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:-ml-10">
+              {/* The whole cell travels, not just the photograph — the
+                  dimension run belongs to this portrait and would otherwise sit
+                  drawn on an empty sheet while the picture flew in to meet it.
+                  A transform does not disturb grid placement, so the column and
+                  row it is assigned to are unaffected. */}
+              <motion.div
+                {...enterFrom('left')}
+                className="relative lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:-ml-10"
+              >
                 <Dimension
                   value={ROHITHA.dim}
                   className="left-[-26px] top-0 hidden h-full lg:flex"
@@ -400,7 +560,7 @@ export default function TeamPage() {
                   name={ROHITHA.name}
                   className="mx-auto aspect-[0.8] w-full max-w-[260px] lg:mx-0 lg:max-w-[290px]"
                 />
-              </div>
+              </motion.div>
 
               {/* Rohitha — copy set beside the portrait on the same row
                   rather than dropped below it. */}
@@ -414,11 +574,34 @@ export default function TeamPage() {
 
               {/* Surya — portrait, dropped lower and lapping Rohitha's. The
                   filled square at its foot is the comp's solid corner tick. */}
-              <div className="relative lg:z-10 lg:col-span-3 lg:col-start-4 lg:row-span-2 lg:row-start-2">
+              <motion.div
+                {...enterFrom('right')}
+                /* The -ml-10 is what makes this portrait the same size as
+                   Rohitha's. Three columns come to 265px, so the 290px cap on
+                   the frame below never bound and Surya rendered ~9% smaller
+                   than her — she reaches 290 only because her own cell carries
+                   the same negative margin.
+
+                   Taken off the left, and the frame is right-aligned inside it,
+                   so the right edge does not move: the 20px by which Rohitha's
+                   portrait laps this one is the interlock the layout is built
+                   on, and widening rightwards would have doubled it. The 25px
+                   this reaches back into Surya's copy column is empty — his
+                   name is the widest thing in it at about 216px of 265. */
+                className="relative lg:z-10 lg:col-span-3 lg:col-start-4 lg:row-span-2 lg:row-start-2 lg:-ml-10"
+              >
+                {/* Same frame as Rohitha's — 0.8 rather than the 0.72 this
+                    carried, and the same widths — so the two portraits read as
+                    a matched pair on the sheet rather than one being slightly
+                    taller and narrower than the other. */}
+                {/* ml-auto rather than the mx-0 Rohitha's carries: this frame
+                    sits at the right of its widened cell, which is what holds
+                    its right edge where it was. Below lg both are mx-auto at
+                    the same width and always matched. */}
                 <Portrait
                   photo={SURYA.photo}
                   name={SURYA.name}
-                  className="mx-auto aspect-[0.72] w-full max-w-[240px] lg:mx-0 lg:max-w-[265px]"
+                  className="mx-auto aspect-[0.8] w-full max-w-[260px] lg:ml-auto lg:mr-0 lg:max-w-[290px]"
                 />
                 <span
                   aria-hidden="true"
@@ -430,7 +613,7 @@ export default function TeamPage() {
                   orientation="horizontal"
                   className="bottom-[-26px] left-0 hidden w-full lg:flex"
                 />
-              </div>
+              </motion.div>
 
               {/* Surya — copy, down the left margin */}
               <div className="lg:col-span-3 lg:col-start-1 lg:row-start-2 lg:mt-16">
@@ -453,18 +636,23 @@ export default function TeamPage() {
                     the guarantee — the cell is now wide enough at every width
                     the clamp can serve. Below lg it wraps as it always did. */}
                 <div className="lg:col-span-8 lg:col-start-1">
-                  <p
-                    className="font-sans text-[8.5px] uppercase tracking-[0.26em]"
-                    style={{ color: MUTED }}
-                  >
-                    The Design Studio
-                  </p>
-                  <h2
-                    className="mt-4 font-serif text-[clamp(30px,3.9vw,54px)] font-light leading-[1.06] tracking-[-0.01em] lg:whitespace-nowrap"
-                    style={{ color: INK }}
-                  >
-                    Designing with Purpose.
-                  </h2>
+                  <TypewriterText
+                    tag="p"
+                    className="font-sans text-[8.5px] uppercase tracking-[0.26em] text-black"
+                    text="The Design Studio"
+                    speed={26}
+                    delay={150}
+                  />
+                  {/* Same as the leader names: preserveWhitespace off so the
+                      nowrap that keeps this on one line survives. */}
+                  <TypewriterText
+                    tag="h2"
+                    preserveWhitespace={false}
+                    className="mt-4 min-h-[1.06em] font-serif text-[clamp(30px,3.9vw,54px)] font-light leading-[1.06] tracking-[-0.01em] text-black lg:whitespace-nowrap"
+                    text="Designing with Purpose."
+                    speed={45}
+                    delay={500}
+                  />
                 </div>
               </div>
 
@@ -496,6 +684,7 @@ export default function TeamPage() {
                    it; 32px still reads as a break between benches without the
                    sheet turning into a long scroll of gaps. The lg value is
                    kept as a statement of intent, not because it renders. */
+                ref={benchRowRef}
                 className="mt-10 grid grid-cols-1 gap-y-8 lg:mt-14 lg:gap-y-14 lg:[column-gap:var(--member-gap)] lg:[grid-template-columns:var(--team-columns)]"
                 style={
                   {
@@ -514,12 +703,13 @@ export default function TeamPage() {
                         divide the sheet into its three benches, so they are
                         read as structure rather than as the faint furniture
                         the dimension runs and crop marks are drawn in. */}
-                    <p
-                      className="text-center font-sans text-[11px] font-medium uppercase tracking-[0.2em] lg:text-[12px]"
-                      style={{ color: INK }}
-                    >
-                      {group.label}
-                    </p>
+                    <TypewriterText
+                      tag="p"
+                      className="min-h-[1.5em] text-center font-sans text-[11px] font-medium uppercase tracking-[0.2em] text-black lg:text-[12px]"
+                      text={group.label}
+                      speed={26}
+                      delay={150 + groupIdx * 120}
+                    />
                     <span className="mt-3 block h-px w-full" style={{ backgroundColor: INK }} />
 
                     <div
@@ -541,8 +731,15 @@ export default function TeamPage() {
                            Below lg only. From lg up each bench sets its own
                            column count through GROUP_COLS, where a bench of one
                            already fills its single track. */
-                        <figure
+                        <motion.figure
                           key={member.photo ?? idx}
+                          /* Position across the whole row, not within the
+                             bench, so the six deal out as one left-to-right
+                             run rather than three benches dealing at once. */
+                          ref={(node: HTMLElement | null) => {
+                            cardRefs.current[MEMBER_INDEX[groupIdx] + idx] = node;
+                          }}
+                          {...dealCard(MEMBER_INDEX[groupIdx] + idx)}
                           className={`relative flex flex-col ${
                             group.members.length === 1
                               ? 'max-lg:col-span-2 max-lg:mx-auto max-lg:w-[calc((100%_-_var(--member-gap))/2)]'
@@ -578,24 +775,26 @@ export default function TeamPage() {
                                   line. The clamp stays tied to the viewport, so
                                   it goes on fitting as the columns narrow. */}
                               {member.name && (
-                                <p
-                                  className="font-serif text-[clamp(11px,1.05vw,15px)] font-light leading-tight"
-                                  style={{ color: INK }}
-                                >
-                                  {member.name}
-                                </p>
+                                <TypewriterText
+                                  tag="p"
+                                  className="min-h-[1.25em] font-serif text-[clamp(11px,1.05vw,15px)] font-light leading-tight text-black"
+                                  text={member.name}
+                                  speed={26}
+                                  delay={120}
+                                />
                               )}
                               {member.designation && (
-                                <p
-                                  className="mt-1 font-sans text-[9.5px] font-medium leading-[1.6]"
-                                  style={{ color: ACCENT }}
-                                >
-                                  {member.designation}
-                                </p>
+                                <TypewriterText
+                                  tag="p"
+                                  className="mt-1 min-h-[1.6em] font-sans text-[9.5px] font-medium leading-[1.6] text-accent"
+                                  text={member.designation}
+                                  speed={22}
+                                  delay={320}
+                                />
                               )}
                             </figcaption>
                           )}
-                        </figure>
+                        </motion.figure>
                       ))}
                     </div>
                   </div>
@@ -635,14 +834,16 @@ export default function TeamPage() {
               />
 
               <div className="relative flex flex-wrap items-center gap-x-10 gap-y-6">
-                <p
-                  className="font-sans text-[15px] font-medium uppercase leading-[1.5] tracking-[0.22em]"
-                  style={{ color: ACCENT }}
-                >
-                  One Studio.
-                  <br />
-                  Shared Purpose.
-                </p>
+                {/* The <br /> becomes a newline in the string: the typewriter
+                    takes text, not markup, and the component's `pre-wrap` is
+                    what renders the break. */}
+                <TypewriterText
+                  tag="p"
+                  className="min-h-[3em] font-sans text-[15px] font-medium uppercase leading-[1.5] tracking-[0.22em] text-accent"
+                  text={'One Studio.\nShared Purpose.'}
+                  speed={30}
+                  delay={150}
+                />
                 <span className="hidden h-10 w-px lg:block" style={{ backgroundColor: RULE }} />
                 {/* Set in the same voice as "Designing with Purpose." above it
                     — the sheet's light serif rather than the sans the body copy
@@ -654,13 +855,16 @@ export default function TeamPage() {
                     That single line runs from lg up, where the 1120px column
                     has room for it beside the label. The measure and the wrap
                     are kept for narrower screens, where nothing would fit. */}
-                <p
-                  className="max-w-[34ch] font-serif text-[17px] font-light leading-snug tracking-[-0.01em] lg:max-w-none lg:whitespace-nowrap lg:text-[22px]"
-                  style={{ color: INK }}
-                >
-                  Different perspectives. One shared vision — creating spaces that inspire and
-                  endure.
-                </p>
+                {/* preserveWhitespace off, for the nowrap that holds this to
+                    the single line it closes the page with at lg. */}
+                <TypewriterText
+                  tag="p"
+                  preserveWhitespace={false}
+                  className="min-h-[2.6em] max-w-[34ch] font-serif text-[17px] font-light leading-snug tracking-[-0.01em] text-black lg:min-h-0 lg:max-w-none lg:whitespace-nowrap lg:text-[22px]"
+                  text={'Different perspectives. One shared vision — creating spaces that inspire and endure.'}
+                  speed={13}
+                  delay={400}
+                />
               </div>
             </div>
           </div>

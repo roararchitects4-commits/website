@@ -33,7 +33,11 @@ const LEADERS = [
     photo: suryaKiranImg as string | undefined,
     imageClass: 'scale-[1.05] hover:scale-[1.03]',
     objectClass: 'object-top',
-    bio: 'Leads the business strategy, operations, and client relationships at Roar Architects. With a focus on growth and execution, he ensures every project is delivered with excellence and integrity.',
+    /* Worded to a short vocabulary, as on the Team page: the bio is justified
+       in a 290px measure, and a long word landing at a line end is what forces
+       that line's spaces open. "relationships" and "excellence" were the two
+       doing it here. */
+    bio: 'Leads business strategy, operations and client relations at Roar Architects. With an eye on growth and delivery, he sees that every project is built with care and integrity.',
     /* Mirrored tilts: the left card leans up to the right, the right card down. */
     tilt: -4,
     side: 'left' as const,
@@ -57,7 +61,9 @@ const LEADERS = [
        Not a zoom: the source is narrower than the frame, so shrinking her to
        fit would open background down both sides. */
     objectClass: 'object-[center_65%]',
-    bio: 'Leads the design vision and architectural direction at Roar Architects. She believes in creating spaces that are contextual, timeless, and deeply connected to the people who use them.',
+    /* Same rule. "architectural" and "contextual" were the long words; the
+       meaning survives as direction, and as spaces that suit their setting. */
+    bio: 'Leads the design vision and direction at Roar Architects. She believes in spaces that suit their setting, wear well with time, and stay close to the people who use them.',
     tilt: 5,
     side: 'right' as const,
   },
@@ -137,7 +143,13 @@ export function About() {
                       track the type size. */}
                   <TypewriterText
                     tag="p"
-                    className="mt-2.5 min-h-0 max-w-full font-sans text-[11px] leading-[1.6] text-black lg:mt-5 lg:min-h-[146px] lg:max-w-[290px] lg:text-[15px] lg:leading-relaxed"
+                    /* Justified from lg up, where the measure is 290px and a
+                       line has room to fill on word spacing alone. Left ragged
+                       below that: on a phone this column is half a screen wide,
+                       and justifying twenty characters opens rivers rather than
+                       closing the rag. No hyphenation either way — the copy is
+                       worded so nothing needs to break. */
+                    className="mt-2.5 min-h-0 max-w-full font-sans text-[11px] leading-[1.6] text-black lg:mt-5 lg:min-h-[146px] lg:max-w-[290px] lg:text-justify lg:text-[15px] lg:leading-relaxed"
                     initialClassName={BIO_INITIAL}
                     text={leader.bio}
                     speed={11}
