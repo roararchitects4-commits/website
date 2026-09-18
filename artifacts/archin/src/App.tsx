@@ -73,8 +73,20 @@ const STATS = [
   { value: 7,   suffix: '+', label: 'CITIES'    },
 ];
 
-/* PageTransition holds the arc/loading cover for ~2950ms (1800ms hold + 1150ms wipe) — wait for it to clear before counting up. */
-const COUNT_UP_START_DELAY_MS = 3000;
+/* The entrance cover's two phases, held here rather than left to
+   PageTransition's defaults so the count-up below can be derived from them.
+   1600ms all in, down from the 2950ms the defaults give.
+
+   The hold is shorter than one pass of the wordmark's 1.7s light sweep
+   (see .loading-wordmark in index.css), so the sweep is now cut part-way
+   rather than completing — the deliberate trade for a quicker entrance. */
+const ENTRANCE_HOLD_MS = 900;
+const ENTRANCE_WIPE_MS = 700;
+
+/* Counting up behind the cover would spend the animation on nobody, so the
+   stats wait for it to clear. Derived rather than typed out again: the two
+   used to drift apart whenever the cover was retimed. */
+const COUNT_UP_START_DELAY_MS = ENTRANCE_HOLD_MS + ENTRANCE_WIPE_MS;
 
 function useCountUp(target: number, durationMs = 1600) {
   const [count, setCount] = useState(0);
@@ -316,7 +328,7 @@ function Home() {
         <meta property="og:url" content={SITE_URL} />
       </Helmet>
 
-      <PageTransition />
+      <PageTransition holdMs={ENTRANCE_HOLD_MS} wipeMs={ENTRANCE_WIPE_MS} />
       <SiteHeader />
 
       <main>
