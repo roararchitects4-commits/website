@@ -84,7 +84,7 @@ const LEADERSHIP: (TeamMember & { bio: string; dim: string })[] = [
        paragraph open; the three project types survive as homes, offices and
        places to gather, which is what those categories are. */
     bio: 'Leads design at ROAR, shaping homes, offices and places to gather that blend new ideas with comfort, function and lasting style.',
-    dim: '4200',
+   dim: '4200',
   },
 ];
 

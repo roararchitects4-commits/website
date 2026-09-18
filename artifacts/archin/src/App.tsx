@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
+import { Link, Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { Helmet } from 'react-helmet-async';
 import { PageTransition } from './components/PageTransition';
 import { About } from './components/About';
 import { Statement } from './components/Statement';
 import { WorkGrid } from './components/WorkGrid';
-import { CTA } from './components/CTA';
 import { Footer } from './components/Footer';
 import { SiteHeader } from './components/SiteHeader';
 import { FloatingSocialIcons } from './components/FloatingSocialIcons';
@@ -13,8 +12,10 @@ import GalleryPage from './pages/GalleryPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import TeamPage from './pages/TeamPage';
+import InteriorsLandingPage, { INTERIORS_LANDING_PATH } from './pages/InteriorsLandingPage';
 import { SITE_URL } from './lib/siteConfig';
 import { sectionIdFor } from './lib/sections';
+import { markAppMounted } from './lib/appEntry';
 import housePlan from '@assets/site/house-plan.png';
 import logo from '@/assets/logo/logo.png';
 import floorPlanIcon from '@/assets/icons/floor-plan.png';
@@ -332,8 +333,6 @@ function Home() {
           kicker="Our Philosophy"
           quote="Architecture is not about form, but about the life that happens within it."
         />
-
-        <CTA />
       </main>
 
       <Footer />
@@ -359,6 +358,16 @@ function Router() {
 
   return (
     <Switch>
+      {/* Paid-campaign landing page. Listed before the section paths so it is
+          matched as its own page rather than falling through to the home
+          page's catch-all. */}
+      <Route path={INTERIORS_LANDING_PATH} component={InteriorsLandingPage} />
+      {/* /contact was the home page's enquiry section, which has been removed.
+          Anything still pointing at it — an old share, a bookmark, a link
+          already indexed — lands on the enquiry page instead of a 404. */}
+      <Route path="/contact">
+        <Redirect to={INTERIORS_LANDING_PATH} replace />
+      </Route>
       <Route path="/team" component={TeamPage} />
       <Route path="/gallery/:slug" component={GalleryPage} />
       <Route path="/blog" component={BlogPage} />
@@ -373,6 +382,23 @@ function Router() {
   );
 }
 
+/* The floating WhatsApp/Instagram buttons are site-wide. On the campaign
+   landing page they move to the left edge and lift clear of the call bar that
+   page parks along the bottom of a phone screen, so the two no longer sit on
+   top of each other.
+
+   Lives here rather than inside FloatingSocialIcons because it is a routing
+   decision, and `useLocation` only works below the Router this renders in. */
+function GlobalSocialIcons() {
+  const [location] = useLocation();
+  const path = location.length > 1 ? location.replace(/\/+$/, '') : location;
+  /* Right edge everywhere, as on the rest of the site. The landing page still
+     needs the lift: its call bar runs along the bottom of a phone screen and
+     these would otherwise sit on top of it. */
+  const onLanding = path === INTERIORS_LANDING_PATH;
+  return <FloatingSocialIcons liftOnMobile={onLanding} compact={onLanding} />;
+}
+
 function App() {
   /* Hand scroll position back to the app on reload. Left to itself the browser
      restores the offset the visitor was at, which fights the per-page
@@ -384,12 +410,17 @@ function App() {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
+    /* From here on, any page that mounts was navigated to rather than landed
+       on — which is how the campaign page decides whether to play the entrance
+       cover. Set after the first render has committed, so the page the visitor
+       actually arrived on has already read it as false. */
+    markAppMounted();
   }, []);
 
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Router />
-      <FloatingSocialIcons />
+      <GlobalSocialIcons />
     </WouterRouter>
   );
 }

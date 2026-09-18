@@ -37,7 +37,7 @@ const gallerySlugs = [...categorySlugs, ...albumSlugs];
    blog and gallery paths below are — they have to be listed by hand. Keep this
    in step with the <Route> list in src/App.tsx; a route missing here is a page
    Google is never told about. */
-const staticPaths = ['/', '/team', '/blog'];
+const staticPaths = ['/', '/team', '/blog', '/interior-design-hyderabad'];
 const galleryPaths = gallerySlugs.map((slug) => `/gallery/${slug}`);
 const blogPaths = blogSlugs.map((slug) => `/blog/${slug}`);
 
