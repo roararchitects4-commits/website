@@ -101,7 +101,15 @@ const labelClass = 'block text-[11px] font-semibold tracking-[0.18em] uppercase 
 /* ─────────────────────────────────────────────
    Lead form
 ───────────────────────────────────────────── */
-function LeadForm({ id }: { id?: string }) {
+function LeadForm({
+  id,
+  nameFieldRef,
+}: {
+  id?: string;
+  /** Put on the Name field. The page watches it to decide when the visitor
+   *  has scrolled past the start of the form. */
+  nameFieldRef?: React.Ref<HTMLDivElement>;
+}) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -197,7 +205,7 @@ function LeadForm({ id }: { id?: string }) {
       className="bg-white border border-accent rounded-2xl p-6 sm:p-8 w-full h-full flex flex-col justify-center shadow-[0_18px_50px_-24px_rgba(42,36,32,0.35)]"
     >
       <div className="flex flex-col gap-4">
-        <div>
+        <div ref={nameFieldRef}>
           <label className={labelClass}>Name*</label>
           <input
             type="text"
@@ -275,18 +283,19 @@ function LeadForm({ id }: { id?: string }) {
 export default function InteriorsLandingPage() {
   const [lightbox, setLightbox] = useState<{ img: string; title: string; meta: string } | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
+  const nameFieldRef = useRef<HTMLDivElement>(null);
   const barSlotRef = useRef<HTMLDivElement>(null);
 
   /* True once the bar's resting place above the footer has fully come into
      view, at which point the bar stops following the screen and sits there. */
   const [barParked, setBarParked] = useState(false);
 
-  /* The sticky call bar is a stand-in for the form, so it has no business
-     covering the bottom of the screen while the real form is still on it.
-     Starts true so the bar is down on first paint — the form is the first
-     thing under the header, and a bar sliding away as the page loads would be
-     the first movement a visitor sees. */
+  /* Tracks the form's first field rather than the whole card: the bar is a way
+     back to the form, and the moment it becomes useful is when the visitor has
+     scrolled past where the form starts — not when its last pixel has gone.
+     Starts true so the bar is down on first paint, since the form is the first
+     thing under the header and a bar sliding away during load would be the
+     first movement a visitor sees. */
   const [formInView, setFormInView] = useState(true);
 
   /* Read once, in the initial render, and kept: whether this page was opened
@@ -317,16 +326,15 @@ export default function InteriorsLandingPage() {
   }, [lightbox]);
 
   useEffect(() => {
-    const element = formRef.current;
+    const element = nameFieldRef.current;
     /* No IntersectionObserver means the bar simply stays as it started, which
        is the form-visible state — never a bar stuck over the page. */
     if (!element || typeof IntersectionObserver === 'undefined') return;
 
     const observer = new IntersectionObserver(
       ([entry]) => setFormInView(entry.isIntersecting),
-      /* A sliver counts as visible: by the time the last field has gone past
-         the top of the screen the visitor has left the form behind, and that
-         is the moment the bar earns its place. */
+      /* threshold 0, so this flips the moment the Name field's last pixel
+         leaves the screen. */
       { threshold: 0 },
     );
     observer.observe(element);
@@ -452,8 +460,8 @@ export default function InteriorsLandingPage() {
               thing under the header, which is the whole reason the page exists. */}
           {/* No longer sticky: the card now fills the column top to bottom, so
               there is no short card left to follow the scroll. */}
-          <div ref={formRef} className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2 flex">
-            <LeadForm id="enquiry" />
+          <div className="order-2 lg:col-start-2 lg:row-start-1 lg:row-span-2 flex">
+            <LeadForm id="enquiry" nameFieldRef={nameFieldRef} />
           </div>
         </div>
       </section>

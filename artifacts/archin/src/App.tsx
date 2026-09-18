@@ -394,23 +394,6 @@ function Router() {
   );
 }
 
-/* The floating WhatsApp/Instagram buttons are site-wide. On the campaign
-   landing page they move to the left edge and lift clear of the call bar that
-   page parks along the bottom of a phone screen, so the two no longer sit on
-   top of each other.
-
-   Lives here rather than inside FloatingSocialIcons because it is a routing
-   decision, and `useLocation` only works below the Router this renders in. */
-function GlobalSocialIcons() {
-  const [location] = useLocation();
-  const path = location.length > 1 ? location.replace(/\/+$/, '') : location;
-  /* Right edge everywhere, as on the rest of the site. The landing page still
-     needs the lift: its call bar runs along the bottom of a phone screen and
-     these would otherwise sit on top of it. */
-  const onLanding = path === INTERIORS_LANDING_PATH;
-  return <FloatingSocialIcons liftOnMobile={onLanding} compact={onLanding} />;
-}
-
 function App() {
   /* Hand scroll position back to the app on reload. Left to itself the browser
      restores the offset the visitor was at, which fights the per-page
@@ -432,7 +415,7 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Router />
-      <GlobalSocialIcons />
+      <FloatingSocialIcons />
     </WouterRouter>
   );
 }
