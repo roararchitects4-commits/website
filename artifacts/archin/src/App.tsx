@@ -12,9 +12,10 @@ import GalleryPage from './pages/GalleryPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import TeamPage from './pages/TeamPage';
-import InteriorsLandingPage, { INTERIORS_LANDING_PATH } from './pages/InteriorsLandingPage';
+import InteriorsLandingPage from './pages/InteriorsLandingPage';
+import ThankYouPage from './pages/ThankYouPage';
 import { SITE_URL } from './lib/siteConfig';
-import { sectionIdFor } from './lib/sections';
+import { sectionIdFor, CONTACT_PATH, THANK_YOU_PATH } from './lib/sections';
 import { markAppMounted } from './lib/appEntry';
 import housePlan from '@assets/site/house-plan.png';
 import logo from '@/assets/logo/logo.png';
@@ -345,6 +346,7 @@ function Home() {
           kicker="Our Philosophy"
           quote="Architecture is not about form, but about the life that happens within it."
         />
+
       </main>
 
       <Footer />
@@ -368,17 +370,32 @@ function NotFound() {
 function Router() {
   const [location] = useLocation();
 
+  /* Wouter matches case-sensitively, so /Contactus is a different route from
+     /ContactUs or /contactus — and an address people type by hand will arrive
+     in every casing there is. Rather than enumerate them as routes, anything
+     that spells the enquiry page's path in any case is sent to the one real
+     spelling, which stays the canonical. A trailing slash is trimmed on the
+     way, for the same reason. */
+  const trimmed = location.length > 1 ? location.replace(/\/+$/, '') : location;
+  if (trimmed.toLowerCase() === CONTACT_PATH.toLowerCase() && trimmed !== CONTACT_PATH) {
+    return <Redirect to={CONTACT_PATH} replace />;
+  }
+
   return (
     <Switch>
       {/* Paid-campaign landing page. Listed before the section paths so it is
           matched as its own page rather than falling through to the home
           page's catch-all. */}
-      <Route path={INTERIORS_LANDING_PATH} component={InteriorsLandingPage} />
-      {/* /contact was the home page's enquiry section, which has been removed.
-          Anything still pointing at it — an old share, a bookmark, a link
-          already indexed — lands on the enquiry page instead of a 404. */}
+      <Route path={CONTACT_PATH} component={InteriorsLandingPage} />
+      <Route path={THANK_YOU_PATH} component={ThankYouPage} />
+      {/* The path the page shipped on and is still listed under in the
+          sitemap, and the home page section it replaced. Other spellings of
+          /Contactus itself are handled above, before the Switch. */}
+      <Route path="/interior-design-hyderabad">
+        <Redirect to={CONTACT_PATH} replace />
+      </Route>
       <Route path="/contact">
-        <Redirect to={INTERIORS_LANDING_PATH} replace />
+        <Redirect to={CONTACT_PATH} replace />
       </Route>
       <Route path="/team" component={TeamPage} />
       <Route path="/gallery/:slug" component={GalleryPage} />

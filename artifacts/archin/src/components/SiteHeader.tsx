@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
-import { sectionIdFor, scrollToSection } from '../lib/sections';
-import { INTERIORS_LANDING_PATH } from '../pages/InteriorsLandingPage';
+import { sectionIdFor, scrollToSection, CONTACT_PATH } from '../lib/sections';
 
 /* Every entry is a real path, including the four that are sections of the home
    page rather than pages of their own — see lib/sections. */
@@ -11,8 +10,8 @@ const NAV_LINKS = [
   { name: 'ABOUT US',     href: '/about' },
   { name: 'WORK',         href: '/work' },
   { name: 'TEAM',         href: '/team' },
-  /* A page of its own now, not a section of the home page. */
-  { name: 'GET IN TOUCH', href: INTERIORS_LANDING_PATH },
+  /* A page of its own, not a section of the home page. */
+  { name: 'GET IN TOUCH', href: CONTACT_PATH },
 ];
 
 export function SiteHeader() {

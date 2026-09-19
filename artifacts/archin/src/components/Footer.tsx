@@ -1,14 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import logo from '@/assets/logo/logo.png';
-import { sectionIdFor, scrollToSection } from '../lib/sections';
-import { INTERIORS_LANDING_PATH } from '../pages/InteriorsLandingPage';
+import { sectionIdFor, scrollToSection, CONTACT_PATH } from '../lib/sections';
 
 const FOOTER_LINKS = [
   { name: 'Home',         href: '/' },
   { name: 'Work',         href: '/work' },
   { name: 'About Us',     href: '/about' },
-  { name: 'Get in Touch', href: INTERIORS_LANDING_PATH },
+  { name: 'Get in Touch', href: CONTACT_PATH },
   { name: 'Blog',         href: '/blog' },
 ];
 

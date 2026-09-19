@@ -1,30 +1,32 @@
 /**
- * POST /api/lead — emails a campaign landing-page enquiry to the studio.
+ * POST /api/lead — emails an enquiry to the studio.
  *
- * Sibling of `contact.ts` rather than a branch inside it. The two collect
- * different things: the contact form is a free-text enquiry, while this one
- * takes the three fields needed to call an ad click back — nothing more, since
- * every extra question costs a share of the leads that were paid for. Folding
- * both into one handler would have meant a validator that required a field for
- * one caller and ignored it for the other, and a subject line that guessed
- * which it was looking at. They share the same Resend credentials and env vars.
+ * The site's only lead endpoint, since /Contactus is now its only form: the home
+ * page's Get In Touch section and the `contact.ts` handler behind it are both
+ * gone. It takes the three fields needed to call an ad click back and nothing
+ * more, because every extra question costs a share of the leads that were paid
+ * for.
  *
- * Required environment variables — identical to contact.ts, deliberately, so
- * the landing page starts working off the configuration the site already has:
+ * Required environment variables — named for the contact form they were first
+ * set up for, and left that way so the page runs on configuration the site
+ * already has:
  *   RESEND_API_KEY, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL
  *
- * The subject is prefixed so these can be filtered and attributed in the inbox:
- * a lead that cost ad spend is worth answering ahead of a general enquiry.
+ * The one thing this handler cannot do is keep a lead. A submission exists only
+ * as the mail it sends: if Resend drops it or a filter eats it, nothing here
+ * remembers that anyone ever wrote in. A second destination — a sheet, a
+ * webhook — is the fix, and it is not implemented.
  */
 
 /* Vercel's Node runtime hands the handler an (req, res) pair and waits for the
  * response to be written — returning a web-standard `Response` leaves the
- * request hanging until the platform times it out. Same minimal structural
- * types as contact.ts, for the same reason: describing the surface actually
- * used here beats a dependency on @vercel/node for two declarations. */
+ * request hanging until the platform times it out. A minimal structural type
+ * rather than @vercel/node: describing the surface actually used here beats a
+ * dependency for three declarations. */
 type Req = {
   method?: string;
   body?: unknown;
+  headers?: Record<string, string | string[] | undefined>;
 };
 
 type Res = {
@@ -38,6 +40,86 @@ const LIMITS = { name: 120, email: 200, phone: 40 };
 /** Deliberately loose — a real address rejected by a strict pattern costs the
  *  studio a paid lead, which is far worse than the occasional junk one. */
 const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+/* ─── Phone ───────────────────────────────────────────────────────────────
+ * The same rule the form applies, restated here rather than imported: this
+ * file is bundled as a serverless function on its own and does not share a
+ * module graph with src/. If one of the two changes, change both — src/lib/phone
+ * carries the reasoning for the rule.
+ *
+ * In short: an Indian number is held to the real shape of one, because that is
+ * the traffic this page is bought for and a mistyped local number is the common
+ * failure. A number given with any other country code is only checked for a
+ * plausible length, since rejecting a genuine overseas enquiry costs far more
+ * than accepting the occasional junk one. */
+const indianSubscriberDigits = (digits: string): string | null => {
+  if (digits.length === 10) return digits;
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
+  if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  return null;
+};
+
+const isValidPhone = (raw: string): boolean => {
+  const value = raw.trim();
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return false;
+
+  if (value.startsWith('+') && !digits.startsWith('91')) {
+    return digits.length >= 8 && digits.length <= 15;
+  }
+
+  const subscriber = indianSubscriberDigits(digits);
+  return subscriber !== null && /^[6-9]\d{9}$/.test(subscriber);
+};
+
+/** Dialable form, for the call and WhatsApp links in the notification email. */
+const toE164 = (raw: string): string => {
+  const digits = raw.replace(/\D/g, '');
+  const subscriber = indianSubscriberDigits(digits);
+  return subscriber ? `91${subscriber}` : digits;
+};
+
+/* ─── Throttle ────────────────────────────────────────────────────────────
+ * The honeypot stops a bot that fills every field it finds; it does nothing
+ * about a script posting straight at this endpoint in a loop, which would burn
+ * the Resend quota and bury the real enquiries underneath it.
+ *
+ * In-process and therefore per-instance: a serverless function is several
+ * instances under load, so this is a brake and not a gate. That is the right
+ * trade here — a real store would mean provisioning one for a form that takes a
+ * handful of submissions a day, and slowing a flood by an order of magnitude is
+ * most of the benefit. A warm instance keeps the map between invocations; a cold
+ * one starts empty, which is the usual case for a legitimate visitor.
+ *
+ * The second map is the one that matters day to day: the same number submitted
+ * twice inside the window is answered 200 without sending again, so an impatient
+ * double-tap does not arrive as two leads the studio calls twice. */
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_PER_WINDOW = 5;
+
+const recentByIp = new Map<string, number[]>();
+const recentByPhone = new Map<string, number>();
+
+/* Both maps are swept on every request, so an instance that stays warm for days
+   does not accumulate an entry per visitor it has ever seen. */
+const sweep = (now: number) => {
+  for (const [key, times] of recentByIp) {
+    const live = times.filter((time) => now - time < WINDOW_MS);
+    if (live.length) recentByIp.set(key, live);
+    else recentByIp.delete(key);
+  }
+  for (const [key, time] of recentByPhone) {
+    if (now - time >= WINDOW_MS) recentByPhone.delete(key);
+  }
+};
+
+/** The client's address as Vercel's proxy reports it. The first entry is the
+ *  caller; the rest are the hops, which anyone can prepend to. */
+const clientIp = (req: Req): string => {
+  const header = req.headers?.['x-forwarded-for'];
+  const value = Array.isArray(header) ? header[0] : header;
+  return value?.split(',')[0]?.trim() || 'unknown';
+};
 
 /** Submitted values land in an HTML email body, so anything typed by a
  *  stranger is neutralised before it gets there. */
@@ -93,6 +175,21 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     return;
   }
 
+  const now = Date.now();
+  sweep(now);
+
+  const ip = clientIp(req);
+  const attempts = recentByIp.get(ip) ?? [];
+  if (attempts.length >= MAX_PER_WINDOW) {
+    /* 429 rather than a silent 200: a person who has genuinely sent five
+       enquiries in ten minutes should be told why the sixth will not go, and a
+       script is not discouraged by being lied to. */
+    res.setHeader('Retry-After', String(Math.ceil(WINDOW_MS / 1000)));
+    res.status(429).json({ error: 'Too many submissions. Please try again shortly, or call us.' });
+    return;
+  }
+  recentByIp.set(ip, [...attempts, now]);
+
   const name = singleLine(String(body.name ?? ''));
   const email = singleLine(String(body.email ?? ''));
   const phone = singleLine(String(body.phone ?? ''));
@@ -119,6 +216,22 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     res.status(400).json({ error: 'One of those fields is too long.' });
     return;
   }
+  /* The number is the whole lead — an enquiry nobody can ring back is an ad
+     click already paid for and thrown away. */
+  if (!isValidPhone(phone)) {
+    res.status(400).json({ error: 'Please enter a 10-digit mobile number we can call you back on.' });
+    return;
+  }
+
+  const dialable = toE164(phone);
+
+  /* Answered as a success, because from the visitor's side it was one: their
+     enquiry is already in the studio's inbox. Sending it twice would only have
+     them called twice. */
+  if (recentByPhone.has(dialable)) {
+    res.status(200).json({ ok: true });
+    return;
+  }
 
   /* Email is dropped from the table when it was not given, rather than
      printing an empty row. */
@@ -127,6 +240,17 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     ['Phone', phone],
     ...(email ? ([['Email', email]] as [string, string][]) : []),
   ];
+
+  /* The reason these are here rather than left to whoever opens the mail: an
+     interiors enquiry is worth several times more answered in minutes than
+     answered tomorrow, and the gap between the two is usually nothing more than
+     having to copy a number out of an email and into a phone. One tap from the
+     notification removes that step on the device the mail is most often read
+     on. */
+  const callHref = `tel:+${dialable}`;
+  const whatsappHref = `https://wa.me/${dialable}?text=${encodeURIComponent(
+    `Hi ${name}, thank you for your enquiry with ROAR Architects. When would be a good time to talk about your project?`,
+  )}`;
 
   const html = `
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;color:#2a2420;line-height:1.6">
@@ -140,9 +264,14 @@ export default async function handler(req: Req, res: Res): Promise<void> {
           )
           .join('')}
       </table>
+      <p style="margin:0 0 18px">
+        <a href="${callHref}" style="display:inline-block;background:#A5342C;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:11px 22px;border-radius:999px;margin-right:8px">Call ${escapeHtml(phone)}</a>
+        <a href="${whatsappHref}" style="display:inline-block;background:#25D366;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:11px 22px;border-radius:999px">WhatsApp</a>
+      </p>
+      <p style="margin:0;font-size:12px;color:#9a938d">Answered within the hour converts several times better than answered tomorrow.</p>
       ${
         source
-          ? `<p style="margin:18px 0 0;font-size:12px;color:#9a938d">Source: ${escapeHtml(source)}</p>`
+          ? `<p style="margin:14px 0 0;font-size:12px;color:#9a938d">Source: ${escapeHtml(source)}</p>`
           : ''
       }
     </div>
@@ -152,6 +281,9 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     'New consultation request (interiors campaign landing page)',
     '',
     ...rows.map(([label, value]) => `${label}: ${value}`),
+    '',
+    `Call: +${dialable}`,
+    `WhatsApp: ${whatsappHref}`,
     ...(source ? ['', `Source: ${source}`] : []),
   ].join('\n');
 
@@ -185,6 +317,11 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     res.status(502).json({ error: 'We could not send your request. Please try again.' });
     return;
   }
+
+  /* Recorded only now. Marking it before the send would mean a lead lost to a
+     Resend outage could not be retried — the second attempt would be waved
+     through as a duplicate of one that never arrived. */
+  recentByPhone.set(dialable, now);
 
   res.status(200).json({ ok: true });
 }

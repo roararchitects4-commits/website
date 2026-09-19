@@ -3,6 +3,26 @@
    bookmark, and unlike a fragment it survives being pasted somewhere that
    trims the URL. Each path here renders Home and lands on the section it
    names — the values are the ids those sections carry in the markup. */
+/** The enquiry page, and the page a completed enquiry lands on. Pages of
+ *  their own rather than sections of the home page, so they are not in the
+ *  table below — but they live here all the same, because the header and the
+ *  footer link to the first and the page itself renders that header and
+ *  footer. Held by the page, this would be a cycle: the nav arrays are built
+ *  at module scope and would read it as undefined part-way through, which
+ *  blanks the site. This module imports nothing, so it cannot be caught in
+ *  one.
+ *
+ *  The capital C is deliberate — it is the address that was asked for. Wouter
+ *  matches case-sensitively, so App also answers to the all-lowercase spelling
+ *  and sends it here, since that is what anyone typing the address by hand
+ *  will reach for. */
+export const CONTACT_PATH = '/Contactus';
+
+/** Where the form goes once it has been sent. A real page with its own URL
+ *  rather than a panel swapped in place, so the submission is something an
+ *  analytics or ads conversion can be triggered on. */
+export const THANK_YOU_PATH = '/thankyou';
+
 export const SECTION_PATHS = {
   '/': 'top',
   '/work': 'work',

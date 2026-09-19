@@ -1,19 +1,19 @@
-/* Paid-campaign landing page — the destination for Google Ads interiors
- * traffic in Hyderabad, living at its own path so ad spend lands somewhere
- * built to convert rather than on the studio's home page.
+/* The enquiry page, at its own path. It answers to two kinds of visitor and
+ * is shaped by the more demanding of them: Google Ads interiors traffic in
+ * Hyderabad, who arrive cold on a click that cost money, and who the studio's
+ * home page was never built to convert. "Get in Touch" in the site's nav lands
+ * here too.
  *
- * It deliberately breaks three of the site's conventions, and each break is the
- * point of the page:
+ * It wears the site's own header and footer, so arriving from the nav reads as
+ * another page of the site rather than somewhere else entirely. What it does
+ * differently is the middle: the form sits above the fold with the argument for
+ * the studio beside it, rather than waiting at the foot of a long scroll.
  *
- *   - No SiteHeader. A visitor who arrives from an ad has one job here, and a
- *     nav bar is six ways to leave before reaching the form. The header is
- *     replaced by a logo and a phone number that cannot navigate away.
- *   - The entrance cover plays only for someone arriving from the site's own
- *     navigation, and runs shorter here than on the home page. On a paid click
- *     it is skipped entirely: a form nobody sees is a click bought for nothing.
- *     See lib/appEntry for how the two are told apart.
- *   - The form is above the fold and repeated at the foot, rather than living
- *     once at the bottom like the home page's CTA.
+ * The entrance cover plays only for someone arriving from the site's own
+ * navigation, and runs shorter here than on the home page. On a paid click it
+ * is skipped: the cover outlasts the patience behind that click, and a form
+ * nobody sees is a click bought for nothing. See lib/appEntry for how the two
+ * are told apart.
  *
  * Every claim on this page is drawn from what the site already states — the
  * project count, the two studios, the named projects in `albums.ts`. Nothing
@@ -26,20 +26,15 @@ import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Check, X, ArrowRight } from 'lucide-react';
 import { FadeIn } from '../components/FadeIn';
+import { LeadForm } from '../components/LeadForm';
 import { PageTransition } from '../components/PageTransition';
 import { Footer } from '../components/Footer';
-import { SITE_URL, SITE_NAME, PHONE_E164, WHATSAPP_URL } from '../lib/siteConfig';
+import { SiteHeader } from '../components/SiteHeader';
+import { SITE_URL, SITE_NAME, PHONE_E164, PHONE_DISPLAY, WHATSAPP_URL } from '../lib/siteConfig';
 import { WORK_CATEGORIES } from '../data/workCategories';
+import { officesJsonLd } from '../data/offices';
 import { isInAppNavigation } from '../lib/appEntry';
-import logo from '@/assets/logo/logo.png';
-
-/** The campaign path, exported so App can match it without repeating the
- *  string — it also uses it to suppress the floating social buttons, which
- *  would otherwise sit on top of this page's sticky mobile call bar. */
-export const INTERIORS_LANDING_PATH = '/interior-design-hyderabad';
-
-const WHATSAPP_MESSAGE =
-  "Hi, I'd like to book a free interior design consultation with ROAR Architects.";
+import { CONTACT_PATH } from '../lib/sections';
 
 /* ─────────────────────────────────────────────
    Static content
@@ -54,6 +49,16 @@ const STATS = [
   { value: '2', label: 'Design studios' },
 ];
 
+/* Each claim is a label and what it means. Kept apart so the label can be set
+   in a heavier weight, which is what lets the four be scanned rather than
+   read. */
+const POINTS = [
+  { label: 'Architect-led design', detail: 'thoughtful spaces shaped around your lifestyle' },
+  { label: 'Complete interior solutions', detail: 'from individual spaces to entire homes' },
+  { label: 'Transparent planning', detail: 'layouts, materials and finishes considered upfront' },
+  { label: 'End-to-end execution', detail: 'one team from concept to handover' },
+];
+
 /* The same projects the home page's work grid shows, read straight off
    WORK_CATEGORIES rather than hand-picked again here — a project added to the
    site now appears on this page too, and the two can never drift into showing
@@ -61,221 +66,25 @@ const STATS = [
    category by category, while this page lays every one of them out as a plain
    tile, which is what a visitor scanning a landing page can take in at a
    glance. */
-/* Two per category rather than the first six, which would have been all
-   architecture before an interior appeared. The grid is three columns at its
-   widest, so this lands as exactly two rows with every category in them. */
-const TILES_PER_CATEGORY = 2;
+/* Three named projects, one from each of the studio's categories, rather than
+   a slice taken off the top of each. Named because the choice is editorial:
+   these are the three the page leads with, and a rule that picked the first of
+   each would quietly change them the next time the work grid is reordered.
 
-/* The grid narrows to two columns below `lg`, so the same six tiles that make
-   two rows on a desktop make three on a phone. The last two are dropped there
-   to keep it at two rows either way — a CSS hide rather than a shorter list,
-   since which tiles are surplus depends purely on the breakpoint. */
-const TILES_ON_PHONE = 4;
+   They are still looked up in WORK_CATEGORIES rather than given their own
+   image imports, so the photograph and the title stay whatever the home page
+   is showing. A title that no longer matches drops out rather than rendering
+   an empty tile. */
+const FEATURED_TITLES = ['Layered Facade Villa', 'Poolside Pergola', 'Skyline Terrace'];
 
-const GALLERY: { img: string; title: string; meta: string }[] = WORK_CATEGORIES.flatMap(
-  (category) =>
-    category.items.slice(0, TILES_PER_CATEGORY).map((item) => ({
-      img: item.img,
-      title: item.title,
-      meta: category.label,
-    })),
-);
-
-/* Three fields, deliberately. Every extra question is another chance to
-   abandon the form, and a name with a working phone number is all the studio
-   needs to open the conversation — the brief, the budget and the timing are
-   what the callback is for. */
-const EMPTY_FORM = {
-  name: '',
-  phone: '',
-  email: '',
-};
-
-type FormState = typeof EMPTY_FORM;
-
-const fieldClass =
-  'w-full bg-white border border-line rounded-lg py-4 px-4 text-black text-[16px] placeholder:text-black/45 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors';
-
-const labelClass = 'block text-[11px] font-semibold tracking-[0.18em] uppercase text-accent mb-2';
-
-/* ─────────────────────────────────────────────
-   Lead form
-───────────────────────────────────────────── */
-function LeadForm({
-  id,
-  nameFieldRef,
-}: {
-  id?: string;
-  /** Put on the Name field. The page watches it to decide when the visitor
-   *  has scrolled past the start of the form. */
-  nameFieldRef?: React.Ref<HTMLDivElement>;
-}) {
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [sending, setSending] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  /* Honeypot — hidden from people, filled in by naive bots. The API drops any
-     submission carrying a value here. */
-  const [company, setCompany] = useState('');
-
-  /* Whatever the ad appended to the URL, forwarded with the lead so the studio
-     can tell which campaign paid for it. Read once on mount: wouter rewrites
-     the path on navigation but the query string is the one the visitor landed
-     with, and that is the one worth recording. */
-  const source = useMemo(
-    () => (typeof window === 'undefined' ? '' : window.location.search.replace(/^\?/, '')),
-    [],
-  );
-
-  const set = (field: keyof FormState) => (value: string) =>
-    setForm((f) => ({ ...f, [field]: value }));
-
-  /* `type="tel"` only picks the on-screen keyboard — it accepts any character
-     typed into it, so the value is filtered here. Doing it on change rather
-     than on keypress cleans up pastes and autofill too. A leading + survives so
-     a number can still be given as +91…; 15 digits is E.164's maximum. */
-  const updatePhone = (raw: string) => {
-    const plus = raw.trimStart().startsWith('+') ? '+' : '';
-    setForm((f) => ({ ...f, phone: plus + raw.replace(/\D/g, '').slice(0, 15) }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (sending) return;
-    if (!form.name || !form.phone) return;
-
-    setSending(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...form, company, source }),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.error ?? 'Something went wrong. Please try again.');
-      }
-
-      /* Cleared only once the mail is actually away — wiping the fields on a
-         failed send would make the visitor retype the lot. */
-      setForm(EMPTY_FORM);
-      setSubmitted(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
-    } finally {
-      setSending(false);
-    }
-  };
-
-  if (submitted) {
-    return (
-      <div
-        id={id}
-        className="bg-white border border-accent rounded-2xl p-8 sm:p-10 text-center shadow-[0_18px_50px_-24px_rgba(42,36,32,0.35)]"
-      >
-        <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-5">
-          <Check size={22} className="text-accent" strokeWidth={2} />
-        </div>
-        <p className="font-sans text-[22px] font-light text-ink mb-2">Thank you, we have your details.</p>
-        <p className="text-[14px] leading-relaxed text-black/65 mb-6">
-          One of our designers will call you shortly. If you would rather not wait, message us directly.
-        </p>
-        <a
-          href={WHATSAPP_URL(WHATSAPP_MESSAGE)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-[12px] tracking-[0.2em] uppercase border border-accent text-accent rounded-full py-3 px-8 hover:bg-accent hover:text-white transition-colors"
-        >
-          Chat on WhatsApp
-        </a>
-      </div>
-    );
-  }
-
-  return (
-    <form
-      id={id}
-      onSubmit={handleSubmit}
-      /* h-full lets the card fill the hero's right column so its foot lines up
-         with the copy beside it; in the closing section the parent has no fixed
-         height, so it simply sizes to its content there. */
-      className="bg-white border border-accent rounded-2xl p-6 sm:p-8 w-full h-full flex flex-col justify-center shadow-[0_18px_50px_-24px_rgba(42,36,32,0.35)]"
-    >
-      <div className="flex flex-col gap-4">
-        <div ref={nameFieldRef}>
-          <label className={labelClass}>Name*</label>
-          <input
-            type="text"
-            required
-            autoComplete="name"
-            placeholder="Your full name"
-            value={form.name}
-            onChange={(e) => set('name')(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
-
-        <div>
-          <label className={labelClass}>Phone*</label>
-          <input
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            required
-            placeholder="10-digit mobile"
-            value={form.phone}
-            onChange={(e) => updatePhone(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
-
-        <div>
-          <label className={labelClass}>Email (optional)</label>
-          <input
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={(e) => set('email')(e.target.value)}
-            className={fieldClass}
-          />
-        </div>
-
-        {/* Honeypot — parked off-screen rather than display:none, since some
-            bots skip fields they can see are hidden. Never announced to
-            assistive tech, never focusable by keyboard. */}
-        <input
-          type="text"
-          name="company"
-          tabIndex={-1}
-          autoComplete="off"
-          aria-hidden="true"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          className="absolute left-[-9999px] w-px h-px opacity-0"
-        />
-
-        {error && (
-          <p role="alert" className="text-[13px] text-accent leading-relaxed">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={sending}
-          className="w-full bg-white text-accent font-semibold text-[13px] tracking-[0.24em] uppercase rounded-full py-5 mt-2 border border-accent hover:bg-accent hover:text-white transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-accent"
-        >
-          {sending ? 'Sending…' : 'Submit'}
-        </button>
-
-      </div>
-    </form>
-  );
-}
+const GALLERY: { img: string; title: string; meta: string; desc: string }[] =
+  FEATURED_TITLES.flatMap((title) => {
+    const category = WORK_CATEGORIES.find((c) => c.items.some((item) => item.title === title));
+    const item = category?.items.find((entry) => entry.title === title);
+    return category && item
+      ? [{ img: item.img, title: item.title, meta: category.label, desc: item.desc }]
+      : [];
+  });
 
 /* ─────────────────────────────────────────────
    Page
@@ -361,7 +170,7 @@ export default function InteriorsLandingPage() {
     heroRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const canonical = `${SITE_URL}${INTERIORS_LANDING_PATH}`;
+  const canonical = `${SITE_URL}${CONTACT_PATH}`;
 
   return (
     <div className="relative bg-background min-h-screen">
@@ -384,26 +193,23 @@ export default function InteriorsLandingPage() {
           content="Interiors designed by architects, with itemised estimates and one team from design through to handover. Book a free consultation."
         />
         <meta property="og:url" content={canonical} />
+        {/* The studio's addresses and phone number, as structured data. On this
+            page rather than the home page because this is where a search for
+            "interior designers in Hyderabad" should land, and because it is the
+            page that can actually do something with the visit. See
+            data/offices. */}
+        <script type="application/ld+json">
+          {JSON.stringify(officesJsonLd(SITE_URL, SITE_NAME, PHONE_DISPLAY))}
+        </script>
       </Helmet>
 
-      {/* ── Minimal header. The logo is the only link, and it goes to the home
-          page in this same tab, as a site logo is expected to. ── */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-line">
-        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 h-[64px] flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <img src={logo} alt={`${SITE_NAME} logo`} className="w-8 sm:w-9 h-auto" />
-            <span
-              className="text-[13px] sm:text-[15px] tracking-tight whitespace-nowrap"
-              style={{ fontFamily: "'Montserrat', sans-serif", fontWeight: 600, color: '#A5342C' }}
-            >
-              ROAR ARCHITECTS
-            </span>
-          </Link>
-        </div>
-      </header>
+      {/* The site's own header and footer, so arriving here from the nav
+          reads as another page of the site rather than somewhere else
+          entirely. */}
+      <SiteHeader />
 
       {/* ══ HERO ══ */}
-      <section ref={heroRef} className="scroll-mt-[64px] bg-white border-b border-line">
+      <section ref={heroRef} className="scroll-mt-[60px] bg-white border-b border-line">
         {/* Two rows on a wide screen: the heading takes the first, the copy the
             second, and the form spans both down the other column. Putting the
             heading in the grid rather than above it is what lines its top edge
@@ -413,32 +219,36 @@ export default function InteriorsLandingPage() {
             over, so the reading order becomes heading, form, copy — the form
             still lands directly under the heading, where a phone visitor meets
             it first. */}
-        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] lg:grid-rows-[auto_1fr] gap-x-8 lg:gap-x-14 gap-y-5 sm:gap-y-6 items-stretch">
-          {/* Same treatment as the home page's "Get In Touch", down to the clamp
-              and the weight — see components/CTA.tsx. It doubles as the page's
-              <h1>, which went missing when the old headline came off. */}
-          <h1 className="order-1 lg:col-start-1 lg:row-start-1 text-[clamp(28px,8vw,38px)] font-sans font-light leading-none tracking-[-0.02em] text-accent">
-            Get In Touch
-          </h1>
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] lg:grid-rows-[auto_1fr] gap-x-8 lg:gap-x-14 gap-y-5 sm:gap-y-6 items-stretch">
+          {/* The kicker and the headline share the grid's first row, so the
+              form beside them still starts level with the top of the text. */}
+          <div className="order-1 lg:col-start-1 lg:row-start-1">
+            {/* The two treatments are swapped from where they started: the
+                invitation now carries the display size and the <h1> with it,
+                and the promise sits under it as the small tracked line. */}
+            <h1 className="text-[clamp(26px,6.5vw,36px)] font-sans font-light leading-[1.15] tracking-[-0.02em] text-accent mb-3">
+              Let's create your space
+            </h1>
+            <p className="text-[10px] sm:text-[11px] tracking-[0.26em] uppercase text-accent">
+              Thoughtfully designed. Precisely executed.
+            </p>
+          </div>
 
           {/* Left — the pitch */}
           <div className="order-3 lg:col-start-1 lg:row-start-2">
             <p className="text-[13.5px] sm:text-[14.5px] leading-[1.7] text-black/70 max-w-[470px] mb-5">
-              Full homes, modular kitchens and wardrobes across Hyderabad. We plan the space the way
-              we plan a building, with light, storage and circulation settled first and finishes
-              after. Then we price it line by line and build it ourselves.
+              We create refined residential interiors where architecture, functionality and
+              craftsmanship come together. Every space is thoughtfully planned around the way you
+              live, with careful attention to proportion, materials and the smallest details.
             </p>
 
             <ul className="flex flex-col gap-2.5 mb-7">
-              {[
-                'Brief the architect who designs your home, not a salesperson',
-                'Layouts and materials signed off before anything is ordered',
-                'Itemised estimates with every unit, finish and fitting priced',
-                'One team from the first drawing to handover',
-              ].map((point) => (
-                <li key={point} className="flex items-start gap-2.5 text-[13px] leading-snug text-black/75">
+              {POINTS.map((point) => (
+                <li key={point.label} className="flex items-start gap-2.5 text-[13px] leading-snug text-black/75">
                   <Check size={15} strokeWidth={2.2} className="text-accent mt-[2px] flex-none" />
-                  {point}
+                  <span>
+                    <span className="font-medium text-ink">{point.label}</span> {point.detail}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -467,55 +277,72 @@ export default function InteriorsLandingPage() {
       </section>
 
       {/* ══ GALLERY ══ */}
-      <section className="max-w-[1180px] mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-12 sm:pb-16">
-        <FadeIn>
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
-            <div>
-              <h2 className="font-sans text-[clamp(17px,3.2vw,26px)] tracking-[0.26em] uppercase text-accent">
-                Our work
-              </h2>
-            </div>
-            <Link
-              href="/gallery/interiors"
-              className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-ink border-b border-accent pb-1 hover:text-accent transition-colors"
-            >
-              See all projects <ArrowRight size={14} />
-            </Link>
-          </div>
-        </FadeIn>
-
-        {/* A plain responsive grid rather than the mosaic the gallery pages use:
-            on a landing page every tile should read at a glance, and the mosaic's
-            mixed spans make some of them thumbnails. */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
-          {GALLERY.map((item, index) => (
-            <FadeIn
-              key={item.title}
-              delay={Math.min(index, 5) * 0.05}
-              yOffset={18}
-              className={index >= TILES_ON_PHONE ? 'hidden lg:block' : undefined}
-            >
-              <button
-                type="button"
-                onClick={() => setLightbox(item)}
-                className="group relative w-full aspect-[4/3] overflow-hidden rounded-xl bg-secondary-bg block text-left"
+      <section className="pt-5 sm:pt-7 pb-12 sm:pb-16">
+        {/* The heading runs on the hero's grid — same max width, same gutters —
+            so "Work" starts on the same line as the copy above it. The cards
+            below keep the work grid's wider track, which is what holds them to
+            the size they have on the home page. */}
+        <div className="max-w-[1180px] mx-auto px-4 sm:px-6">
+          <FadeIn>
+            {/* justify-end rather than between: the heading that used to hold
+                the left of this row is gone, and a lone child in a
+                justify-between row sits left. */}
+            <div className="flex flex-wrap items-end justify-end gap-4 mb-5">
+              {/* The home page's work section rather than the interiors album:
+                  "all projects" should mean all of them, and /gallery/interiors
+                  is one category of the three. /work renders the home page and
+                  scrolls to the grid — see lib/sections. */}
+              <Link
+                href="/work"
+                className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-ink border-b border-accent pb-1 hover:text-accent transition-colors"
               >
-                <img
-                  src={item.img}
-                  alt={`${item.title} — ${item.meta} by ${SITE_NAME}`}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
-                <span className="absolute left-3 right-3 bottom-3 text-white">
-                  <span className="block text-[12px] sm:text-[13px] leading-tight">{item.title}</span>
-                  <span className="block text-[9px] sm:text-[10px] tracking-[0.16em] uppercase opacity-75 mt-1">
-                    {item.meta}
-                  </span>
-                </span>
-              </button>
-            </FadeIn>
-          ))}
+                See all projects <ArrowRight size={14} />
+              </Link>
+            </div>
+          </FadeIn>
+        </div>
+
+        <div className="px-4 sm:px-[max(22px,5vw)]">
+          <div className="max-w-[1680px] mx-auto">
+            {/* The album card from the home page's work grid, rebuilt here: the
+                same portrait crop, corner radius, shadow and hover swell, and the
+                caption sitting under the picture rather than printed over it. See
+                components/WorkGrid.tsx — the two are meant to be indistinguishable.
+
+                A <figure> with an onClick rather than a <button>, matching the work
+                grid, which wraps the whole card in one clickable figure. */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-[clamp(8px,1.2vw,16px)] max-md:gap-y-[2px] md:gap-x-[clamp(16px,6.6vw,126px)]">
+              {GALLERY.map((item, index) => (
+                <FadeIn key={item.title} delay={Math.min(index, 5) * 0.05} yOffset={18}>
+                  <figure
+                    className="group w-full cursor-pointer"
+                    onClick={() => setLightbox(item)}
+                  >
+                    <motion.div
+                      className="overflow-hidden aspect-[3/4] md:aspect-[4/5] bg-secondary-bg relative rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl md:shadow-2xl will-change-transform border border-white/10"
+                      whileHover={{ scale: 1.14 }}
+                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <img
+                        src={item.img}
+                        alt={`${item.title} — ${item.meta} by ${SITE_NAME}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700"
+                      />
+                    </motion.div>
+                    <figcaption className="mt-2 md:mt-4 text-[9px] md:text-[11px] tracking-[0.03em] text-black leading-snug md:leading-relaxed">
+                      <b className="block font-sans text-[11px] md:text-[15px] text-ink mb-0.5 font-normal tracking-normal">
+                        {item.title}
+                      </b>
+                      {/* `block` is load bearing: truncate works by hiding overflow,
+                          and an inline box ignores overflow entirely. */}
+                      <span className="block truncate">{item.desc}</span>
+                    </figcaption>
+                  </figure>
+                </FadeIn>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
