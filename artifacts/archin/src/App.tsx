@@ -370,12 +370,14 @@ function NotFound() {
 function Router() {
   const [location] = useLocation();
 
-  /* Wouter matches case-sensitively, so /Contactus is a different route from
-     /ContactUs or /contactus — and an address people type by hand will arrive
+  /* Wouter matches case-sensitively, so /contactus is a different route from
+     /Contactus or /ContactUs — and an address people type by hand will arrive
      in every casing there is. Rather than enumerate them as routes, anything
      that spells the enquiry page's path in any case is sent to the one real
-     spelling, which stays the canonical. A trailing slash is trimmed on the
-     way, for the same reason. */
+     spelling, which stays the canonical. That includes /Contactus, the
+     capitalised form the page shipped on: links to it are already out there,
+     and they land here rather than on a 404. A trailing slash is trimmed on
+     the way, for the same reason. */
   const trimmed = location.length > 1 ? location.replace(/\/+$/, '') : location;
   if (trimmed.toLowerCase() === CONTACT_PATH.toLowerCase() && trimmed !== CONTACT_PATH) {
     return <Redirect to={CONTACT_PATH} replace />;
@@ -388,9 +390,9 @@ function Router() {
           page's catch-all. */}
       <Route path={CONTACT_PATH} component={InteriorsLandingPage} />
       <Route path={THANK_YOU_PATH} component={ThankYouPage} />
-      {/* The path the page shipped on and is still listed under in the
-          sitemap, and the home page section it replaced. Other spellings of
-          /Contactus itself are handled above, before the Switch. */}
+      {/* The path the page shipped on, and the home page section it replaced.
+          Other spellings of /contactus itself are handled above, before the
+          Switch. */}
       <Route path="/interior-design-hyderabad">
         <Redirect to={CONTACT_PATH} replace />
       </Route>

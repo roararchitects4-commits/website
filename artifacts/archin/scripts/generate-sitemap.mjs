@@ -39,7 +39,7 @@ const gallerySlugs = [...categorySlugs, ...albumSlugs];
    Google is never told about. */
 /* /thankyou is deliberately absent: it is only reachable by sending the
    form, and it carries noindex. */
-const staticPaths = ['/', '/team', '/blog', '/Contactus'];
+const staticPaths = ['/', '/team', '/blog', '/contactus'];
 const galleryPaths = gallerySlugs.map((slug) => `/gallery/${slug}`);
 const blogPaths = blogSlugs.map((slug) => `/blog/${slug}`);
 

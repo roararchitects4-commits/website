@@ -1,5 +1,5 @@
 /* The enquiry form, and the only one on the site — the home page's Get In Touch
- * section was removed, leaving /Contactus as the single place a lead can be
+ * section was removed, leaving /contactus as the single place a lead can be
  * left. Everything a lead depends on therefore lives here: the fields, the
  * validation, the attribution and the conversion event.
  *

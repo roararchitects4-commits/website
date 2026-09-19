@@ -12,11 +12,12 @@
  *  blanks the site. This module imports nothing, so it cannot be caught in
  *  one.
  *
- *  The capital C is deliberate — it is the address that was asked for. Wouter
- *  matches case-sensitively, so App also answers to the all-lowercase spelling
- *  and sends it here, since that is what anyone typing the address by hand
- *  will reach for. */
-export const CONTACT_PATH = '/Contactus';
+ *  All lowercase, which is what anyone typing the address by hand reaches for
+ *  and the convention every other path on the site follows. Wouter matches
+ *  case-sensitively, so App answers to the other spellings — /Contactus, the
+ *  capitalised form this page shipped on and which is already indexed, among
+ *  them — and redirects each to this one, which stays the canonical. */
+export const CONTACT_PATH = '/contactus';
 
 /** Where the form goes once it has been sent. A real page with its own URL
  *  rather than a panel swapped in place, so the submission is something an

@@ -1,7 +1,7 @@
 /* Where a visitor came from, remembered for as long as their visit lasts.
  *
  * The enquiry form used to read `window.location.search` at the moment it
- * mounted, which only works for someone who lands on /Contactus directly. Anyone
+ * mounted, which only works for someone who lands on /contactus directly. Anyone
  * who arrives on the home page with a `gclid` and then clicks "Get in Touch" in
  * the nav reaches the form on a clean URL, and their lead was reported as having
  * no source at all — the studio saw an enquiry and the campaign that paid for it
